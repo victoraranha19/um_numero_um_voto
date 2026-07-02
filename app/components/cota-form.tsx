@@ -11,15 +11,16 @@ import {
 } from '@mui/material';
 
 import * as React from 'react';
-import { addVoto } from '../lib/actions';
+import { addCota } from '@lib/actions';
+import CampoNumero from './campo-numero';
 
-export default function VotoForm() {
+export default function CotaForm() {
   const [presidente, setPresidente] = React.useState('bolsonaro');
   const [alerta, setAlerta] = React.useState(false);
 
   const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
-    await addVoto(presidente);
+    await addCota(presidente, 1);
     setAlerta(true);
     setTimeout(() => setAlerta(false), 2000);
   };
@@ -45,17 +46,19 @@ export default function VotoForm() {
             />
           </RadioGroup>
 
+          <CampoNumero />
+
           <Button type="submit" variant="contained" disabled={alerta}>
             Votar
           </Button>
         </FormControl>
       </form>
 
-      {alerta ? (
+      {alerta && (
         <Alert icon={<Check fontSize="inherit" />} severity="success">
           Voto registrado com sucesso.
         </Alert>
-      ) : null}
+      )}
     </>
   );
 }

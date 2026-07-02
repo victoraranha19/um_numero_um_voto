@@ -1,17 +1,20 @@
 import { Typography } from '@mui/material';
-import VotoForm from './components/voto-form';
-import VotoList from './components/voto-list';
+import { getCotas } from '@lib/actions';
+import CotaForm from './components/cota-form';
+import CotaList from './components/cota-list';
 
-export default function AppPage() {
+export default async function AppPage() {
+  const cotas = await getCotas();
+
   return (
     <main>
       <Typography variant="h4" component="h1">
         Um número um voto
       </Typography>
 
-      <VotoList />
+      <CotaForm />
 
-      <VotoForm />
+      <CotaList cotas={cotas} />
     </main>
   );
 }

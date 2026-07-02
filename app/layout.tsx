@@ -5,6 +5,7 @@ import '@fontsource/roboto/700.css';
 import './globals.css';
 
 import type { Metadata } from 'next';
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter';
 
 export const metadata: Metadata = {
   title: 'Um número um voto',
@@ -21,7 +22,9 @@ export default function RootLayout({
       <head>
         <meta name="viewport" content="initial-scale=1, width=device-width" />
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <AppRouterCacheProvider>{children}</AppRouterCacheProvider>
+      </body>
     </html>
   );
 }

@@ -1,5 +1,13 @@
-export interface Voto {
+export interface Usuario {
+  id: number;
+  nome: string;
+  email: string;
+  telefone: string;
+  whatsapp: string;
+}
+
+export interface Cota {
   id: number;
   presidente: string;
-  data_voto: Date;
+  id_usuario: number;
 }

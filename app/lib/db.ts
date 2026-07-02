@@ -68,15 +68,26 @@ const getPool = (): Pool => {
 
 const initDb = async (): Promise<void> => {
   const pool = getPool();
-  const createTableQuery = `
-  CREATE TABLE IF NOT EXISTS votos (
-    id SERIAL PRIMARY KEY,
-    presidente VARCHAR(255) NOT NULL,
-    data_voto TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  );
+  const createTableUsuariosQuery = `
+    CREATE TABLE IF NOT EXISTS usuarios (
+      id SERIAL PRIMARY KEY,
+      nome VARCHAR(255) NOT NULL,
+      email VARCHAR(255) UNIQUE NOT NULL,
+      telefone VARCHAR(20) NOT NULL,
+      whatsapp VARCHAR(20) NOT NULL
+    );
+  `;
+  const createTableCotasQuery = `
+    CREATE TABLE IF NOT EXISTS cotas (
+      id SERIAL PRIMARY KEY,
+      presidente VARCHAR(255) NOT NULL,
+      id_usuario INTEGER,
+      FOREIGN KEY (id_usuario) REFERENCES usuarios(id)
+    );
   `;
   try {
-    await pool.query(createTableQuery);
+    await pool.query(createTableUsuariosQuery);
+    await pool.query(createTableCotasQuery);
     console.log('Banco de dados inicializado com sucesso.');
   } catch (error) {
     console.error('Erro inicializando banco de dados:', error);
