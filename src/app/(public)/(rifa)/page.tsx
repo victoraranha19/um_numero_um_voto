@@ -1,6 +1,5 @@
 import { Typography } from '@mui/material';
-import CotaForm from '../../../_components/cota-form';
-import Logout from '../../../_components/logout';
+import CotaForm from '@components/cota-form';
 
 export default function RifaPage() {
   return (
@@ -10,8 +9,6 @@ export default function RifaPage() {
       </Typography>
 
       <CotaForm />
-
-      <Logout />
     </main>
   );
 }

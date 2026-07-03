@@ -1,11 +1,13 @@
+import './globals.css';
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
-import './globals.css';
+
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter';
 
 import type { Metadata } from 'next';
-import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter';
+import AuthLayout from './(auth)/layout';
 
 export const metadata: Metadata = {
   title: 'Um número um voto',
@@ -23,7 +25,9 @@ export default function RootLayout({
         <meta name="viewport" content="initial-scale=1, width=device-width" />
       </head>
       <body className="min-h-full flex flex-col">
-        <AppRouterCacheProvider>{children}</AppRouterCacheProvider>
+        <AppRouterCacheProvider>
+          <AuthLayout>{children}</AuthLayout>
+        </AppRouterCacheProvider>
       </body>
     </html>
   );

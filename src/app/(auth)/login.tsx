@@ -4,7 +4,7 @@ import { auth } from '@/api/auth';
 import { Button, Typography } from '@mui/material';
 import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 
-export default function LoginPage() {
+export default function Login() {
   async function handleLogin() {
     const provider = new GoogleAuthProvider();
 
