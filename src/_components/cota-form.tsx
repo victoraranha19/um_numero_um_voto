@@ -6,17 +6,19 @@ import {
   Button,
   FormControl,
   FormControlLabel,
+  FormLabel,
   Radio,
   RadioGroup,
 } from '@mui/material';
 
-import * as React from 'react';
-import { addCota } from '@lib/actions';
+import { useState } from 'react';
+import { addCota } from '@/api/actions';
 import CampoNumero from './campo-numero';
 
 export default function CotaForm() {
-  const [presidente, setPresidente] = React.useState('bolsonaro');
-  const [alerta, setAlerta] = React.useState(false);
+  const [presidente, setPresidente] = useState('bolsonaro');
+  const [alerta, setAlerta] = useState(false);
+  const [numero, setNumero] = useState(1);
 
   const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -29,7 +31,11 @@ export default function CotaForm() {
     <>
       <form onSubmit={handleSubmit}>
         <FormControl>
+          <FormLabel id="presidente-label">
+            Qual presidente merece votos?
+          </FormLabel>
           <RadioGroup
+            aria-labelledby="presidente-label"
             value={presidente}
             onChange={(e) => setPresidente(e.target.value)}
           >
@@ -46,7 +52,7 @@ export default function CotaForm() {
             />
           </RadioGroup>
 
-          <CampoNumero />
+          <CampoNumero numero={numero} setNumero={setNumero} />
 
           <Button type="submit" variant="contained" disabled={alerta}>
             Votar

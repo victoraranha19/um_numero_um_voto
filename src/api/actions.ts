@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import db from './db';
-import { Cota, Usuario } from './types';
+import { Cota, Usuario } from '../_lib/types';
 
 export async function getCotas(): Promise<Cota[]> {
   try {
@@ -16,7 +16,7 @@ export async function getCotas(): Promise<Cota[]> {
 
 export async function addCota(
   presidente: string,
-  id_usuario: number,
+  id_usuario?: number,
 ): Promise<Cota[]> {
   try {
     // Verifica se o usuário existe antes de adicionar a cota

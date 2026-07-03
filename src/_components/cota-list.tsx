@@ -1,4 +1,4 @@
-import { Cota } from '@lib/types';
+import { Cota } from '@/app/_lib/types';
 
 interface CotasProps {
   cotas: Cota[];
