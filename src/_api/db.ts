@@ -71,22 +71,45 @@ const initDb = async (): Promise<void> => {
   const createTableUsuariosQuery = `
     CREATE TABLE IF NOT EXISTS usuarios (
       id SERIAL PRIMARY KEY,
-      nome VARCHAR(255) NOT NULL,
-      email VARCHAR(255) UNIQUE NOT NULL,
+      nome VARCHAR(30) NOT NULL,
+      email VARCHAR(100) UNIQUE NOT NULL,
       telefone VARCHAR(20) NOT NULL,
-      whatsapp VARCHAR(20) NOT NULL
+      whatsapp VARCHAR(20) NOT NULL,
+      admin BOOLEAN DEFAULT FALSE
     );
+  `;
+  const createTableTransacoesQuery = `
+  CREATE TABLE IF NOT EXISTS transacoes (
+    id SERIAL PRIMARY KEY,
+    order_nsu VARCHAR(255) NOT NULL,
+    transaction_nsu VARCHAR(255) NOT NULL,
+    slug VARCHAR(255),
+    metodo_pagamento VARCHAR(20) NOT NULL,
+    parcelas INTEGER DEFAULT 1, 
+    sucesso BOOLEAN DEFAULT FALSE,
+    foi_pago BOOLEAN DEFAULT FALSE,
+    valor_total INTEGER,
+    valor_pago INTEGER,
+    quantidade INTEGER,
+    url_recibo VARCHAR(255) NOT NULL,
+
+    id_usuario INTEGER,
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id)
+  );
   `;
   const createTableCotasQuery = `
     CREATE TABLE IF NOT EXISTS cotas (
       id SERIAL PRIMARY KEY,
-      presidente VARCHAR(255) NOT NULL,
-      id_usuario INTEGER,
-      FOREIGN KEY (id_usuario) REFERENCES usuarios(id)
+      presidente VARCHAR(255),
+      premiada BOOLEAN DEFAULT FALSE,
+  
+      id_transacao INTEGER,
+      FOREIGN KEY (id_transacao) REFERENCES transacoes(id)
     );
   `;
   try {
     await pool.query(createTableUsuariosQuery);
+    await pool.query(createTableTransacoesQuery);
     await pool.query(createTableCotasQuery);
     console.log('Banco de dados inicializado com sucesso.');
   } catch (error) {

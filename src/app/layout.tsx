@@ -5,7 +5,6 @@ import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter';
-
 import type { Metadata } from 'next';
 import AuthLayout from './(auth)/layout';
 
@@ -14,11 +13,11 @@ export const metadata: Metadata = {
   description: 'Análises de favoritismo e concorrência política',
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
+interface RootLayoutProps {
   children: React.ReactNode;
-}>) {
+}
+
+export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="pt-BR" className={`h-full antialiased`}>
       <head>

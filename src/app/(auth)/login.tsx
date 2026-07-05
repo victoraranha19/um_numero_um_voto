@@ -1,6 +1,6 @@
 'use client';
 
-import { auth } from '@/api/auth';
+import { auth } from '@/_api/auth';
 import { Button, Typography } from '@mui/material';
 import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 

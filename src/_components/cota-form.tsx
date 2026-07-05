@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 
 import { useState } from 'react';
-import { addCota } from '@/api/actions';
+import { addCota } from '@/_api/actions';
 import CampoNumero from './campo-numero';
 
 export default function CotaForm() {
