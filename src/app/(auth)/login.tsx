@@ -1,18 +1,38 @@
 'use client';
 
-import { auth } from '@/_api/auth';
+import { Usuario } from '@/_lib/types';
+import { auth } from '@api/auth';
 import { Button, Typography } from '@mui/material';
-import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { signInWithPopup, GoogleAuthProvider, User } from 'firebase/auth';
+import {
+  adicionarNovoUsuario,
+  verificarEmailCadastrado,
+} from '../api/usuario/actions';
 
 export default function Login() {
   async function handleLogin() {
-    const provider = new GoogleAuthProvider();
-
     try {
-      await signInWithPopup(auth, provider);
+      const provider = new GoogleAuthProvider();
+      const userCredential = await signInWithPopup(auth, provider);
+      await registrarUsuario(userCredential.user);
     } catch (error) {
-      console.error('Error signing in with Google:', error);
+      console.error('Erro ao fazer login:', error);
     }
+  }
+
+  async function registrarUsuario(user: User) {
+    if (!user.email) {
+      throw new Error('Não foi possível identificar email do usuário!');
+    }
+    const usuario: Usuario = {
+      nome: user.displayName ?? '',
+      email: user.email,
+      telefone: '',
+      whatsapp: '',
+    };
+
+    const temEmailCadastrado = await verificarEmailCadastrado(usuario.email);
+    if (!temEmailCadastrado) await adicionarNovoUsuario(usuario);
   }
 
   return (

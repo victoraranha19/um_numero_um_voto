@@ -3,7 +3,7 @@ import db from '@api/db';
 
 import { getEmailFromCookieHeader } from './usuario.utils';
 
-export async function GET(request: Request) {
+export async function GET(request: Request): Promise<Response> {
   try {
     // Verifica autenticação do usuário
     const cookie = request.headers.get('Cookie');

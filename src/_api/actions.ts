@@ -1,8 +1,9 @@
 'use server';
 
+import { Cota, Usuario } from '@lib/types';
 import { revalidatePath } from 'next/cache';
+
 import db from './db';
-import { Cota, Usuario } from '../_lib/types';
 
 export async function getCotas(): Promise<Cota[]> {
   try {
