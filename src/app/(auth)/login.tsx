@@ -1,6 +1,6 @@
 'use client';
 
-import { Usuario } from '@/_lib/types';
+import { IUsuario } from '@/_lib/types';
 import { auth } from '@api/auth';
 import { Button, Typography } from '@mui/material';
 import { signInWithPopup, GoogleAuthProvider, User } from 'firebase/auth';
@@ -24,7 +24,7 @@ export default function Login() {
     if (!user.email) {
       throw new Error('Não foi possível identificar email do usuário!');
     }
-    const usuario: Usuario = {
+    const usuario: IUsuario = {
       nome: user.displayName ?? '',
       email: user.email,
       telefone: '',

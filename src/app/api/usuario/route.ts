@@ -1,4 +1,4 @@
-import { Usuario } from '@/_lib/types';
+import { IUsuario } from '@/_lib/types';
 import db from '@api/db';
 
 import { getEmailFromCookieHeader } from './usuario.utils';
@@ -16,7 +16,7 @@ export async function GET(request: Request): Promise<Response> {
 
     if (!emailPesquisado) {
       // Retorna proprio email
-      const result = await db.query<Usuario>(
+      const result = await db.query<IUsuario>(
         'SELECT nome, email, telefone, whatsapp FROM usuarios WHERE email = $1',
         [emailProprio],
       );
@@ -35,7 +35,7 @@ export async function GET(request: Request): Promise<Response> {
     }
 
     // Retorna email pesquisado
-    const result = await db.query<Usuario>(
+    const result = await db.query<IUsuario>(
       'SELECT nome, email, telefone, whatsapp FROM usuarios WHERE email = $1',
       [emailPesquisado],
     );

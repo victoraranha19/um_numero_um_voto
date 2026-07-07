@@ -1,7 +1,7 @@
-import { Cota } from '@lib/types';
+import { ICota } from '@lib/types';
 
 interface CotasProps {
-  cotas: Cota[];
+  cotas: ICota[];
 }
 
 export default function CotaList({ cotas }: CotasProps) {

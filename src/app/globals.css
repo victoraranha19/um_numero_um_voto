@@ -17,10 +17,3 @@ body {
   color: var(--foreground);
   font-family: 'Times New Roman', Times, serif;
 }
-
-.campo-numero {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1px;
-}

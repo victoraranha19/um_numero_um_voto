@@ -1,6 +1,6 @@
 'use server';
 
-import { Usuario } from '@lib/types';
+import { IUsuario } from '@lib/types';
 import db from '@api/db';
 import { revalidatePath } from 'next/cache';
 
@@ -19,10 +19,10 @@ export async function verificarEmailCadastrado(
   }
 }
 
-export async function adicionarNovoUsuario(usuario: Usuario): Promise<void> {
+export async function adicionarNovoUsuario(usuario: IUsuario): Promise<void> {
   try {
     const { nome, email, telefone, whatsapp } = usuario;
-    await db.query<Usuario>(
+    await db.query<IUsuario>(
       'INSERT INTO usuarios (nome, email, telefone, whatsapp) VALUES ($1, $2, $3, $4)',
       [nome, email, telefone, whatsapp],
     );

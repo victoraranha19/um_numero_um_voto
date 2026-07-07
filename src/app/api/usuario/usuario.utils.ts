@@ -1,4 +1,4 @@
-import { JWTToken } from '@/_lib/types';
+import { IJWTToken } from '@/_lib/types';
 import { jwtDecode } from 'jwt-decode';
 
 export function getEmailFromCookieHeader(cookie: string) {
@@ -9,7 +9,7 @@ export function getEmailFromCookieHeader(cookie: string) {
     indexEnd === -1 ? undefined : indexEnd,
   );
 
-  const emailFromToken = jwtDecode<JWTToken>(jwtToken).email;
+  const emailFromToken = jwtDecode<IJWTToken>(jwtToken).email;
   if (!emailFromToken) throw new Error('Email não encontrado no cookie');
   return emailFromToken;
 }

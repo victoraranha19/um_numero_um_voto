@@ -1,5 +1,7 @@
 'use client';
 
+import { addCota } from '@/_api/actions';
+import { EPresidente } from '@/_lib/types';
 import { Check } from '@mui/icons-material';
 import {
   Alert,
@@ -10,13 +12,13 @@ import {
   Radio,
   RadioGroup,
 } from '@mui/material';
-
 import { useState } from 'react';
-import { addCota } from '@/_api/actions';
-import CampoNumero from './campo-numero';
+
+import SelecaoRapida from './selecao-rapida';
+import SelecaoManual from './selecao-manual';
 
 export default function CotaForm() {
-  const [presidente, setPresidente] = useState('bolsonaro');
+  const [presidente, setPresidente] = useState(EPresidente.BOLSONARO);
   const [alerta, setAlerta] = useState(false);
   const [numero, setNumero] = useState(1);
 
@@ -37,22 +39,15 @@ export default function CotaForm() {
           <RadioGroup
             aria-labelledby="presidente-label"
             value={presidente}
-            onChange={(e) => setPresidente(e.target.value)}
+            onChange={(e) => setPresidente(e.target.value as EPresidente)}
           >
-            <FormControlLabel
-              value="bolsonaro"
-              control={<Radio />}
-              label="Bolsonaro"
-            />
-            <FormControlLabel value="lula" control={<Radio />} label="Lula" />
-            <FormControlLabel
-              value="nenhum"
-              control={<Radio />}
-              label="Nenhum"
-            />
+            <FormControlLabel value="B" control={<Radio />} label="Bolsonaro" />
+            <FormControlLabel value="L" control={<Radio />} label="Lula" />
+            <FormControlLabel value="N" control={<Radio />} label="Nenhum" />
           </RadioGroup>
 
-          <CampoNumero numero={numero} setNumero={setNumero} />
+          <SelecaoRapida numero={numero} setNumero={setNumero} />
+          <SelecaoManual numero={numero} setNumero={setNumero} />
 
           <Button type="submit" variant="contained" disabled={alerta}>
             Votar

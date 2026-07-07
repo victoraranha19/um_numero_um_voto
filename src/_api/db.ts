@@ -66,47 +66,49 @@ const getPool = (): Pool => {
   return global.pgPool;
 };
 
+const createTableUsuariosQuery = `
+  CREATE TABLE IF NOT EXISTS usuarios (
+    email VARCHAR(100) PRIMARY KEY,
+    nome VARCHAR(30) NOT NULL,
+    telefone VARCHAR(20) NOT NULL,
+    whatsapp VARCHAR(20) NOT NULL,
+    papel CHAR(1) DEFAULT 'C' NOT NULL,
+    ativo BOOLEAN DEFAULT TRUE NOT NULL
+  );
+`;
+const createTableTransacoesQuery = `
+  CREATE TABLE IF NOT EXISTS transacoes (
+    transaction_nsu VARCHAR(255) PRIMARY KEY,
+    order_nsu VARCHAR(255) NOT NULL,
+    url_recibo VARCHAR(255) UNIQUE NOT NULL,
+    slug VARCHAR(255) UNIQUE NOT NULL,
+    valor_total INTEGER NOT NULL,
+    valor_pago INTEGER NOT NULL,
+    quantidade INTEGER NOT NULL,
+    metodo_pagamento VARCHAR(20) NOT NULL,
+    parcelas INTEGER DEFAULT 1 NOT NULL, 
+    data TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    foi_pago BOOLEAN DEFAULT FALSE NOT NULL,
+    sucesso BOOLEAN DEFAULT FALSE NOT NULL,
+
+    email_usuario VARCHAR(100) NOT NULL,
+    FOREIGN KEY (email_usuario) REFERENCES usuarios(email)
+  );
+`;
+const createTableCotasQuery = `
+  CREATE TABLE IF NOT EXISTS cotas (
+    numero INTEGER PRIMARY KEY,
+    presidente CHAR(1),
+    premiada BOOLEAN DEFAULT FALSE,
+
+    id_transacao VARCHAR(255),
+    FOREIGN KEY (id_transacao) REFERENCES transacoes(transaction_nsu)
+  );
+`;
+
 const initDb = async (): Promise<void> => {
   const pool = getPool();
-  const createTableUsuariosQuery = `
-    CREATE TABLE IF NOT EXISTS usuarios (
-      id SERIAL PRIMARY KEY,
-      nome VARCHAR(30) NOT NULL,
-      email VARCHAR(100) UNIQUE NOT NULL,
-      telefone VARCHAR(20) NOT NULL,
-      whatsapp VARCHAR(20) NOT NULL,
-      admin BOOLEAN DEFAULT FALSE
-    );
-  `;
-  const createTableTransacoesQuery = `
-  CREATE TABLE IF NOT EXISTS transacoes (
-    id SERIAL PRIMARY KEY,
-    order_nsu VARCHAR(255) NOT NULL,
-    transaction_nsu VARCHAR(255) NOT NULL,
-    slug VARCHAR(255),
-    metodo_pagamento VARCHAR(20) NOT NULL,
-    parcelas INTEGER DEFAULT 1, 
-    sucesso BOOLEAN DEFAULT FALSE,
-    foi_pago BOOLEAN DEFAULT FALSE,
-    valor_total INTEGER,
-    valor_pago INTEGER,
-    quantidade INTEGER,
-    url_recibo VARCHAR(255) NOT NULL,
 
-    id_usuario INTEGER,
-    FOREIGN KEY (id_usuario) REFERENCES usuarios(id)
-  );
-  `;
-  const createTableCotasQuery = `
-    CREATE TABLE IF NOT EXISTS cotas (
-      id SERIAL PRIMARY KEY,
-      presidente VARCHAR(255),
-      premiada BOOLEAN DEFAULT FALSE,
-  
-      id_transacao INTEGER,
-      FOREIGN KEY (id_transacao) REFERENCES transacoes(id)
-    );
-  `;
   try {
     await pool.query(createTableUsuariosQuery);
     await pool.query(createTableTransacoesQuery);
