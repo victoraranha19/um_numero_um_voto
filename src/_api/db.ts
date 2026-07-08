@@ -78,14 +78,14 @@ const createTableUsuariosQuery = `
 `;
 const createTableTransacoesQuery = `
   CREATE TABLE IF NOT EXISTS transacoes (
-    transaction_nsu VARCHAR(255) PRIMARY KEY,
+    nsu VARCHAR(255) PRIMARY KEY,
     order_nsu VARCHAR(255) NOT NULL,
     url_recibo VARCHAR(255) UNIQUE NOT NULL,
     slug VARCHAR(255) UNIQUE NOT NULL,
     valor_total INTEGER NOT NULL,
     valor_pago INTEGER NOT NULL,
     quantidade INTEGER NOT NULL,
-    metodo_pagamento VARCHAR(20) NOT NULL,
+    metodo_pagamento CHAR(1) NOT NULL,
     parcelas INTEGER DEFAULT 1 NOT NULL, 
     data TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     foi_pago BOOLEAN DEFAULT FALSE NOT NULL,
@@ -98,11 +98,11 @@ const createTableTransacoesQuery = `
 const createTableCotasQuery = `
   CREATE TABLE IF NOT EXISTS cotas (
     numero INTEGER PRIMARY KEY,
-    presidente CHAR(1),
+    presidente CHAR(1) NOT NULL,
     premiada BOOLEAN DEFAULT FALSE,
 
-    id_transacao VARCHAR(255),
-    FOREIGN KEY (id_transacao) REFERENCES transacoes(transaction_nsu)
+    id_transacao VARCHAR(255) NOT NULL,
+    FOREIGN KEY (id_transacao) REFERENCES transacoes(nsu)
   );
 `;
 

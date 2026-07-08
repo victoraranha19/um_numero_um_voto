@@ -1,13 +1,15 @@
-import { Visibility } from '@mui/icons-material';
+import { Shuffle, Visibility, VisibilityOff } from '@mui/icons-material';
 import {
   Box,
   Button,
   Card,
-  CardActions,
   CardContent,
-  Chip,
+  Stack,
   Typography,
 } from '@mui/material';
+
+import CotaList from './cota-list';
+import { useState } from 'react';
 
 interface SelecaoManualProps {
   numero: number;
@@ -22,24 +24,21 @@ export default function SelecaoManual({
 
   return (
     <Card>
-      <CardActions sx={{ justifyContent: 'space-between' }}>
-        <Typography variant="caption">
-          {total - numero} de {total} disponíveis
-        </Typography>
-        <Button startIcon={<Visibility />} onClick={() => setNumero(0)}>
-          Somente disponíveis
-        </Button>
-      </CardActions>
-
       <CardContent>
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <Chip label="Clickable" />
-          <Chip
-            label="Clickable"
-            variant="outlined"
-            onClick={() => setNumero(1)}
-          />
-        </Box>
+        <Stack
+          direction="row"
+          sx={{ alignItems: 'center', justifyContent: 'space-between' }}
+        >
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+            <Shuffle fontSize="small" />
+            <Typography variant="h6">Seleção manual</Typography>
+          </Box>
+          <Typography variant="caption">
+            {numero} de {total} (max)
+          </Typography>
+        </Stack>
+
+        <CotaList />
       </CardContent>
     </Card>
   );

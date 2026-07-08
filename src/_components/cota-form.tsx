@@ -1,7 +1,5 @@
 'use client';
 
-import { addCota } from '@/_api/actions';
-import { EPresidente } from '@/_lib/types';
 import { Check } from '@mui/icons-material';
 import {
   Alert,
@@ -14,27 +12,44 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 
+import { EPresidente, IPayload } from '@lib/types';
+import { CPRESIDENTE } from '@lib/constants';
 import SelecaoRapida from './selecao-rapida';
 import SelecaoManual from './selecao-manual';
+import { getURLPagamento } from '@api/actions';
 
 export default function CotaForm() {
   const [presidente, setPresidente] = useState(EPresidente.BOLSONARO);
   const [alerta, setAlerta] = useState(false);
-  const [numero, setNumero] = useState(1);
+  const [quantidade, setQuantidade] = useState(0);
 
-  const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    await addCota(presidente, 1);
+  const handleSubmit = async () => {
+    const request: IPayload = {
+      handle: 'aranhavictor',
+      items: [
+        {
+          description: `Voto(s) ${CPRESIDENTE[presidente].toLowerCase()}`,
+          price: 100,
+          quantity: quantidade,
+        },
+      ],
+    };
     setAlerta(true);
+    try {
+      const url = await getURLPagamento(request);
+      window.open(url, '_blank');
+    } catch (error) {
+      console.error(error);
+    }
     setTimeout(() => setAlerta(false), 2000);
   };
 
   return (
     <>
-      <form onSubmit={handleSubmit}>
+      <form>
         <FormControl>
           <FormLabel id="presidente-label">
-            Qual presidente merece votos?
+            Envie votos para seu presidente
           </FormLabel>
           <RadioGroup
             aria-labelledby="presidente-label"
@@ -46,10 +61,10 @@ export default function CotaForm() {
             <FormControlLabel value="N" control={<Radio />} label="Nenhum" />
           </RadioGroup>
 
-          <SelecaoRapida numero={numero} setNumero={setNumero} />
-          <SelecaoManual numero={numero} setNumero={setNumero} />
+          <SelecaoRapida numero={quantidade} setNumero={setQuantidade} />
+          <SelecaoManual numero={quantidade} setNumero={setQuantidade} />
 
-          <Button type="submit" variant="contained" disabled={alerta}>
+          <Button variant="contained" disabled={alerta} onClick={handleSubmit}>
             Votar
           </Button>
         </FormControl>

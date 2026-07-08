@@ -7,7 +7,7 @@ import { signInWithPopup, GoogleAuthProvider, User } from 'firebase/auth';
 import {
   adicionarNovoUsuario,
   verificarEmailCadastrado,
-} from '../api/usuario/actions';
+} from '../app/api/usuario/actions';
 
 export default function Login() {
   async function handleLogin() {

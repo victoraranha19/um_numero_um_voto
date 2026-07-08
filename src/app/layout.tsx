@@ -6,7 +6,8 @@ import '@fontsource/roboto/700.css';
 
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter';
 import type { Metadata } from 'next';
-import AuthLayout from './(auth)/layout';
+import AuthProvider from './_auth/auth-provider';
+import MyThemeProvider from './_theme/theme-provider';
 
 export const metadata: Metadata = {
   title: 'Um número um voto',
@@ -25,7 +26,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
       </head>
       <body className="min-h-full flex flex-col">
         <AppRouterCacheProvider>
-          <AuthLayout>{children}</AuthLayout>
+          <MyThemeProvider>
+            <AuthProvider>{children}</AuthProvider>
+          </MyThemeProvider>
         </AppRouterCacheProvider>
       </body>
     </html>

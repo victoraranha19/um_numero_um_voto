@@ -28,9 +28,11 @@ export interface IPagamento {
 export interface ITransacaoNova extends IRecibo, Partial<IPagamento> {}
 export interface ITransacao extends IRecibo, IPagamento {}
 
-export interface ICota {
+export interface ICotaList {
   numero: number;
-  presidente: string;
+  presidente: EPresidente;
+  foi_pago: boolean;
+  sucesso: boolean;
 }
 
 export interface IJWTToken extends JwtPayload {
@@ -46,11 +48,27 @@ export interface IJWTToken extends JwtPayload {
   };
 }
 
+export interface IPayload {
+  handle: string;
+  items: IPayloadItem[];
+  costumer?: Partial<IPayloadCostumer>;
+}
+interface IPayloadItem {
+  quantity: number;
+  price: number;
+  description: string;
+}
+interface IPayloadCostumer {
+  name: string;
+  email: string;
+  phone_number: string;
+}
+
 // Utils
 
 export enum EMetodo {
-  PIX = 'pix',
-  CREDITO = 'credito',
+  PIX = 'P',
+  CREDITO = 'C',
 }
 
 export enum EPresidente {
