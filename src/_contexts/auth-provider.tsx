@@ -1,10 +1,10 @@
 'use client';
 
-import { auth } from '@/_api/auth';
+import { auth } from '@api/auth';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { useEffect, useState, ReactNode } from 'react';
-import Logout from '../../_components/logout';
-import Login from '../../_components/login';
+import Logout from '@components/logout';
+import Login from '@components/login';
 
 interface AuthProviderProps {
   children: ReactNode;

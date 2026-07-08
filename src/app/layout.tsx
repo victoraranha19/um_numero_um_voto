@@ -6,7 +6,6 @@ import '@fontsource/roboto/700.css';
 
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter';
 import type { Metadata } from 'next';
-import AuthProvider from './_auth/auth-provider';
 import MyThemeProvider from './_theme/theme-provider';
 
 export const metadata: Metadata = {
@@ -26,9 +25,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       </head>
       <body className="min-h-full flex flex-col">
         <AppRouterCacheProvider>
-          <MyThemeProvider>
-            <AuthProvider>{children}</AuthProvider>
-          </MyThemeProvider>
+          <MyThemeProvider>{children}</MyThemeProvider>
         </AppRouterCacheProvider>
       </body>
     </html>

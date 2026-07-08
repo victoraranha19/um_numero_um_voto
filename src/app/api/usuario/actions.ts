@@ -33,3 +33,16 @@ export async function adicionarNovoUsuario(usuario: IUsuario): Promise<void> {
   // Revalida a rota raiz para atualizar os dados
   revalidatePath('/');
 }
+
+export async function salvarDadosUsuario(usuario: IUsuario) {
+  try {
+    const { nome, telefone, whatsapp, email } = usuario;
+    await db.query<IUsuario>(
+      `UPDATE usuarios SET nome=$1, telefone=$2, whatsapp=$3 WHERE email=$4`,
+      [nome, telefone, whatsapp, email],
+    );
+  } catch (error) {
+    console.error(error);
+    throw new Error('Erro ao adicionar novo usuário.');
+  }
+}
