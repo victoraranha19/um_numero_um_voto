@@ -3,109 +3,96 @@
 import { salvarDadosUsuario } from '@/app/api/usuario/actions';
 import { IUsuario } from '@lib/types';
 import { Button, InputAdornment, TextField } from '@mui/material';
-import { useState } from 'react';
 
 interface DadosFormProps {
-  email: string;
+  usuario: IUsuario | null;
+  setUsuario: (u: IUsuario) => void;
   irParaProximoPasso: () => void;
 }
 
 export default function DadosForm({
-  email,
+  usuario,
+  setUsuario,
   irParaProximoPasso,
 }: DadosFormProps) {
-  const [nome, setNome] = useState('');
-  const [telefone, setTelefone] = useState('');
-  const [whatsapp, setWhatsapp] = useState('');
+  function handleNomeChange(nome: string) {
+    if (usuario) setUsuario({ ...usuario, nome });
+  }
 
   function handleTelefoneChange(t: string) {
-    const digitos = t.replaceAll(/\D/g, '');
-    const numero = parseInt(digitos);
-
-    if (!digitos.length || !numero) {
-      setTelefone('');
-      return;
+    if (usuario) {
+      const telefone = maskPhone(t);
+      setUsuario({ ...usuario, telefone });
     }
-
-    const numeroTelefone = numero.toString();
-    const ddd = `(${numeroTelefone.substring(0, 2)}`;
-    if (numeroTelefone.length <= 2) {
-      setTelefone(ddd);
-      return;
-    }
-
-    const metade = `${ddd}) ${numeroTelefone.substring(2, 6)}`;
-    if (numeroTelefone.length <= 6) {
-      setTelefone(metade);
-      return;
-    }
-
-    setTelefone(`${metade}-${numeroTelefone.substring(6, 10)}`);
   }
 
   function handleWhatsappChange(w: string) {
-    const digitos = w.replaceAll(/\D/g, '');
+    if (usuario) {
+      const whatsapp = maskPhone(w);
+      setUsuario({ ...usuario, whatsapp });
+    }
+  }
+
+  function maskPhone(phone: string, totalDigits = 11): string {
+    const digitos = phone.replaceAll(/\D/g, '');
     const numero = parseInt(digitos);
 
-    if (!digitos.length || !numero) {
-      setWhatsapp('');
-      return;
-    }
+    if (!digitos.length || !numero) return '';
 
     const numeroWhatsapp = numero.toString();
     const ddd = `(${numeroWhatsapp.substring(0, 2)}`;
-    if (numeroWhatsapp.length <= 2) {
-      setWhatsapp(ddd);
-      return;
-    }
+    if (numeroWhatsapp.length <= 2) return ddd;
 
-    const metade = `${ddd}) ${numeroWhatsapp.substring(2, 7)}`;
-    if (numeroWhatsapp.length <= 7) {
-      setWhatsapp(metade);
-      return;
-    }
+    const iMetade = totalDigits - 4;
+    const metade = `${ddd}) ${numeroWhatsapp.substring(2, iMetade)}`;
+    if (numeroWhatsapp.length <= iMetade) return metade;
 
-    setWhatsapp(`${metade}-${numeroWhatsapp.substring(7, 11)}`);
+    return `${metade}-${numeroWhatsapp.substring(iMetade, totalDigits)}`;
   }
 
   async function handleAvancar() {
-    const usuario: IUsuario = { nome, email, telefone, whatsapp };
     try {
+      if (!usuario) throw new Error('Usuário não logado!');
       await salvarDadosUsuario(usuario);
       irParaProximoPasso();
     } catch (error) {
-      console.error('Erro ao fazer login:', error);
+      console.error('Erro ao atualizar dados usuario:', error);
     }
   }
 
   return (
     <>
-      <TextField
-        label="Email"
-        disabled
-        defaultValue={email}
-        slotProps={{
-          input: {
-            startAdornment: <InputAdornment position="start">@</InputAdornment>,
-          },
-        }}
-      />
+      {usuario && (
+        <TextField
+          label="Email"
+          disabled
+          defaultValue={usuario?.email ?? ''}
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">@</InputAdornment>
+              ),
+            },
+          }}
+        />
+      )}
 
       <TextField
         label="Nome Completo"
-        onChange={(e) => setNome(e.target.value)}
+        defaultValue={usuario?.nome ?? ''}
+        onChange={(e) => handleNomeChange(e.target.value)}
       />
       <TextField
         label="Telefone"
         placeholder="(00) 0000-0000"
+        defaultValue={usuario?.telefone ?? ''}
         onChange={(e) => handleTelefoneChange(e.target.value)}
-        value={telefone}
       />
       <TextField
         label="Whatsapp"
         placeholder="(00) 0 0000-0000"
+        defaultValue={usuario?.whatsapp ?? ''}
         onChange={(e) => handleWhatsappChange(e.target.value)}
-        value={whatsapp}
       />
 
       <Button variant="contained" onClick={() => handleAvancar()}>

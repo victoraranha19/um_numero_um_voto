@@ -1,8 +1,7 @@
 'use client';
 
-import { Check } from '@mui/icons-material';
+import { EPresidente } from '@lib/types';
 import {
-  Alert,
   Button,
   FormControl,
   FormControlLabel,
@@ -12,38 +11,22 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 
-import { EPresidente, IPayload } from '@lib/types';
-import { CPRESIDENTE } from '@lib/constants';
-import SelecaoRapida from './selecao-rapida';
 import SelecaoManual from './selecao-manual';
-import { getURLPagamento } from '@api/actions';
+import SelecaoRapida from './selecao-rapida';
 
-export default function CotaForm() {
-  const [presidente, setPresidente] = useState(EPresidente.BOLSONARO);
-  const [alerta, setAlerta] = useState(false);
-  const [quantidade, setQuantidade] = useState(0);
+interface CotaFormProps {
+  presidente: EPresidente;
+  setPresidente: (p: EPresidente) => void;
+  quantidade: number;
+  setQuantidade: (q: number) => void;
+}
 
-  const handleSubmit = async () => {
-    const request: IPayload = {
-      handle: 'aranhavictor',
-      items: [
-        {
-          description: `Voto(s) ${CPRESIDENTE[presidente].toLowerCase()}`,
-          price: 100,
-          quantity: quantidade,
-        },
-      ],
-    };
-    setAlerta(true);
-    try {
-      const url = await getURLPagamento(request);
-      window.open(url, '_blank');
-    } catch (error) {
-      console.error(error);
-    }
-    setTimeout(() => setAlerta(false), 2000);
-  };
-
+export default function CotaForm({
+  presidente,
+  setPresidente,
+  quantidade,
+  setQuantidade,
+}: CotaFormProps) {
   return (
     <>
       <form>
@@ -64,17 +47,11 @@ export default function CotaForm() {
           <SelecaoRapida numero={quantidade} setNumero={setQuantidade} />
           <SelecaoManual numero={quantidade} setNumero={setQuantidade} />
 
-          <Button variant="contained" disabled={alerta} onClick={handleSubmit}>
+          <Button variant="contained" disabled={!quantidade}>
             Votar
           </Button>
         </FormControl>
       </form>
-
-      {alerta && (
-        <Alert icon={<Check fontSize="inherit" />} severity="success">
-          Voto registrado com sucesso.
-        </Alert>
-      )}
     </>
   );
 }

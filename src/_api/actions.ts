@@ -21,7 +21,7 @@ export async function getCotas(de: number, ate: number): Promise<ICotaList[]> {
   }
 }
 
-export async function getURLPagamento(request: IPayload): Promise<string> {
+export async function getURLPagamento(payload: IPayload): Promise<string> {
   const response: { url: string } = await fetch(
     'https://api.checkout.infinitepay.io/links',
     {
@@ -30,8 +30,9 @@ export async function getURLPagamento(request: IPayload): Promise<string> {
         'Content-Type': 'application/json',
         Accept: 'application/json',
       },
-      body: JSON.stringify(request),
+      body: JSON.stringify(payload),
     },
   ).then((v) => v.json());
+  console.log(response.url);
   return response.url;
 }

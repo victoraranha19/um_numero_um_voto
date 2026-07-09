@@ -7,6 +7,7 @@ import '@fontsource/roboto/700.css';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter';
 import type { Metadata } from 'next';
 import MyThemeProvider from './_theme/theme-provider';
+import { Typography } from '@mui/material';
 
 export const metadata: Metadata = {
   title: 'Um número um voto',
@@ -25,7 +26,12 @@ export default function RootLayout({ children }: RootLayoutProps) {
       </head>
       <body className="min-h-full flex flex-col">
         <AppRouterCacheProvider>
-          <MyThemeProvider>{children}</MyThemeProvider>
+          <MyThemeProvider>
+            <Typography variant="h4" component="h1">
+              Um número um voto
+            </Typography>
+            {children}
+          </MyThemeProvider>
         </AppRouterCacheProvider>
       </body>
     </html>

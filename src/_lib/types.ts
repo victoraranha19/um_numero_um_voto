@@ -51,14 +51,14 @@ export interface IJWTToken extends JwtPayload {
 export interface IPayload {
   handle: string;
   items: IPayloadItem[];
-  costumer?: Partial<IPayloadCostumer>;
+  customer?: Partial<IPayloadCustomer>;
 }
 interface IPayloadItem {
   quantity: number;
   price: number;
   description: string;
 }
-interface IPayloadCostumer {
+interface IPayloadCustomer {
   name: string;
   email: string;
   phone_number: string;
