@@ -1,110 +1,107 @@
-import { Delete, Shuffle } from '@mui/icons-material';
-import {
-  Box,
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  Stack,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { Delete, LocalActivityRounded } from '@mui/icons-material';
+import { Box, Button, Stack, TextField, Typography } from '@mui/material';
 import { useState } from 'react';
 
 interface SelecaoRapidaProps {
-  max?: number;
-  numero: number;
-  setNumero: (value: number) => void;
+  maximoSelecao: number;
+  quantidadeSelecionada: number;
+  setQuantidadeSelecionada: (n: number) => void;
+  adicionarNovasCotas: (q: number) => void;
+  definirCotas: (q: number) => void;
 }
 
 export default function SelecaoRapida({
-  max = 200,
-  numero,
-  setNumero,
+  maximoSelecao,
+  quantidadeSelecionada,
+  setQuantidadeSelecionada,
+  adicionarNovasCotas,
+  definirCotas,
 }: SelecaoRapidaProps) {
-  const [outro, setOutro] = useState(numero.toString());
+  const [outro, setOutro] = useState(quantidadeSelecionada.toString());
 
-  function somaNumero(value: number) {
+  function handleAdicionarCotas(value: number) {
     if (isNaN(value)) return;
-    const soma = numero + value;
-    const novoNumero = soma > max ? max : soma;
-    setNumero(novoNumero);
+    const soma = quantidadeSelecionada + value;
+    const novoNumero = soma > maximoSelecao ? maximoSelecao : soma;
+    setQuantidadeSelecionada(novoNumero);
     setOutro(novoNumero.toString());
+    adicionarNovasCotas(value);
   }
 
   function handleTextField(value: string) {
     if (!value) handleLimpar();
     const numero = parseInt(value);
     if (isNaN(numero)) return;
-    const novoNumero = numero > max ? max : numero;
-    setNumero(novoNumero);
+    const novoNumero = numero > maximoSelecao ? maximoSelecao : numero;
+    setQuantidadeSelecionada(novoNumero);
     setOutro(novoNumero.toString());
+    definirCotas(novoNumero);
   }
 
   function handleLimpar() {
-    setNumero(0);
+    setQuantidadeSelecionada(0);
     setOutro('');
+    definirCotas(0);
   }
 
   return (
-    <Card>
-      <CardContent>
-        <Stack
-          direction="row"
-          sx={{ alignItems: 'center', justifyContent: 'space-between' }}
-        >
-          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-            <Shuffle fontSize="small" />
-            <Typography variant="h6">Seleção rápida</Typography>
-          </Box>
-          {numero !== 0 && (
-            <Button
-              color="error"
-              startIcon={<Delete />}
-              onClick={() => handleLimpar()}
-            >
-              Limpar ({numero})
-            </Button>
-          )}
-        </Stack>
-
-        <Box sx={{ display: 'flex', gap: 1, p: 1 }}>
-          <Button
-            variant="contained"
-            onClick={() => somaNumero(5)}
-            size="small"
-          >
-            + 5 votos
-          </Button>
-          <Button
-            variant="contained"
-            onClick={() => somaNumero(10)}
-            size="small"
-          >
-            + 10 votos
-          </Button>
-          <Button
-            variant="contained"
-            onClick={() => somaNumero(50)}
-            size="small"
-          >
-            + 50 votos
-          </Button>
-          <Button
-            variant="contained"
-            onClick={() => somaNumero(100)}
-            size="small"
-          >
-            + 100 votos
-          </Button>
-
-          <TextField
-            value={outro ?? ''}
-            placeholder="Outro"
-            onChange={(e) => handleTextField(e.target.value)}
-          />
+    <>
+      <Stack
+        direction="row"
+        sx={{ alignItems: 'center', justifyContent: 'space-between', py: 1 }}
+      >
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+          <LocalActivityRounded fontSize="small" />
+          <Typography>Seus votos:</Typography>
         </Box>
-      </CardContent>
-    </Card>
+
+        {quantidadeSelecionada !== 0 && (
+          <Button
+            color="error"
+            startIcon={<Delete />}
+            onClick={() => handleLimpar()}
+          >
+            Limpar ({quantidadeSelecionada})
+          </Button>
+        )}
+      </Stack>
+
+      <Box sx={{ display: 'flex', gap: 1, p: 1 }}>
+        <Button
+          variant="contained"
+          onClick={() => handleAdicionarCotas(5)}
+          size="small"
+        >
+          + 5 votos
+        </Button>
+        <Button
+          variant="contained"
+          onClick={() => handleAdicionarCotas(10)}
+          size="small"
+        >
+          + 10 votos
+        </Button>
+        <Button
+          variant="contained"
+          onClick={() => handleAdicionarCotas(50)}
+          size="small"
+        >
+          + 50 votos
+        </Button>
+        <Button
+          variant="contained"
+          onClick={() => handleAdicionarCotas(100)}
+          size="small"
+        >
+          + 100 votos
+        </Button>
+
+        <TextField
+          value={outro ?? ''}
+          placeholder="Outro"
+          onChange={(e) => handleTextField(e.target.value)}
+        />
+      </Box>
+    </>
   );
 }

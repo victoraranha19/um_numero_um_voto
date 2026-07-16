@@ -14,7 +14,7 @@ export async function verificarEmailCadastrado(
     );
     return result.rows.length > 0;
   } catch (error) {
-    console.error(error);
+    console.error('Erro ao verificar usuários cadastrados:', error);
     throw new Error('Erro ao verificar usuários cadastrados.');
   }
 }
@@ -26,12 +26,12 @@ export async function adicionarNovoUsuario(usuario: IUsuario): Promise<void> {
       'INSERT INTO usuarios (nome, email, telefone, whatsapp) VALUES ($1, $2, $3, $4)',
       [nome, email, telefone, whatsapp],
     );
+    // Revalida a rota raiz para atualizar os dados
+    revalidatePath('/');
   } catch (error) {
-    console.error(error);
+    console.error('Erro ao adicionar novo usuário:', error);
     throw new Error('Erro ao adicionar novo usuário.');
   }
-  // Revalida a rota raiz para atualizar os dados
-  revalidatePath('/');
 }
 
 export async function salvarDadosUsuario(usuario: IUsuario) {
@@ -41,6 +41,8 @@ export async function salvarDadosUsuario(usuario: IUsuario) {
       `UPDATE usuarios SET nome=$1, telefone=$2, whatsapp=$3 WHERE email=$4`,
       [nome, telefone, whatsapp, email],
     );
+    // Revalida a rota raiz para atualizar os dados
+    revalidatePath('/');
   } catch (error) {
     console.error(error);
     throw new Error('Erro ao adicionar novo usuário.');

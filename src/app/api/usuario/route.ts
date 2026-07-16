@@ -42,6 +42,6 @@ export async function GET(request: Request): Promise<Response> {
     return Response.json(result.rows);
   } catch (error) {
     console.error('Erro ao buscar usuário:', error);
-    return Response.json([]);
+    return Response.json([], { status: 400 });
   }
 }

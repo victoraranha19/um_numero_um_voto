@@ -7,32 +7,34 @@ export interface IUsuario {
   whatsapp: string;
 }
 
-interface IRecibo {
-  transaction_nsu: string;
+// export interface ITransacao {
+//   order_nsu: string;
+//   url_pagamento: string;
+//   quantidade: number;
+//   valor_total: number;
+//   email_usuario: number;
+
+//   slug: string;
+//   valor_pago: number;
+//   parcelas: number;
+//   metodo_pagamento: EMetodo;
+//   transaction_nsu: string;
+//   url_recibo: string;
+//   foi_pago: boolean;
+//   sucesso: boolean;
+// }
+export interface ITransacaoNova {
   order_nsu: string;
-  url_recibo: string;
-  slug: string;
-  email_usuario: number;
-}
-export interface IPagamento {
-  valor_total: number;
-  valor_pago: number;
+  url_pagamento: string;
   quantidade: number;
-  metodo_pagamento: EMetodo;
-  parcelas: number;
-
-  foi_pago: boolean;
-  sucesso: boolean;
+  valor_total: number;
+  email_usuario: string;
 }
 
-export interface ITransacaoNova extends IRecibo, Partial<IPagamento> {}
-export interface ITransacao extends IRecibo, IPagamento {}
-
-export interface ICotaList {
+export interface ICota {
   numero: number;
   presidente: EPresidente;
-  foi_pago: boolean;
-  sucesso: boolean;
+  id_transacao: string;
 }
 
 export interface IJWTToken extends JwtPayload {
@@ -50,10 +52,12 @@ export interface IJWTToken extends JwtPayload {
 
 export interface IPayload {
   handle: string;
-  items: IPayloadItem[];
+  items: IItem[];
   customer?: Partial<IPayloadCustomer>;
+  webhook_url?: string;
+  order_nsu?: string;
 }
-interface IPayloadItem {
+export interface IItem {
   quantity: number;
   price: number;
   description: string;

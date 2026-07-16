@@ -7,4 +7,5 @@ export const PRESIDENTE = {
 };
 
 export const HANDLE = 'aranhavictor';
+export const WEBHOOK_URL = 'https://.../api/transacoes';
 export const PRICE = 100; // (R$ 1,00 em centavos)

@@ -78,16 +78,18 @@ const createTableUsuariosQuery = `
 `;
 const createTableTransacoesQuery = `
   CREATE TABLE IF NOT EXISTS transacoes (
-    nsu VARCHAR(255) PRIMARY KEY,
-    order_nsu VARCHAR(255) NOT NULL,
-    url_recibo VARCHAR(255) UNIQUE NOT NULL,
-    slug VARCHAR(255) UNIQUE NOT NULL,
+    order_nsu VARCHAR(255) PRIMARY KEY,
+    url_pagamento VARCHAR(255) UNIQUE NOT NULL,
+    nsu VARCHAR(255),
+    url_recibo VARCHAR(255),
+    slug VARCHAR(255),
     valor_total INTEGER NOT NULL,
-    valor_pago INTEGER NOT NULL,
     quantidade INTEGER NOT NULL,
-    metodo_pagamento CHAR(1) NOT NULL,
-    parcelas INTEGER DEFAULT 1 NOT NULL, 
-    data TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    valor_pago INTEGER,
+    metodo_pagamento CHAR(1),
+    parcelas INTEGER DEFAULT 1, 
+    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    data_pagamento TIMESTAMP,
     foi_pago BOOLEAN DEFAULT FALSE NOT NULL,
     sucesso BOOLEAN DEFAULT FALSE NOT NULL,
 
@@ -97,12 +99,13 @@ const createTableTransacoesQuery = `
 `;
 const createTableCotasQuery = `
   CREATE TABLE IF NOT EXISTS cotas (
-    numero INTEGER PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
+    numero INTEGER,
     presidente CHAR(1) NOT NULL,
     premiada BOOLEAN DEFAULT FALSE,
 
-    id_transacao VARCHAR(255) NOT NULL,
-    FOREIGN KEY (id_transacao) REFERENCES transacoes(nsu)
+    id_transacao VARCHAR(255),
+    FOREIGN KEY (id_transacao) REFERENCES transacoes(order_nsu)
   );
 `;
 
@@ -113,6 +116,12 @@ const initDb = async (): Promise<void> => {
     await pool.query(createTableUsuariosQuery);
     await pool.query(createTableTransacoesQuery);
     await pool.query(createTableCotasQuery);
+    for (let i = 0; i < 500; i++) {
+      await pool.query(
+        `INSERT INTO cotas (numero) VALUES ($1) ON CONFLICT DO NOTHING`,
+        [i + 1],
+      );
+    }
     console.log('Banco de dados inicializado com sucesso.');
   } catch (error) {
     console.error('Erro inicializando banco de dados:', error);
