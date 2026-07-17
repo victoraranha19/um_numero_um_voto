@@ -72,7 +72,6 @@ const createTableUsuariosQuery = `
     nome VARCHAR(30) NOT NULL,
     telefone VARCHAR(20) NOT NULL,
     whatsapp VARCHAR(20) NOT NULL,
-    presidente CHAR(1) DEFAULT 'N' NOT NULL,
     papel CHAR(1) DEFAULT 'C' NOT NULL,
     ativo BOOLEAN DEFAULT TRUE NOT NULL
   );
@@ -93,6 +92,7 @@ const createTableTransacoesQuery = `
     data_pagamento TIMESTAMP,
     foi_pago BOOLEAN DEFAULT FALSE NOT NULL,
     sucesso BOOLEAN DEFAULT FALSE NOT NULL,
+    presidente CHAR(1) NOT NULL,
 
     email_usuario VARCHAR(100) NOT NULL,
     FOREIGN KEY (email_usuario) REFERENCES usuarios(email)

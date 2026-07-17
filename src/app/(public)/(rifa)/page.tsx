@@ -1,9 +1,9 @@
 'use client';
 
-import { Button, Card, CardActions, CardContent } from '@mui/material';
-import CotaForm from '@components/cota-form';
 import { useState } from 'react';
+import CotaForm from '@components/cota-form';
 import { EPresidente } from '@lib/types';
+import { Button, Card, CardActions, CardContent } from '@mui/material';
 
 export default function RifaPage() {
   const [presidente, setPresidente] = useState(EPresidente.BOLSONARO);
@@ -11,8 +11,8 @@ export default function RifaPage() {
 
   function handleVotar(q: number, p: EPresidente) {
     const url = new URL(window.location.href + '/checkout');
-    url.searchParams.set('p', p);
     url.searchParams.set('q', q.toString());
+    url.searchParams.set('p', p);
     window.location.href = url.href;
   }
 

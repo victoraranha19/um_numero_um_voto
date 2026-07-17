@@ -1,13 +1,10 @@
 import { JwtPayload } from 'jwt-decode';
 
-export interface IUsuarioNovo {
+export interface IUsuario {
   email: string;
   nome: string;
   telefone: string;
   whatsapp: string;
-}
-export interface IUsuario extends IUsuarioNovo {
-  presidente: EPresidente;
 }
 
 export interface ITransacaoNova {
@@ -16,6 +13,7 @@ export interface ITransacaoNova {
   quantidade: number;
   valor_total: number;
   email_usuario: string;
+  presidente: EPresidente;
 }
 export interface ITransacao extends ITransacaoNova {
   slug: string;

@@ -9,10 +9,9 @@ import {
 
 interface PagamentoProps {
   url: string;
-  irParaProximoPasso: () => void;
 }
 
-export default function Pagamento({ url, irParaProximoPasso }: PagamentoProps) {
+export default function Pagamento({ url }: PagamentoProps) {
   return (
     <>
       <Card>
@@ -31,9 +30,6 @@ export default function Pagamento({ url, irParaProximoPasso }: PagamentoProps) {
           </Link>
         </CardActions>
       </Card>
-      <Button variant="contained" onClick={() => irParaProximoPasso()}>
-        Avançar
-      </Button>
     </>
   );
 }

@@ -6,8 +6,8 @@ import Logout from '@/_components/logout';
 import Revisao from '@/_components/revisao';
 import {
   criarPedido,
-  verificarPedidosUsuario,
-  verificarUrlPagamento,
+  getQuantidadePedidosUsuario,
+  getUrlPagamentoPedidoPendente,
 } from '@/app/api/transacoes/actions';
 import {
   adicionarNovoUsuario,
@@ -34,9 +34,7 @@ interface CheckoutPageProps {
 }
 
 export default function CheckoutPage({ searchParams }: CheckoutPageProps) {
-  const [presidente, setPresidente] = useState<EPresidente>(
-    EPresidente.BOLSONARO,
-  );
+  const [presidente, setPresidente] = useState<EPresidente>(EPresidente.NENHUM);
   const [quantidade, setQuantidade] = useState<number>(1);
   const [passo, setPasso] = useState<EPasso>(EPasso.IDENTIFICACAO);
   const [urlPagamento, setUrlPagamento] = useState<string>('');
@@ -58,7 +56,6 @@ export default function CheckoutPage({ searchParams }: CheckoutPageProps) {
               nome: user.displayName ?? '',
               telefone: '',
               whatsapp: '',
-              presidente: EPresidente.NENHUM,
             };
             adicionarNovoUsuario(novoUsuario).then(() =>
               setUsuario(novoUsuario),
@@ -134,19 +131,19 @@ export default function CheckoutPage({ searchParams }: CheckoutPageProps) {
       name: usuario.nome,
       phone_number: getPhoneNumber(usuario.whatsapp, usuario.telefone),
     };
-    const quantidadePedidos = await verificarPedidosUsuario(usuario.email);
+    const quantidadePedidos = await getQuantidadePedidosUsuario(usuario.email);
     payload.order_nsu = `${usuario.email}#${quantidadePedidos + 1}`;
 
-    console.log(payload);
-    const url_pagamento = await getURLPagamento(payload);
-    const existe_url = await verificarUrlPagamento(url_pagamento);
-    if (!existe_url) {
+    let url_pagamento = await getUrlPagamentoPedidoPendente(payload);
+    if (!url_pagamento.length) {
+      url_pagamento = await getURLPagamento(payload);
       await criarPedido({
         email_usuario: usuario.email,
         order_nsu: payload.order_nsu,
         quantidade,
         url_pagamento,
         valor_total: PRICE * quantidade,
+        presidente,
       });
     }
     setUrlPagamento(url_pagamento);
@@ -175,12 +172,7 @@ export default function CheckoutPage({ searchParams }: CheckoutPageProps) {
               irParaProximoPasso={() => irParaPagamento()}
             />
           )}
-          {passo === EPasso.PAGAMENTO && (
-            <Pagamento
-              url={urlPagamento}
-              irParaProximoPasso={() => setPasso(EPasso.REVISAO)}
-            />
-          )}
+          {passo === EPasso.PAGAMENTO && <Pagamento url={urlPagamento} />}
           {pedido && <Revisao pedido={pedido} />}
           <Logout />
         </>

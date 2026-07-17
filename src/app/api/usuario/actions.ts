@@ -1,7 +1,7 @@
 'use server';
 
 import db from '@api/db';
-import { IUsuario, IUsuarioNovo } from '@lib/types';
+import { IUsuario, IUsuario } from '@lib/types';
 
 export async function verificarEmailCadastrado(
   email: string,
@@ -18,9 +18,7 @@ export async function verificarEmailCadastrado(
   }
 }
 
-export async function adicionarNovoUsuario(
-  usuario: IUsuarioNovo,
-): Promise<void> {
+export async function adicionarNovoUsuario(usuario: IUsuario): Promise<void> {
   try {
     const { nome, email, telefone, whatsapp } = usuario;
     await db.query<IUsuario>(
