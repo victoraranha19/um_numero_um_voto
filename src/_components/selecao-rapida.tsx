@@ -6,16 +6,12 @@ interface SelecaoRapidaProps {
   maximoSelecao: number;
   quantidadeSelecionada: number;
   setQuantidadeSelecionada: (n: number) => void;
-  adicionarNovasCotas: (q: number) => void;
-  definirCotas: (q: number) => void;
 }
 
 export default function SelecaoRapida({
   maximoSelecao,
   quantidadeSelecionada,
   setQuantidadeSelecionada,
-  adicionarNovasCotas,
-  definirCotas,
 }: SelecaoRapidaProps) {
   const [outro, setOutro] = useState(quantidadeSelecionada.toString());
 
@@ -25,7 +21,6 @@ export default function SelecaoRapida({
     const novoNumero = soma > maximoSelecao ? maximoSelecao : soma;
     setQuantidadeSelecionada(novoNumero);
     setOutro(novoNumero.toString());
-    adicionarNovasCotas(value);
   }
 
   function handleTextField(value: string) {
@@ -35,13 +30,11 @@ export default function SelecaoRapida({
     const novoNumero = numero > maximoSelecao ? maximoSelecao : numero;
     setQuantidadeSelecionada(novoNumero);
     setOutro(novoNumero.toString());
-    definirCotas(novoNumero);
   }
 
   function handleLimpar() {
     setQuantidadeSelecionada(0);
     setOutro('');
-    definirCotas(0);
   }
 
   return (

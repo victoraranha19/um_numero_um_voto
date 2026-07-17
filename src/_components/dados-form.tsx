@@ -21,19 +21,19 @@ export default function DadosForm({
 
   function handleTelefoneChange(t: string) {
     if (usuario) {
-      const telefone = maskPhone(t);
+      const telefone = getMaskedPhone(t);
       setUsuario({ ...usuario, telefone });
     }
   }
 
   function handleWhatsappChange(w: string) {
     if (usuario) {
-      const whatsapp = maskPhone(w);
+      const whatsapp = getMaskedPhone(w);
       setUsuario({ ...usuario, whatsapp });
     }
   }
 
-  function maskPhone(phone: string, totalDigits = 11): string {
+  function getMaskedPhone(phone: string, totalDigits = 11): string {
     const digitos = phone.replaceAll(/\D/g, '');
     const numero = parseInt(digitos);
 

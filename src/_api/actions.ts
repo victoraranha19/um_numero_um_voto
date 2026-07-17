@@ -6,26 +6,14 @@ import db from './db';
 export async function criarCota(cota: ICota): Promise<ICota | null> {
   try {
     await db.query(
-      `INSERT INTO cotas (numero,presidente,id_transacao) 
-      VALUES ($1, $2, $3)`,
-      [cota.numero, cota.presidente, cota.id_transacao],
+      `INSERT INTO cotas (numero,id_transacao) 
+      VALUES ($1, $2)`,
+      [cota.numero, cota.id_transacao],
     );
     return null;
   } catch (error) {
     console.error('Erro ao criar cota:', error);
     return cota;
-  }
-}
-
-export async function getNumeroCotasDisponiveis(): Promise<number> {
-  try {
-    const result = await db.query<{ count: number }>(
-      `SELECT COUNT(*) FROM cotas WHERE id_transacao IS NULL`,
-    );
-    return result.rows[0].count;
-  } catch (error) {
-    console.error('Erro ao buscar quantidade de cotas disponíveis:', error);
-    return 0;
   }
 }
 

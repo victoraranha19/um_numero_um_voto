@@ -19,6 +19,7 @@
     "@mui/material-nextjs": "^9.1.1",
     "firebase": "^12.15.0",
     "jwt-decode": "^4.0.0",
+    "jwt-encode": "^1.0.1",
     "next": "16.2.9",
     "pg": "^8.22.0",
     "react": "19.2.4",
@@ -27,6 +28,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.2",
+    "@types/jwt-encode": "^1.0.3",
     "@types/node": "^20",
     "@types/pg": "^8.20.0",
     "@types/react": "^19",

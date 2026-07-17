@@ -1,28 +1,15 @@
 import { JwtPayload } from 'jwt-decode';
 
-export interface IUsuario {
+export interface IUsuarioNovo {
   email: string;
   nome: string;
   telefone: string;
   whatsapp: string;
 }
+export interface IUsuario extends IUsuarioNovo {
+  presidente: EPresidente;
+}
 
-// export interface ITransacao {
-//   order_nsu: string;
-//   url_pagamento: string;
-//   quantidade: number;
-//   valor_total: number;
-//   email_usuario: number;
-
-//   slug: string;
-//   valor_pago: number;
-//   parcelas: number;
-//   metodo_pagamento: EMetodo;
-//   transaction_nsu: string;
-//   url_recibo: string;
-//   foi_pago: boolean;
-//   sucesso: boolean;
-// }
 export interface ITransacaoNova {
   order_nsu: string;
   url_pagamento: string;
@@ -30,10 +17,19 @@ export interface ITransacaoNova {
   valor_total: number;
   email_usuario: string;
 }
+export interface ITransacao extends ITransacaoNova {
+  slug: string;
+  valor_pago: number;
+  parcelas: number;
+  metodo_pagamento: EMetodo;
+  transaction_nsu: string;
+  url_recibo: string;
+  foi_pago: boolean;
+  sucesso: boolean;
+}
 
 export interface ICota {
   numero: number;
-  presidente: EPresidente;
   id_transacao: string;
 }
 

@@ -1,8 +1,7 @@
 import db from '@api/db';
-import { EMetodo, ITransacao } from '@lib/types';
-import { NextResponse } from 'next/server';
-import { IWebhookParams } from './transacoes.utils';
 import { EPapel, getEmailFromJWT } from '../usuario/usuario.utils';
+import { ICota } from '@lib/types';
+import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
   try {
@@ -16,9 +15,12 @@ export async function GET(request: Request) {
     const order_nsu = searchParams.get('id');
 
     if (!order_nsu) {
-      // Retorna todos os pedidos do usuário
-      const result = await db.query<ITransacao>(
-        'SELECT * FROM transacoes WHERE email = $1',
+      // Retorna todas as cotas do usuário
+      const result = await db.query<ICota>(
+        `SELECT c.numero, c.id_transacao
+        FROM usuarios u JOIN transacoes t ON u.email = t.email_usuario
+        JOIN cotas c ON t.order_nsu = c.id_transacao
+        WHERE email = $1`,
         [emailProprio],
       );
       return NextResponse.json(result.rows);
@@ -39,41 +41,14 @@ export async function GET(request: Request) {
     ).rows[0].admin;
     if (!administrador && !dono_pedido) throw new Error('Não autorizado!');
 
-    // Retorna pedido pesquisado
-    const result = await db.query<ITransacao>(
-      'SELECT * FROM transacoes WHERE order_nsu = $1',
+    // Retorna cotas do pedido pesquisado
+    const result = await db.query<ICota>(
+      'SELECT numero, id_transacao FROM cotas WHERE order_nsu = $1',
       [order_nsu],
     );
     return NextResponse.json(result.rows);
   } catch (error) {
     console.error('Erro ao buscar transação:', error);
     return NextResponse.json([], { status: 400 });
-  }
-}
-
-export async function POST(request: Request) {
-  try {
-    const body: IWebhookParams = await request.json();
-    await db.query(
-      `UPDATE transacoes 
-      SET slug=$1, valor_pago=$3, parcelas=$4, metodo_pagamento=$5,
-      nsu=$6, url_recibo=$7, foi_pago=$8, sucesso=TRUE, data_pagamento=$9
-      WHERE order_nsu = $10`,
-      [
-        body.invoice_slug,
-        body.paid_amount,
-        body.installments,
-        body.capture_method === 'credit_card' ? EMetodo.CREDITO : EMetodo.PIX,
-        body.transaction_nsu,
-        body.receipt_url,
-        body.amount <= body.paid_amount,
-        new Date(),
-        body.order_nsu,
-      ],
-    );
-    return NextResponse.json([], { status: 200 });
-  } catch (error) {
-    console.error('Erro ao atualizar transação:', error);
-    return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
   }
 }

@@ -72,6 +72,7 @@ const createTableUsuariosQuery = `
     nome VARCHAR(30) NOT NULL,
     telefone VARCHAR(20) NOT NULL,
     whatsapp VARCHAR(20) NOT NULL,
+    presidente CHAR(1) DEFAULT 'N' NOT NULL,
     papel CHAR(1) DEFAULT 'C' NOT NULL,
     ativo BOOLEAN DEFAULT TRUE NOT NULL
   );
@@ -79,9 +80,9 @@ const createTableUsuariosQuery = `
 const createTableTransacoesQuery = `
   CREATE TABLE IF NOT EXISTS transacoes (
     order_nsu VARCHAR(255) PRIMARY KEY,
-    url_pagamento VARCHAR(255) UNIQUE NOT NULL,
+    url_pagamento VARCHAR(512) UNIQUE NOT NULL,
     nsu VARCHAR(255),
-    url_recibo VARCHAR(255),
+    url_recibo VARCHAR(512),
     slug VARCHAR(255),
     valor_total INTEGER NOT NULL,
     quantidade INTEGER NOT NULL,
@@ -101,7 +102,6 @@ const createTableCotasQuery = `
   CREATE TABLE IF NOT EXISTS cotas (
     id SERIAL PRIMARY KEY,
     numero INTEGER,
-    presidente CHAR(1) NOT NULL,
     premiada BOOLEAN DEFAULT FALSE,
 
     id_transacao VARCHAR(255),
@@ -116,12 +116,6 @@ const initDb = async (): Promise<void> => {
     await pool.query(createTableUsuariosQuery);
     await pool.query(createTableTransacoesQuery);
     await pool.query(createTableCotasQuery);
-    for (let i = 0; i < 500; i++) {
-      await pool.query(
-        `INSERT INTO cotas (numero) VALUES ($1) ON CONFLICT DO NOTHING`,
-        [i + 1],
-      );
-    }
     console.log('Banco de dados inicializado com sucesso.');
   } catch (error) {
     console.error('Erro inicializando banco de dados:', error);

@@ -1,14 +1,15 @@
 import { IUsuario } from '@/_lib/types';
 import db from '@api/db';
 
-import { getEmailFromCookieHeader } from './usuario.utils';
+import { EPapel, getEmailFromJWT } from './usuario.utils';
+import { NextResponse } from 'next/server';
 
 export async function GET(request: Request): Promise<Response> {
   try {
     // Verifica autenticação do usuário
     const cookie = request.headers.get('Cookie');
     if (!cookie) throw new Error('Não autenticado! Cookie não encontrado.');
-    const emailProprio = getEmailFromCookieHeader(cookie);
+    const emailProprio = getEmailFromJWT(cookie);
 
     // Verifica se exite parâmetro email na url
     const { searchParams } = new URL(request.url);
@@ -17,18 +18,18 @@ export async function GET(request: Request): Promise<Response> {
     if (!emailPesquisado) {
       // Retorna proprio email
       const result = await db.query<IUsuario>(
-        'SELECT nome, email, telefone, whatsapp FROM usuarios WHERE email = $1',
+        'SELECT nome, email, telefone, whatsapp, presidente FROM usuarios WHERE email = $1',
         [emailProprio],
       );
-      return Response.json(result.rows);
+      return NextResponse.json(result.rows);
     }
 
     if (emailPesquisado !== emailProprio) {
       // Verifica se o usuário é admin
       const administrador = (
         await db.query<{ admin: boolean }>(
-          'SELECT acesso FROM usuarios WHERE email = $1',
-          [emailProprio],
+          'SELECT EXISTS (SELECT 1 FROM usuarios WHERE email = $1 AND papel = $2) AS admin',
+          [emailProprio, EPapel.ADMIN],
         )
       ).rows[0].admin;
       if (!administrador) throw new Error('Não autorizado!');
@@ -36,12 +37,12 @@ export async function GET(request: Request): Promise<Response> {
 
     // Retorna email pesquisado
     const result = await db.query<IUsuario>(
-      'SELECT nome, email, telefone, whatsapp FROM usuarios WHERE email = $1',
+      'SELECT nome, email, telefone, whatsapp, presidente FROM usuarios WHERE email = $1',
       [emailPesquisado],
     );
-    return Response.json(result.rows);
+    return NextResponse.json(result.rows);
   } catch (error) {
     console.error('Erro ao buscar usuário:', error);
-    return Response.json([], { status: 400 });
+    return NextResponse.json([], { status: 400 });
   }
 }

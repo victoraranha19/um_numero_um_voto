@@ -2,12 +2,11 @@
 
 import db from '@api/db';
 import { ITransacaoNova } from '@lib/types';
-import { revalidatePath } from 'next/cache';
 
 export async function verificarPedidosUsuario(email: string): Promise<number> {
   try {
     const result = await db.query<{ count: number }>(
-      'SELECT COUNT(*) FROM transacoes WHERE email = $1',
+      'SELECT COUNT(*) FROM transacoes WHERE email_usuario = $1',
       [email],
     );
     return result.rows[0].count;
@@ -17,12 +16,27 @@ export async function verificarPedidosUsuario(email: string): Promise<number> {
   }
 }
 
+export async function verificarUrlPagamento(
+  url_pagamento: string,
+): Promise<number> {
+  try {
+    const result = await db.query<{ count: number }>(
+      'SELECT COUNT(*) FROM transacoes WHERE url_pagamento = $1',
+      [url_pagamento],
+    );
+    return result.rows[0].count;
+  } catch (error) {
+    console.error('Erro ao verificar pedidos com url_pagamento:', error);
+    throw new Error('Erro ao verificar pedidos com url_pagamento');
+  }
+}
+
 export async function criarPedido(transacao: ITransacaoNova): Promise<void> {
   try {
     await db.query(
       `INSERT INTO
       transacoes (order_nsu, url_pagamento, valor_total, quantidade, email_usuario)
-      VALUES ($1, $2, $3, $4)`,
+      VALUES ($1, $2, $3, $4, $5)`,
       [
         transacao.order_nsu,
         transacao.url_pagamento,
@@ -35,6 +49,4 @@ export async function criarPedido(transacao: ITransacaoNova): Promise<void> {
     console.error('Erro ao criar pedido de compra:', error);
     throw new Error('Erro ao criar pedido de compra.');
   }
-  // Revalida a rota raiz para atualizar os dados
-  revalidatePath('/');
 }
