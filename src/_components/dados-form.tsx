@@ -1,6 +1,6 @@
 'use client';
 
-import { salvarDadosUsuario } from '@/app/api/usuario/actions';
+import { salvarDadosUsuario } from '@app/api/usuario/actions';
 import { IUsuario } from '@lib/types';
 import { Button, InputAdornment, TextField } from '@mui/material';
 

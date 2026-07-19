@@ -19,10 +19,10 @@
       }
     ],
     "paths": {
-      "@/*": ["src/*"],
-      "@components/*": ["src/_components/*"],
-      "@lib/*": ["src/_lib/*"],
-      "@api/*": ["src/_api/*"]
+      "@app/*": ["./src/app/*"],
+      "@components/*": ["./src/_components/*"],
+      "@lib/*": ["./src/_lib/*"],
+      "@api/*": ["./src/_api/*"]
     }
   },
   "include": [

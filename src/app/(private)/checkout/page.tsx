@@ -1,16 +1,16 @@
 'use client';
 
-import { auth } from '@/_api/auth';
-import Login from '@/_components/login';
-import Logout from '@/_components/logout';
-import Revisao from '@/_components/revisao';
+import { auth } from '@api/auth';
+import Login from '@components/login';
+import Logout from '@components/logout';
+import Revisao from '@components/revisao';
 import {
   criarPedido,
   getQuantidadePedidosUsuario,
   getUrlPagamentoPedidoPendente,
-} from '@/app/api/transacoes/actions';
-import { adicionarNovoUsuario } from '@/app/api/usuario/actions';
-import { getJWTFromEmail } from '@/app/api/usuario/usuario.utils';
+} from '@app/api/transacoes/actions';
+import { adicionarNovoUsuario } from '@app/api/usuario/actions';
+import { getJWTFromEmail } from '@app/api/usuario/usuario.utils';
 import { getURLPagamento } from '@api/actions';
 import DadosForm from '@components/dados-form';
 import Pagamento from '@components/pagamento';

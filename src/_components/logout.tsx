@@ -1,6 +1,6 @@
 'use client';
 
-import { auth } from '@/_api/auth';
+import { auth } from '@api/auth';
 import { Button } from '@mui/material';
 import { signOut } from 'firebase/auth';
 

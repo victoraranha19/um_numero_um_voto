@@ -1,4 +1,4 @@
-import { IUsuario } from '@/_lib/types';
+import { IUsuario } from '@lib/types';
 import db from '@api/db';
 
 import { EPapel, getEmailFromJWT } from './usuario.utils';

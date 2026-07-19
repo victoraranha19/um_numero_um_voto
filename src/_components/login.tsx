@@ -1,6 +1,6 @@
 'use client';
 
-import { IUsuario } from '@/_lib/types';
+import { IUsuario } from '@lib/types';
 import { auth } from '@api/auth';
 import { Button, Typography } from '@mui/material';
 import { signInWithPopup, GoogleAuthProvider, User } from 'firebase/auth';
