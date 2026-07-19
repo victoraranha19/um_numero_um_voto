@@ -146,7 +146,6 @@ function CheckoutContent() {
           }
 
           if (order_nsu) {
-            console.log('com order_nsu', order_nsu);
             const url = new URL('/api/transacoes');
             url.searchParams.set('id', order_nsu);
             fetch(url, { method: 'GET' })
@@ -165,13 +164,7 @@ function CheckoutContent() {
             return;
           }
 
-          console.log('sem order_nsu', order_nsu);
           if (!presidente || !quantidade) {
-            console.log(
-              'sem presidente, sem quantidade',
-              presidente,
-              quantidade,
-            );
             window.location.href = SITE_URL;
             return;
           }
@@ -187,7 +180,6 @@ function CheckoutContent() {
             getQuantidadePedidosUsuario(u.email)
               .then((qp) => {
                 const payload = getPayload(presidente, quantidade, u, qp + 1);
-                console.log(payload);
                 order_nsu = payload.order_nsu;
                 return getURLPagamento(payload);
               })
