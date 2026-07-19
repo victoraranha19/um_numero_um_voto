@@ -59,14 +59,6 @@ export async function POST(request: Request) {
       amount,
       order_nsu,
     }: IWebhookParams = await request.json();
-    await db`INSERT INTO testes (log) VALUES (${invoice_slug})`;
-    await db`INSERT INTO testes (log) VALUES (${paid_amount})`;
-    await db`INSERT INTO testes (log) VALUES (${installments})`;
-    await db`INSERT INTO testes (log) VALUES (${capture_method})`;
-    await db`INSERT INTO testes (log) VALUES (${transaction_nsu})`;
-    await db`INSERT INTO testes (log) VALUES (${receipt_url})`;
-    await db`INSERT INTO testes (log) VALUES (${amount})`;
-    await db`INSERT INTO testes (log) VALUES (${order_nsu})`;
 
     const metodo_pagamento =
       capture_method === 'credit_card'
@@ -74,13 +66,11 @@ export async function POST(request: Request) {
         : capture_method === 'pix'
           ? EMetodo.PIX
           : EMetodo.APPLEPAY;
-    await db`INSERT INTO testes (log) VALUES (${metodo_pagamento})`;
     const foi_pago = amount <= paid_amount;
-    await db`INSERT INTO testes (log) VALUES (${foi_pago})`;
 
     await db`UPDATE transacoes
       SET slug=${invoice_slug}, valor_pago=${paid_amount}, parcelas=${installments}, metodo_pagamento=${metodo_pagamento},
-      nsu=${transaction_nsu}, url_recibo=${receipt_url}, foi_pago=${foi_pago}, sucesso=TRUE, data_pagamento=$${new Date()}
+      nsu=${transaction_nsu}, url_recibo=${receipt_url}, foi_pago=${foi_pago}, sucesso=TRUE, data_pagamento=${new Date()}
       WHERE order_nsu = ${order_nsu}`;
     await db`INSERT INTO testes (log) VALUES ('SUCCESS UPDATE')`;
 

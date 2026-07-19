@@ -67,12 +67,10 @@ function CheckoutContent() {
   const getPayload = useCallback(
     (p: EPresidente, q: number, u: IUsuario, np: number): IPayload => {
       const order_nsu = `${np}#${crypto.randomUUID()}`;
-      const redirect_url = new URL(REDIRECT_URL);
-      redirect_url.searchParams.set('o', order_nsu);
       const payload: IPayload = {
         handle: HANDLE,
         webhook_url: WEBHOOK_URL,
-        redirect_url: redirect_url.href,
+        redirect_url: REDIRECT_URL,
         items: [
           {
             description: `Voto(s) para ${PRESIDENTE[p]}`,
