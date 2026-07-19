@@ -14,7 +14,13 @@ import { getJWTFromEmail } from '@app/api/usuario/usuario.utils';
 import { getURLPagamento } from '@api/actions';
 import DadosForm from '@components/dados-form';
 import Pagamento from '@components/pagamento';
-import { HANDLE, PRESIDENTE, PRICE, WEBHOOK_URL } from '@lib/constants';
+import {
+  HANDLE,
+  PRESIDENTE,
+  PRICE,
+  SITE_URL,
+  WEBHOOK_URL,
+} from '@lib/constants';
 import {
   EPresidente,
   IPayload,
@@ -145,6 +151,7 @@ export default function CheckoutPage({ searchParams }: CheckoutPageProps) {
   useEffect(() => {
     searchParams.then((s) => {
       if (s.o) {
+        console.log('com order_nsu', s, s.o);
         const url = new URL('/api/transacoes');
         url.searchParams.set('id', s.o);
         fetch(url, { method: 'GET' })
@@ -163,24 +170,20 @@ export default function CheckoutPage({ searchParams }: CheckoutPageProps) {
         return;
       }
 
+      console.log('sem order_nsu', s, s.o);
       if (!s.p || !s.q) {
-        const url = new URL(
-          window.location.href.slice(
-            0,
-            window.location.href.indexOf('/checkout'),
-          ),
-        );
-        window.location.href = url.href;
+        console.log('sem presidente, sem quantidade', s, s.p, s.q);
+        window.location.href = SITE_URL;
         return;
       }
 
+      console.log('com presidente, com quantidade', s, s.p, s.q);
       setPresidente(s.p);
       setQuantidade(parseInt(s.q));
       if (!usuario || !(usuario.telefone || usuario.whatsapp)) {
         setPasso(EPasso.IDENTIFICACAO);
         return;
       }
-      console.log('tem');
       setPasso(EPasso.PAGAMENTO);
       getUrlPagamentoPedidoPendente(parseInt(s.q)).then((url) => {
         if (url.length) {
