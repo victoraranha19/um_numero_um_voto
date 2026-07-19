@@ -53,23 +53,59 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const body: IWebhookParams = await request.json();
+    const body = JSON.stringify(await request.json());
     await db.query(
-      `UPDATE transacoes 
-      SET slug=$1, valor_pago=$3, parcelas=$4, metodo_pagamento=$5,
-      nsu=$6, url_recibo=$7, foi_pago=$8, sucesso=TRUE, data_pagamento=$9
-      WHERE order_nsu = $10`,
-      [
-        body.invoice_slug,
-        body.paid_amount,
-        body.installments,
-        body.capture_method === 'credit_card' ? EMetodo.CREDITO : EMetodo.PIX,
-        body.transaction_nsu,
-        body.receipt_url,
-        body.amount <= body.paid_amount,
-        new Date(),
-        body.order_nsu,
-      ],
+      `INSERT INTO testes (method, body)
+      VALUE ('POST', $1)`,
+      [body],
+    );
+    // const body: IWebhookParams = await request.json();
+    // await db.query(
+    //   `UPDATE transacoes
+    //   SET slug=$1, valor_pago=$3, parcelas=$4, metodo_pagamento=$5,
+    //   nsu=$6, url_recibo=$7, foi_pago=$8, sucesso=TRUE, data_pagamento=$9
+    //   WHERE order_nsu = $10`,
+    //   [
+    //     body.invoice_slug,
+    //     body.paid_amount,
+    //     body.installments,
+    //     body.capture_method === 'credit_card' ? EMetodo.CREDITO : EMetodo.PIX,
+    //     body.transaction_nsu,
+    //     body.receipt_url,
+    //     body.amount <= body.paid_amount,
+    //     new Date(),
+    //     body.order_nsu,
+    //   ],
+    // );
+    return NextResponse.json([], { status: 200 });
+  } catch (error) {
+    console.error('Erro ao atualizar transação:', error);
+    return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+  }
+}
+
+export async function PUT(request: Request) {
+  try {
+    const body = JSON.stringify(await request.json());
+    await db.query(
+      `INSERT INTO testes (method, body)
+      VALUE ('PUT', $1)`,
+      [body],
+    );
+    return NextResponse.json([], { status: 200 });
+  } catch (error) {
+    console.error('Erro ao atualizar transação:', error);
+    return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+  }
+}
+
+export async function PATCH(request: Request) {
+  try {
+    const body = JSON.stringify(await request.json());
+    await db.query(
+      `INSERT INTO testes (method, body)
+      VALUE ('PATCH', $1)`,
+      [body],
     );
     return NextResponse.json([], { status: 200 });
   } catch (error) {
