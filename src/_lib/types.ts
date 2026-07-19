@@ -44,22 +44,22 @@ export interface IJWTToken extends JwtPayload {
   };
 }
 
-export interface IPayload {
-  handle: string;
-  items: IItem[];
-  customer?: Partial<IPayloadCustomer>;
-  webhook_url?: string;
-  order_nsu?: string;
-}
 export interface IItem {
   quantity: number;
   price: number;
   description: string;
 }
-interface IPayloadCustomer {
+export interface IPayloadCustomer {
   name: string;
   email: string;
   phone_number: string;
+}
+export interface IPayload {
+  handle: string;
+  items: IItem[];
+  customer?: Partial<IPayloadCustomer>;
+  webhook_url?: string;
+  order_nsu: string;
 }
 
 // Utils

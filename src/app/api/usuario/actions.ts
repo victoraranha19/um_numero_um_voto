@@ -1,7 +1,7 @@
 'use server';
 
 import db from '@api/db';
-import { IUsuario, IUsuario } from '@lib/types';
+import { IUsuario } from '@lib/types';
 
 export async function verificarEmailCadastrado(
   email: string,
@@ -37,19 +37,6 @@ export async function salvarDadosUsuario(usuario: IUsuario) {
     await db.query<IUsuario>(
       `UPDATE usuarios SET nome=$1, telefone=$2, whatsapp=$3 WHERE email=$4`,
       [nome, telefone, whatsapp, email],
-    );
-  } catch (error) {
-    console.error(error);
-    throw new Error('Erro ao adicionar novo usuário.');
-  }
-}
-
-export async function salvarPresidente(usuario: IUsuario) {
-  try {
-    const { presidente, email } = usuario;
-    await db.query<IUsuario>(
-      `UPDATE usuarios SET presidente=$1 WHERE email=$2`,
-      [presidente, email],
     );
   } catch (error) {
     console.error(error);

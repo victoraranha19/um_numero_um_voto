@@ -18,7 +18,7 @@ export async function GET(request: Request): Promise<Response> {
     if (!emailPesquisado) {
       // Retorna proprio email
       const result = await db.query<IUsuario>(
-        'SELECT nome, email, telefone, whatsapp, presidente FROM usuarios WHERE email = $1',
+        'SELECT nome, email, telefone, whatsapp FROM usuarios WHERE email = $1',
         [emailProprio],
       );
       return NextResponse.json(result.rows);
@@ -37,7 +37,7 @@ export async function GET(request: Request): Promise<Response> {
 
     // Retorna email pesquisado
     const result = await db.query<IUsuario>(
-      'SELECT nome, email, telefone, whatsapp, presidente FROM usuarios WHERE email = $1',
+      'SELECT nome, email, telefone, whatsapp FROM usuarios WHERE email = $1',
       [emailPesquisado],
     );
     return NextResponse.json(result.rows);

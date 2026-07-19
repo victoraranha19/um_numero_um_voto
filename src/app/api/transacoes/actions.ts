@@ -19,14 +19,14 @@ export async function getQuantidadePedidosUsuario(
 }
 
 export async function getUrlPagamentoPedidoPendente(
-  payload: IPayload,
+  quantidade: number,
 ): Promise<string> {
   try {
     const result = await db.query<{ url_pagamento: string }>(
       'SELECT url_pagamento FROM transacoes WHERE quantidade = $1 AND foi_pago = FALSE',
-      [payload.items[0].quantity],
+      [quantidade],
     );
-    return result.rows[0].url_pagamento ?? '';
+    return result.rows[0]?.url_pagamento ?? '';
   } catch (error) {
     console.error('Erro ao verificar pedidos com url_pagamento:', error);
     throw new Error('Erro ao verificar pedidos com url_pagamento');
@@ -37,11 +37,12 @@ export async function criarPedido(transacao: ITransacaoNova): Promise<void> {
   try {
     await db.query(
       `INSERT INTO
-      transacoes (order_nsu, url_pagamento, valor_total, quantidade, email_usuario)
-      VALUES ($1, $2, $3, $4, $5)`,
+      transacoes (order_nsu, url_pagamento, presidente, valor_total, quantidade, email_usuario)
+      VALUES ($1, $2, $3, $4, $5, $6)`,
       [
         transacao.order_nsu,
         transacao.url_pagamento,
+        transacao.presidente,
         transacao.valor_total,
         transacao.quantidade,
         transacao.email_usuario,
