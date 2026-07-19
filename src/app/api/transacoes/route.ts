@@ -5,20 +5,6 @@ import { NextResponse } from 'next/server';
 import { EPapel, getEmailFromJWT } from '../usuario/usuario.utils';
 import { IWebhookParams } from './transacoes.utils';
 
-const ALLOWED_ORIGIN = '*';
-
-export async function OPTIONS() {
-  return new Response(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      'Access-Control-Allow-Credentials': 'true',
-    },
-  });
-}
-
 export async function GET(request: Request) {
   try {
     // Verifica autenticação do usuário
@@ -87,10 +73,7 @@ export async function POST(request: Request) {
       nsu=${transaction_nsu}, url_recibo=${receipt_url}, foi_pago=${foi_pago}, sucesso=TRUE, data_pagamento=$${new Date()}
       WHERE order_nsu = ${order_nsu}`;
 
-    return NextResponse.json([], {
-      headers: { 'Access-Control-Allow-Origin': ALLOWED_ORIGIN },
-      status: 200,
-    });
+    return NextResponse.json([], { status: 200 });
   } catch (error) {
     console.error('Erro ao atualizar transação:', error);
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
