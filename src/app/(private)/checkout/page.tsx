@@ -22,13 +22,7 @@ import {
   SITE_URL,
   WEBHOOK_URL,
 } from '@lib/constants';
-import {
-  EPresidente,
-  IPayload,
-  ITransacao,
-  IUsuario,
-  IPayloadCustomer,
-} from '@lib/types';
+import { EPresidente, IPayload, IUsuario, IPayloadCustomer } from '@lib/types';
 import { Step, StepLabel, Stepper } from '@mui/material';
 import { onAuthStateChanged } from 'firebase/auth';
 import { Suspense, useCallback, useEffect, useState } from 'react';
@@ -38,11 +32,17 @@ function CheckoutContent() {
   const searchParams = useSearchParams();
   const presidente = searchParams.get('p') as EPresidente;
   const quantidade = parseInt(searchParams.get('q') ?? '0');
-  const order_nsu = searchParams.get('o');
+  const order_nsu = searchParams.get('order_nsu');
+  const capture_method = searchParams.get('capture_method');
+  const transaction_id = searchParams.get('transaction_id');
+  const transaction_nsu = searchParams.get('transaction_nsu');
+  const slug = searchParams.get('slug');
+  const receipt_url = searchParams.get('receipt_url');
 
-  const [passo, setPasso] = useState<EPasso>(EPasso.PAGAMENTO);
+  const [passo, setPasso] = useState<EPasso>(
+    order_nsu ? EPasso.REVISAO : EPasso.PAGAMENTO,
+  );
   const [urlPagamento, setUrlPagamento] = useState<string>('');
-  const [pedido, setPedido] = useState<ITransacao | null>(null);
   const [usuario, setUsuario] = useState<IUsuario | null>(null);
 
   function getPhoneNumber(t1?: string, t2?: string): string | undefined {
@@ -145,25 +145,7 @@ function CheckoutContent() {
             return;
           }
 
-          if (order_nsu) {
-            const url = new URL('/api/transacoes');
-            url.searchParams.set('id', order_nsu);
-            fetch(url, { method: 'GET' })
-              .then((r) => r.json())
-              .then(([t]: ITransacao[]) => {
-                if (!t) return;
-                if (t.foi_pago) {
-                  setPasso(EPasso.REVISAO);
-                  setPedido(t);
-                } else {
-                  setPasso(EPasso.PAGAMENTO);
-                  setUrlPagamento(t.url_pagamento);
-                  window.open(t.url_pagamento);
-                }
-              });
-            return;
-          }
-
+          if (order_nsu) return;
           if (!presidente || !quantidade) {
             window.location.href = SITE_URL;
             return;
@@ -228,7 +210,15 @@ function CheckoutContent() {
             />
           )}
           {passo === EPasso.PAGAMENTO && <Pagamento url={urlPagamento} />}
-          {pedido && <Revisao pedido={pedido} />}
+          {order_nsu?.length && (
+            <Revisao
+              order_nsu={order_nsu}
+              capture_method={capture_method}
+              transaction_nsu={transaction_nsu ?? transaction_id}
+              slug={slug}
+              receipt_url={receipt_url}
+            />
+          )}
           <Logout />
         </>
       ) : (
