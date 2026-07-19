@@ -1,8 +1,9 @@
 import db from '@api/db';
-import { ITransacao } from '@lib/types';
+import { EMetodo, ITransacao } from '@lib/types';
 import { NextResponse } from 'next/server';
 
 import { EPapel, getEmailFromJWT } from '../usuario/usuario.utils';
+import { IWebhookParams } from './transacoes.utils';
 
 const ALLOWED_ORIGIN = '*';
 
@@ -62,57 +63,30 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const body = JSON.stringify(await request.json());
-    await db`INSERT INTO testes (method, body)
-      VALUES ('POST', ${body})`;
-    // const body: IWebhookParams = await request.json();
-    // await db.query(
-    //   `UPDATE transacoes
-    //   SET slug=$1, valor_pago=$3, parcelas=$4, metodo_pagamento=$5,
-    //   nsu=$6, url_recibo=$7, foi_pago=$8, sucesso=TRUE, data_pagamento=$9
-    //   WHERE order_nsu = $10`,
-    //   [
-    //     body.invoice_slug,
-    //     body.paid_amount,
-    //     body.installments,
-    //     body.capture_method === 'credit_card' ? EMetodo.CREDITO : EMetodo.PIX,
-    //     body.transaction_nsu,
-    //     body.receipt_url,
-    //     body.amount <= body.paid_amount,
-    //     new Date(),
-    //     body.order_nsu,
-    //   ],
-    // );
-    return NextResponse.json([], {
-      headers: { 'Access-Control-Allow-Origin': ALLOWED_ORIGIN },
-      status: 200,
-    });
-  } catch (error) {
-    console.error('Erro ao atualizar transação:', error);
-    return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
-  }
-}
+    const {
+      invoice_slug,
+      paid_amount,
+      installments,
+      capture_method,
+      transaction_nsu,
+      receipt_url,
+      amount,
+      order_nsu,
+    }: IWebhookParams = await request.json();
 
-export async function PUT(request: Request) {
-  try {
-    const body = JSON.stringify(await request.json());
-    await db`INSERT INTO testes (method, body)
-      VALUES ('PUT', ${body})`;
-    return NextResponse.json([], {
-      headers: { 'Access-Control-Allow-Origin': ALLOWED_ORIGIN },
-      status: 200,
-    });
-  } catch (error) {
-    console.error('Erro ao atualizar transação:', error);
-    return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
-  }
-}
+    const metodo_pagamento =
+      capture_method === 'credit_card'
+        ? EMetodo.CREDITO
+        : capture_method === 'pix'
+          ? EMetodo.PIX
+          : EMetodo.APPLEPAY;
+    const foi_pago = amount <= paid_amount;
 
-export async function PATCH(request: Request) {
-  try {
-    const body = JSON.stringify(await request.json());
-    await db`INSERT INTO testes (method, body)
-      VALUES ('PATCH', ${body})`;
+    await db`UPDATE transacoes
+      SET slug=${invoice_slug}, valor_pago=${paid_amount}, parcelas=${installments}, metodo_pagamento=${metodo_pagamento},
+      nsu=${transaction_nsu}, url_recibo=${receipt_url}, foi_pago=${foi_pago}, sucesso=TRUE, data_pagamento=$${new Date()}
+      WHERE order_nsu = ${order_nsu}`;
+
     return NextResponse.json([], {
       headers: { 'Access-Control-Allow-Origin': ALLOWED_ORIGIN },
       status: 200,

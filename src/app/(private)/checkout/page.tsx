@@ -18,6 +18,7 @@ import {
   HANDLE,
   PRESIDENTE,
   PRICE,
+  REDIRECT_URL,
   SITE_URL,
   WEBHOOK_URL,
 } from '@lib/constants';
@@ -65,9 +66,13 @@ function CheckoutContent() {
 
   const getPayload = useCallback(
     (p: EPresidente, q: number, u: IUsuario, np: number): IPayload => {
+      const order_nsu = `${u.email}#${np}`;
+      const redirect_url = new URL(REDIRECT_URL);
+      redirect_url.searchParams.set('o', order_nsu);
       const payload: IPayload = {
         handle: HANDLE,
         webhook_url: WEBHOOK_URL,
+        redirect_url: redirect_url.href,
         items: [
           {
             description: `Voto(s) para ${PRESIDENTE[p]}`,
@@ -76,7 +81,7 @@ function CheckoutContent() {
           },
         ],
         customer: getPayloadCostumer(u),
-        order_nsu: `${u.email}#${np}`,
+        order_nsu,
       };
       return payload;
     },

@@ -48,6 +48,7 @@ export interface IItem {
   quantity: number;
   price: number;
   description: string;
+  product_reference?: string | null;
 }
 export interface IPayloadCustomer {
   name: string;
@@ -59,6 +60,7 @@ export interface IPayload {
   items: IItem[];
   customer?: Partial<IPayloadCustomer>;
   webhook_url?: string;
+  redirect_url?: string;
   order_nsu: string;
 }
 
@@ -67,6 +69,7 @@ export interface IPayload {
 export enum EMetodo {
   PIX = 'P',
   CREDITO = 'C',
+  APPLEPAY = 'A',
 }
 
 export enum EPresidente {
