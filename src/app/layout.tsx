@@ -8,6 +8,7 @@ import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter';
 import type { Metadata } from 'next';
 import MyThemeProvider from './_theme/theme-provider';
 import { Typography } from '@mui/material';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export const metadata: Metadata = {
   title: 'Um número um voto',
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
             {children}
           </MyThemeProvider>
         </AppRouterCacheProvider>
+        <SpeedInsights />
       </body>
     </html>
   );

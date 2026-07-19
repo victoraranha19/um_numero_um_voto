@@ -30,21 +30,15 @@ import {
 } from '@lib/types';
 import { Step, StepLabel, Stepper } from '@mui/material';
 import { onAuthStateChanged } from 'firebase/auth';
-import { useCallback, useEffect, useState } from 'react';
+import { Suspense, useCallback, useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 
-type CheckoutSearchParams = Promise<{
-  q?: string;
-  p?: EPresidente;
-  o?: string;
-}>;
+function CheckoutContent() {
+  const searchParams = useSearchParams();
+  const presidente = searchParams.get('p') as EPresidente;
+  const quantidade = parseInt(searchParams.get('q') ?? '0');
+  const order_nsu = searchParams.get('o');
 
-interface CheckoutPageProps {
-  searchParams: CheckoutSearchParams;
-}
-
-export default function CheckoutPage({ searchParams }: CheckoutPageProps) {
-  const [presidente, setPresidente] = useState<EPresidente>(EPresidente.NENHUM);
-  const [quantidade, setQuantidade] = useState<number>(1);
   const [passo, setPasso] = useState<EPasso>(EPasso.PAGAMENTO);
   const [urlPagamento, setUrlPagamento] = useState<string>('');
   const [pedido, setPedido] = useState<ITransacao | null>(null);
@@ -139,84 +133,79 @@ export default function CheckoutPage({ searchParams }: CheckoutPageProps) {
               setUsuario(novoUsuario);
               setPasso(EPasso.IDENTIFICACAO);
             });
-          } else if (!u.telefone && !u.whatsapp) {
-            setPasso(EPasso.IDENTIFICACAO);
+            return;
           }
+          if (!u.telefone && !u.whatsapp) {
+            setPasso(EPasso.IDENTIFICACAO);
+            return;
+          }
+
+          if (order_nsu) {
+            console.log('com order_nsu', order_nsu);
+            const url = new URL('/api/transacoes');
+            url.searchParams.set('id', order_nsu);
+            fetch(url, { method: 'GET' })
+              .then((r) => r.json())
+              .then(([t]: ITransacao[]) => {
+                if (!t) return;
+                if (t.foi_pago) {
+                  setPasso(EPasso.REVISAO);
+                  setPedido(t);
+                } else {
+                  setPasso(EPasso.PAGAMENTO);
+                  setUrlPagamento(t.url_pagamento);
+                  window.open(t.url_pagamento);
+                }
+              });
+            return;
+          }
+
+          console.log('sem order_nsu', order_nsu);
+          if (!presidente || !quantidade) {
+            console.log(
+              'sem presidente, sem quantidade',
+              presidente,
+              quantidade,
+            );
+            window.location.href = SITE_URL;
+            return;
+          }
+
+          getUrlPagamentoPedidoPendente(quantidade).then((url) => {
+            if (url.length) {
+              setUrlPagamento(url);
+              window.open(url);
+              return;
+            }
+            let order_nsu = '';
+            let url_pagamento = '';
+            getQuantidadePedidosUsuario(u.email)
+              .then((qp) => {
+                const payload = getPayload(presidente, quantidade, u, qp + 1);
+                order_nsu = payload.order_nsu;
+                return getURLPagamento(payload);
+              })
+              .then((up) => {
+                url_pagamento = up;
+                return criarPedido({
+                  email_usuario: u.email,
+                  order_nsu,
+                  quantidade,
+                  url_pagamento,
+                  valor_total: PRICE * quantidade, // usando o 'q' local com segurança
+                  presidente: presidente,
+                });
+              })
+              .then(() => {
+                setUrlPagamento(url_pagamento);
+                window.open(url_pagamento);
+              });
+          });
         })
         .then(() => cookieStore.set('tokenX', getJWTFromEmail(user.email!)))
         .catch(() => cookieStore.delete('tokenX'));
     });
-  }, []);
-
-  useEffect(() => {
-    searchParams.then((s) => {
-      if (s.o) {
-        console.log('com order_nsu', s, s.o);
-        const url = new URL('/api/transacoes');
-        url.searchParams.set('id', s.o);
-        fetch(url, { method: 'GET' })
-          .then((r) => r.json())
-          .then(([t]: ITransacao[]) => {
-            if (!t) return;
-            if (t.foi_pago) {
-              setPasso(EPasso.REVISAO);
-              setPedido(t);
-            } else {
-              setPasso(EPasso.PAGAMENTO);
-              setUrlPagamento(t.url_pagamento);
-              window.open(t.url_pagamento);
-            }
-          });
-        return;
-      }
-
-      console.log('sem order_nsu', s, s.o);
-      if (!s.p || !s.q) {
-        console.log('sem presidente, sem quantidade', s, s.p, s.q);
-        window.location.href = SITE_URL;
-        return;
-      }
-
-      console.log('com presidente, com quantidade', s, s.p, s.q);
-      setPresidente(s.p);
-      setQuantidade(parseInt(s.q));
-      if (!usuario || !(usuario.telefone || usuario.whatsapp)) {
-        setPasso(EPasso.IDENTIFICACAO);
-        return;
-      }
-      setPasso(EPasso.PAGAMENTO);
-      getUrlPagamentoPedidoPendente(parseInt(s.q)).then((url) => {
-        if (url.length) {
-          setUrlPagamento(url);
-          window.open(url);
-          return;
-        }
-        let order_nsu = '';
-        let url_pagamento = '';
-        getQuantidadePedidosUsuario(usuario.email)
-          .then((qp) => {
-            const payload = getPayload(s.p!, parseInt(s.q!), usuario, qp + 1);
-            order_nsu = payload.order_nsu;
-            return getURLPagamento(payload);
-          })
-          .then((up) => {
-            url_pagamento = up;
-            return criarPedido({
-              email_usuario: usuario.email,
-              order_nsu,
-              quantidade: parseInt(s.q!),
-              url_pagamento,
-              valor_total: PRICE * parseInt(s.q!), // usando o 'q' local com segurança
-              presidente: s.p!,
-            });
-          })
-          .then(() => {
-            setUrlPagamento(url_pagamento);
-            window.open(url_pagamento);
-          });
-      });
-    });
-  }, [searchParams, usuario, getPayload]);
+  }, [getPayload, order_nsu, presidente, quantidade]);
 
   return (
     <>
@@ -248,6 +237,14 @@ export default function CheckoutPage({ searchParams }: CheckoutPageProps) {
         <Login />
       )}
     </>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={<div>Carregando checkout...</div>}>
+      <CheckoutContent />
+    </Suspense>
   );
 }
 
