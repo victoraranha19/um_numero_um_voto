@@ -1,8 +1,22 @@
 import db from '@api/db';
-import { EMetodo, ITransacao } from '@lib/types';
+import { ITransacao } from '@lib/types';
 import { NextResponse } from 'next/server';
-import { IWebhookParams } from './transacoes.utils';
+
 import { EPapel, getEmailFromJWT } from '../usuario/usuario.utils';
+
+const ALLOWED_ORIGIN = '*';
+
+export async function OPTIONS() {
+  return new Response(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Allow-Credentials': 'true',
+    },
+  });
+}
 
 export async function GET(request: Request) {
   try {
@@ -17,34 +31,29 @@ export async function GET(request: Request) {
 
     if (!order_nsu) {
       // Retorna todos os pedidos do usuário
-      const result = await db.query<ITransacao>(
-        'SELECT * FROM transacoes WHERE email = $1',
-        [emailProprio],
-      );
-      return NextResponse.json(result.rows);
+      const result =
+        (await db`SELECT * FROM transacoes WHERE email = ${emailProprio}`) as ITransacao[];
+      return NextResponse.json(result);
     }
 
     // Verifica se o usuário é dono do pedido ou admin
     const dono_pedido = (
-      await db.query<{ dono_pedido: boolean }>(
-        'SELECT EXISTS (SELECT 1 FROM usuarios JOIN transacoes ON email = email_usuario WHERE email = $1 AND order_nsu = $2) as dono_pedido',
-        [emailProprio, order_nsu],
-      )
-    ).rows[0].dono_pedido;
+      (await db`SELECT EXISTS
+        (SELECT 1 FROM usuarios JOIN transacoes ON email = email_usuario
+        WHERE email = ${emailProprio} AND order_nsu = ${order_nsu})
+        as dono_pedido`) as { dono_pedido: boolean }[]
+    )[0].dono_pedido;
     const administrador = (
-      await db.query<{ admin: boolean }>(
-        'SELECT EXISTS (SELECT 1 FROM usuarios WHERE email = $1 AND papel = $2) as admin',
-        [emailProprio, EPapel.ADMIN],
-      )
-    ).rows[0].admin;
+      (await db`SELECT EXISTS
+        (SELECT 1 FROM usuarios WHERE email = ${emailProprio} AND papel = ${EPapel.ADMIN})
+        as admin`) as { admin: boolean }[]
+    )[0].admin;
     if (!administrador && !dono_pedido) throw new Error('Não autorizado!');
 
     // Retorna pedido pesquisado
-    const result = await db.query<ITransacao>(
-      'SELECT * FROM transacoes WHERE order_nsu = $1',
-      [order_nsu],
-    );
-    return NextResponse.json(result.rows);
+    const result =
+      (await db`SELECT * FROM transacoes WHERE order_nsu = ${order_nsu}`) as ITransacao[];
+    return NextResponse.json(result);
   } catch (error) {
     console.error('Erro ao buscar transação:', error);
     return NextResponse.json([], { status: 400 });
@@ -54,11 +63,8 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = JSON.stringify(await request.json());
-    await db.query(
-      `INSERT INTO testes (method, body)
-      VALUE ('POST', $1)`,
-      [body],
-    );
+    await db`INSERT INTO testes (method, body)
+      VALUES ('POST', ${body})`;
     // const body: IWebhookParams = await request.json();
     // await db.query(
     //   `UPDATE transacoes
@@ -77,7 +83,10 @@ export async function POST(request: Request) {
     //     body.order_nsu,
     //   ],
     // );
-    return NextResponse.json([], { status: 200 });
+    return NextResponse.json([], {
+      headers: { 'Access-Control-Allow-Origin': ALLOWED_ORIGIN },
+      status: 200,
+    });
   } catch (error) {
     console.error('Erro ao atualizar transação:', error);
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
@@ -87,12 +96,12 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
   try {
     const body = JSON.stringify(await request.json());
-    await db.query(
-      `INSERT INTO testes (method, body)
-      VALUE ('PUT', $1)`,
-      [body],
-    );
-    return NextResponse.json([], { status: 200 });
+    await db`INSERT INTO testes (method, body)
+      VALUES ('PUT', ${body})`;
+    return NextResponse.json([], {
+      headers: { 'Access-Control-Allow-Origin': ALLOWED_ORIGIN },
+      status: 200,
+    });
   } catch (error) {
     console.error('Erro ao atualizar transação:', error);
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
@@ -102,12 +111,12 @@ export async function PUT(request: Request) {
 export async function PATCH(request: Request) {
   try {
     const body = JSON.stringify(await request.json());
-    await db.query(
-      `INSERT INTO testes (method, body)
-      VALUE ('PATCH', $1)`,
-      [body],
-    );
-    return NextResponse.json([], { status: 200 });
+    await db`INSERT INTO testes (method, body)
+      VALUES ('PATCH', ${body})`;
+    return NextResponse.json([], {
+      headers: { 'Access-Control-Allow-Origin': ALLOWED_ORIGIN },
+      status: 200,
+    });
   } catch (error) {
     console.error('Erro ao atualizar transação:', error);
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });

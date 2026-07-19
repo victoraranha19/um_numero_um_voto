@@ -1,4 +1,4 @@
-import { IJWTToken } from '@/_lib/types';
+import { IJWTToken } from '@lib/types';
 import { jwtDecode } from 'jwt-decode';
 import sign from 'jwt-encode';
 

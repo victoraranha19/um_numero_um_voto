@@ -17,30 +17,25 @@ export async function GET(request: Request): Promise<Response> {
 
     if (!emailPesquisado) {
       // Retorna proprio email
-      const result = await db.query<IUsuario>(
-        'SELECT nome, email, telefone, whatsapp FROM usuarios WHERE email = $1',
-        [emailProprio],
-      );
-      return NextResponse.json(result.rows);
+      const result =
+        (await db`SELECT nome, email, telefone, whatsapp FROM usuarios WHERE email = ${emailProprio}`) as IUsuario[];
+      return NextResponse.json(result);
     }
 
     if (emailPesquisado !== emailProprio) {
       // Verifica se o usuário é admin
       const administrador = (
-        await db.query<{ admin: boolean }>(
-          'SELECT EXISTS (SELECT 1 FROM usuarios WHERE email = $1 AND papel = $2) AS admin',
-          [emailProprio, EPapel.ADMIN],
-        )
-      ).rows[0].admin;
+        (await db`SELECT EXISTS
+          (SELECT 1 FROM usuarios WHERE email = ${emailProprio} AND papel = ${EPapel.ADMIN})
+          AS admin`) as { admin: boolean }[]
+      )[0].admin;
       if (!administrador) throw new Error('Não autorizado!');
     }
 
     // Retorna email pesquisado
-    const result = await db.query<IUsuario>(
-      'SELECT nome, email, telefone, whatsapp FROM usuarios WHERE email = $1',
-      [emailPesquisado],
-    );
-    return NextResponse.json(result.rows);
+    const result = (await db`SELECT nome, email, telefone, whatsapp
+        FROM usuarios WHERE email = ${emailPesquisado}`) as IUsuario[];
+    return NextResponse.json(result);
   } catch (error) {
     console.error('Erro ao buscar usuário:', error);
     return NextResponse.json([], { status: 400 });

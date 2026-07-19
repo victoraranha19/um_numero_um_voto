@@ -24,13 +24,10 @@ export async function getCotasDisponiveis(
   try {
     const primeiroItem = (pagina - 1) * itens_por_pagina + 1;
     const ultimoItem = primeiroItem + itens_por_pagina;
-    const result = await db.query<{ numero: number }>(
-      `SELECT numero FROM cotas
-      WHERE id_transacao IS NULL AND numero >= $1 AND numero < $2
-      ORDER BY numero ASC`,
-      [primeiroItem, ultimoItem],
-    );
-    return result.rows.map((v) => v.numero);
+    const result = (await db`SELECT numero FROM cotas
+      WHERE id_transacao IS NULL AND numero >= ${primeiroItem} AND numero < ${ultimoItem}
+      ORDER BY numero ASC`) as { numero: number }[];
+    return result.map((v) => v.numero);
   } catch (error) {
     console.error('Erro ao buscar cotas:', error);
     return [];
@@ -44,13 +41,10 @@ export async function getCotasCompradas(
   try {
     const primeiroItem = (pagina - 1) * itens_por_pagina + 1;
     const ultimoItem = primeiroItem + itens_por_pagina;
-    const result = await db.query<{ numero: number }>(
-      `SELECT numero FROM cotas
-      WHERE id_transacao IS NOT NULL AND numero >= $1 AND numero < $2
-      ORDER BY numero ASC`,
-      [primeiroItem, ultimoItem],
-    );
-    return result.rows.map((v) => v.numero);
+    const result = (await db`SELECT numero FROM cotas
+      WHERE id_transacao IS NOT NULL AND numero >= ${primeiroItem} AND numero < ${ultimoItem}
+      ORDER BY numero ASC`) as { numero: number }[];
+    return result.map((v) => v.numero);
   } catch (error) {
     console.error('Erro ao buscar cotas:', error);
     return [];
