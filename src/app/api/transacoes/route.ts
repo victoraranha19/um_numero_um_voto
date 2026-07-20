@@ -72,12 +72,9 @@ export async function POST(request: Request) {
       SET slug=${invoice_slug}, valor_pago=${paid_amount}, parcelas=${installments}, metodo_pagamento=${metodo_pagamento},
       nsu=${transaction_nsu}, url_recibo=${receipt_url}, foi_pago=${foi_pago}, sucesso=TRUE, data_pagamento=${new Date()}
       WHERE order_nsu = ${order_nsu}`;
-    await db`INSERT INTO testes (log) VALUES ('SUCCESS UPDATE')`;
 
     return NextResponse.json([], { status: 200 });
   } catch (error) {
-    await db`INSERT INTO testes (log) VALUES ('ERROR')`;
-    await db`INSERT INTO testes (log) VALUES (${error})`;
     console.error('Erro ao atualizar transação:', error);
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
   }
