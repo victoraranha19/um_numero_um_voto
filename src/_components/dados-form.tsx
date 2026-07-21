@@ -3,7 +3,7 @@
 import { salvarDadosUsuario } from '@app/api/usuario/actions';
 import { IUsuario } from '@lib/types';
 import { Button, InputAdornment, TextField } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 interface DadosFormProps {
   usuario: IUsuario;
@@ -18,6 +18,8 @@ export default function DadosForm({
 }: DadosFormProps) {
   const [whatsapp, setWhatsapp] = useState(usuario.whatsapp);
   const whatsappMasked = getMasked(whatsapp);
+  const erroWhatsapp = !whatsappMasked ? 'Campo obrigatório' : null;
+  const erroNome = !usuario.nome ? 'Campo obrigatório' : null;
 
   function handleNomeChange(nome: string) {
     if (usuario) setUsuario({ ...usuario, nome });
@@ -70,6 +72,7 @@ export default function DadosForm({
               ),
             },
           }}
+          error={!usuario.email.length}
         />
       )}
 
@@ -77,12 +80,16 @@ export default function DadosForm({
         label="Nome Completo"
         defaultValue={usuario.nome}
         onChange={(e) => handleNomeChange(e.target.value)}
+        error={!!erroNome}
+        helperText={erroNome}
       />
       <TextField
         label="Whatsapp"
         placeholder="(00) 0 0000-0000"
         value={whatsappMasked}
         onChange={(e) => handleWhatsappChange(e.target.value)}
+        error={!!erroWhatsapp}
+        helperText={erroWhatsapp}
       />
 
       <Button variant="contained" onClick={() => handleAvancar()}>

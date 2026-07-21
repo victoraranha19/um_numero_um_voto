@@ -1,19 +1,18 @@
 'use client';
 
+import { getURLPagamento } from '@api/actions';
 import { auth } from '@api/auth';
-import Login from '@components/login';
-import Logout from '@components/logout';
-import Revisao from '@components/revisao';
 import {
   criarPedido,
   getQuantidadePedidosUsuario,
   getUrlPagamentoPedidoPendente,
-} from '@app/api/transacoes/actions';
+} from '@app/api/_pedido/actions';
 import { adicionarNovoUsuario } from '@app/api/usuario/actions';
-import { getJWTFromEmail } from '@app/api/usuario/usuario.utils';
-import { getURLPagamento } from '@api/actions';
 import DadosForm from '@components/dados-form';
+import Login from '@components/login';
+import Logout from '@components/logout';
 import Pagamento from '@components/pagamento';
+import Revisao from '@components/revisao';
 import {
   HANDLE,
   PRESIDENTE,
@@ -22,11 +21,13 @@ import {
   SITE_URL,
   WEBHOOK_URL,
 } from '@lib/constants';
-import { EPresidente, IPayload, IUsuario, IPayloadCustomer } from '@lib/types';
+import { EPresidente } from '@lib/enums';
+import { IPayload, IPayloadCustomer, IUsuario } from '@lib/types';
+import { getJWTFromEmail } from '@lib/utils';
 import { CircularProgress, Step, StepLabel, Stepper } from '@mui/material';
 import { onAuthStateChanged } from 'firebase/auth';
-import { Suspense, useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { Suspense, useCallback, useEffect, useState } from 'react';
 
 function CheckoutContent() {
   const searchParams = useSearchParams();
@@ -102,7 +103,7 @@ function CheckoutContent() {
         url_pagamento = await getURLPagamento(payload);
         await criarPedido({
           email_usuario: u.email,
-          order_nsu: payload.order_nsu,
+          id: payload.order_nsu,
           quantidade: q,
           url_pagamento,
           valor_total: PRICE * q, // usando o 'q' local com segurança
@@ -177,7 +178,7 @@ function CheckoutContent() {
                   url_pagamento = up;
                   return criarPedido({
                     email_usuario: usuarioDB.email,
-                    order_nsu,
+                    id: order_nsu,
                     quantidade,
                     url_pagamento,
                     valor_total: PRICE * quantidade, // usando o 'q' local com segurança

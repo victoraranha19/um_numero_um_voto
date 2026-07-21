@@ -1,14 +1,29 @@
 'use server';
 
 import db from '@api/db';
-import { ITransacaoNova } from '@lib/types';
+import { IPedido } from '@lib/types';
+
+export async function verificarDonoPedido(email: string, order_nsu: string) {
+  try {
+    const result = (await db`SELECT EXISTS
+          (SELECT 1 FROM usuarios JOIN pedidos ON email = email_usuario
+          WHERE email = ${email} AND order_nsu = ${order_nsu})
+          AS dono_pedido`) as { dono_pedido: boolean }[];
+    return result[0].dono_pedido;
+  } catch (error) {
+    console.error('Erro ao verificar dono do pedido:', error);
+    throw new Error('Erro ao verificar dono do pedido.');
+  }
+}
 
 export async function getQuantidadePedidosUsuario(
   email: string,
 ): Promise<number> {
   try {
     const result = (await db`SELECT COUNT(*)
-      FROM transacoes WHERE email_usuario = ${email}`) as { count: string }[];
+          FROM pedidos WHERE email_usuario = ${email}`) as {
+      count: string;
+    }[];
     return parseInt(result[0].count);
   } catch (error) {
     console.error('Erro ao verificar pedidos do usuário:', error);
@@ -21,8 +36,8 @@ export async function getUrlPagamentoPedidoPendente(
 ): Promise<string> {
   try {
     const result = (await db`SELECT url_pagamento
-      FROM transacoes
-      WHERE quantidade = ${quantidade} AND foi_pago = FALSE`) as {
+          FROM pedidos p LEFT JOIN recibos r ON p.id=r.id_pedido
+          WHERE p.quantidade=${quantidade} AND r.id IS NULL`) as {
       url_pagamento: string;
     }[];
     return result.at(0)?.url_pagamento ?? '';
@@ -33,17 +48,17 @@ export async function getUrlPagamentoPedidoPendente(
 }
 
 export async function criarPedido({
-  order_nsu,
+  id,
   url_pagamento,
   presidente,
   valor_total,
   quantidade,
   email_usuario,
-}: ITransacaoNova): Promise<void> {
+}: IPedido): Promise<void> {
   try {
     await db`INSERT INTO
-      transacoes (order_nsu, url_pagamento, presidente, valor_total, quantidade, email_usuario)
-      VALUES (${order_nsu}, ${url_pagamento}, ${presidente}, ${valor_total}, ${quantidade}, ${email_usuario})`;
+      pedidos (id, url_pagamento, presidente, valor_total, quantidade, email_usuario)
+      VALUES (${id}, ${url_pagamento}, ${presidente}, ${valor_total}, ${quantidade}, ${email_usuario})`;
   } catch (error) {
     console.error('Erro ao criar pedido de compra:', error);
     throw new Error('Erro ao criar pedido de compra.');

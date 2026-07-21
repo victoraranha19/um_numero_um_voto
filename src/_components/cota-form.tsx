@@ -1,6 +1,5 @@
 'use client';
 
-import { EPresidente } from '@lib/types';
 import {
   Divider,
   FormControl,
@@ -10,6 +9,7 @@ import {
   RadioGroup,
 } from '@mui/material';
 import SelecaoRapida from './selecao-rapida';
+import { EPresidente } from '@lib/enums';
 
 interface CotaFormProps {
   presidente: EPresidente;

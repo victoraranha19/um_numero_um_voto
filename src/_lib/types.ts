@@ -1,4 +1,5 @@
 import { JwtPayload } from 'jwt-decode';
+import { EMetodo, EPresidente } from './enums';
 
 export interface IUsuario {
   email: string;
@@ -6,28 +7,28 @@ export interface IUsuario {
   whatsapp: string;
 }
 
-export interface ITransacaoNova {
-  order_nsu: string;
-  url_pagamento: string;
+export interface IPedido {
+  id: string;
+  presidente: EPresidente;
   quantidade: number;
+  url_pagamento: string;
   valor_total: number;
   email_usuario: string;
-  presidente: EPresidente;
 }
-export interface ITransacao extends ITransacaoNova {
-  slug: string;
+export interface IRecibo {
+  id: string;
+  data_pagamento: Date;
+  url_recibo: string;
+  codigo_fatura: string;
+  metodo_pagamento: EMetodo;
+  valor_total: number;
   valor_pago: number;
   parcelas: number;
-  metodo_pagamento: EMetodo;
-  transaction_nsu: string;
-  url_recibo: string;
-  foi_pago: boolean;
-  sucesso: boolean;
 }
 
 export interface ICota {
   numero: number;
-  id_transacao: string;
+  id_pedido: string;
 }
 
 export interface IJWTToken extends JwtPayload {
@@ -63,16 +64,14 @@ export interface IPayload {
   order_nsu: string;
 }
 
-// Utils
-
-export enum EMetodo {
-  PIX = 'P',
-  CREDITO = 'C',
-  APPLEPAY = 'A',
-}
-
-export enum EPresidente {
-  LULA = 'L',
-  BOLSONARO = 'B',
-  NENHUM = 'N',
+export interface IWebhookParams {
+  invoice_slug: string;
+  amount: number;
+  paid_amount: number;
+  installments: number;
+  capture_method: string;
+  transaction_nsu: string;
+  order_nsu: string;
+  receipt_url: string;
+  items: IItem[];
 }

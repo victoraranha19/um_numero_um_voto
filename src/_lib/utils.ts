@@ -1,6 +1,6 @@
-import { IJWTToken } from '@lib/types';
 import { jwtDecode } from 'jwt-decode';
 import sign from 'jwt-encode';
+import { IJWTToken } from './types';
 
 export function getEmailFromJWT(cookie: string) {
   const emailFromToken = jwtDecode<IJWTToken>(cookie).email;
@@ -11,9 +11,4 @@ export function getEmailFromJWT(cookie: string) {
 export function getJWTFromEmail(email: string) {
   const token = { email, expires: new Date(Date.now() + 10 * 1000) };
   return sign(token, '');
-}
-
-export enum EPapel {
-  ADMIN = 'A',
-  COMUM = 'C',
 }

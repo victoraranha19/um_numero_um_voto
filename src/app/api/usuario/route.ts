@@ -1,8 +1,9 @@
-import { IUsuario } from '@lib/types';
 import db from '@api/db';
-
-import { EPapel, getEmailFromJWT } from './usuario.utils';
+import { IUsuario } from '@lib/types';
+import { getEmailFromJWT } from '@lib/utils';
 import { NextResponse } from 'next/server';
+
+import { verificarAcessoAdmin } from './actions';
 
 export async function GET(request: Request): Promise<Response> {
   try {
@@ -26,11 +27,7 @@ export async function GET(request: Request): Promise<Response> {
 
     if (emailPesquisado !== emailProprio) {
       // Verifica se o usuário é admin
-      const administrador = (
-        (await db`SELECT EXISTS
-          (SELECT 1 FROM usuarios WHERE email = ${emailProprio} AND papel = ${EPapel.ADMIN})
-          AS admin`) as { admin: boolean }[]
-      )[0].admin;
+      const administrador = await verificarAcessoAdmin(emailProprio);
       if (!administrador) throw new Error('Não autorizado!');
     }
 

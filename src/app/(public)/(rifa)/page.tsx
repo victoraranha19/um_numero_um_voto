@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import CotaForm from '@components/cota-form';
-import { EPresidente } from '@lib/types';
 import { Button, Card, CardActions, CardContent } from '@mui/material';
+import { EPresidente } from '@lib/enums';
 
 export default function RifaPage() {
   const [presidente, setPresidente] = useState(EPresidente.BOLSONARO);
