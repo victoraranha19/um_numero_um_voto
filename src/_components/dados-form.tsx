@@ -3,9 +3,10 @@
 import { salvarDadosUsuario } from '@app/api/usuario/actions';
 import { IUsuario } from '@lib/types';
 import { Button, InputAdornment, TextField } from '@mui/material';
+import { useEffect, useState } from 'react';
 
 interface DadosFormProps {
-  usuario: IUsuario | null;
+  usuario: IUsuario;
   setUsuario: (u: IUsuario) => void;
   irParaProximoPasso: () => void;
 }
@@ -15,30 +16,25 @@ export default function DadosForm({
   setUsuario,
   irParaProximoPasso,
 }: DadosFormProps) {
+  const [whatsapp, setWhatsapp] = useState(usuario.whatsapp);
+  const whatsappMasked = getMasked(whatsapp);
+
   function handleNomeChange(nome: string) {
     if (usuario) setUsuario({ ...usuario, nome });
   }
 
-  function handleTelefoneChange(t: string) {
-    if (usuario) {
-      const telefone = getMaskedPhone(t);
-      setUsuario({ ...usuario, telefone });
-    }
-  }
-
   function handleWhatsappChange(w: string) {
-    if (usuario) {
-      const whatsapp = getMaskedPhone(w);
-      setUsuario({ ...usuario, whatsapp });
-    }
+    setWhatsapp(w);
+    setUsuario({ ...usuario, whatsapp: whatsappMasked });
   }
 
-  function getMaskedPhone(phone: string, totalDigits = 11): string {
+  function getMasked(phone: string): string {
     const digitos = phone.replaceAll(/\D/g, '');
     const numero = parseInt(digitos);
 
     if (!digitos.length || !numero) return '';
 
+    const totalDigits = digitos.length < 11 ? 10 : 11;
     const numeroWhatsapp = numero.toString();
     const ddd = `(${numeroWhatsapp.substring(0, 2)}`;
     if (numeroWhatsapp.length <= 2) return ddd;
@@ -66,7 +62,7 @@ export default function DadosForm({
         <TextField
           label="Email"
           disabled
-          defaultValue={usuario?.email ?? ''}
+          defaultValue={usuario.email}
           slotProps={{
             input: {
               startAdornment: (
@@ -79,19 +75,13 @@ export default function DadosForm({
 
       <TextField
         label="Nome Completo"
-        defaultValue={usuario?.nome ?? ''}
+        defaultValue={usuario.nome}
         onChange={(e) => handleNomeChange(e.target.value)}
-      />
-      <TextField
-        label="Telefone"
-        placeholder="(00) 0000-0000"
-        defaultValue={usuario?.telefone ?? ''}
-        onChange={(e) => handleTelefoneChange(e.target.value)}
       />
       <TextField
         label="Whatsapp"
         placeholder="(00) 0 0000-0000"
-        defaultValue={usuario?.whatsapp ?? ''}
+        value={whatsappMasked}
         onChange={(e) => handleWhatsappChange(e.target.value)}
       />
 

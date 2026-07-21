@@ -8,7 +8,9 @@ export async function GET(request: Request): Promise<Response> {
   try {
     // Verifica autenticação do usuário
     const cookie = request.headers.get('Cookie');
-    if (!cookie) throw new Error('Não autenticado! Cookie não encontrado.');
+    if (!cookie || !cookie.length) {
+      throw new Error('Não autenticado! Cookie não encontrado.');
+    }
     const emailProprio = getEmailFromJWT(cookie);
 
     // Verifica se exite parâmetro email na url
@@ -18,7 +20,7 @@ export async function GET(request: Request): Promise<Response> {
     if (!emailPesquisado) {
       // Retorna proprio email
       const result =
-        (await db`SELECT nome, email, telefone, whatsapp FROM usuarios WHERE email = ${emailProprio}`) as IUsuario[];
+        (await db`SELECT nome, email, whatsapp FROM usuarios WHERE email = ${emailProprio}`) as IUsuario[];
       return NextResponse.json(result);
     }
 
@@ -33,7 +35,7 @@ export async function GET(request: Request): Promise<Response> {
     }
 
     // Retorna email pesquisado
-    const result = (await db`SELECT nome, email, telefone, whatsapp
+    const result = (await db`SELECT nome, email, whatsapp
         FROM usuarios WHERE email = ${emailPesquisado}`) as IUsuario[];
     return NextResponse.json(result);
   } catch (error) {

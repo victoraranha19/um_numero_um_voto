@@ -3,7 +3,6 @@ import { JwtPayload } from 'jwt-decode';
 export interface IUsuario {
   email: string;
   nome: string;
-  telefone: string;
   whatsapp: string;
 }
 

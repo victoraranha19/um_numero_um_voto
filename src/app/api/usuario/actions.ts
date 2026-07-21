@@ -20,25 +20,19 @@ export async function verificarEmailCadastrado(
 export async function adicionarNovoUsuario({
   nome,
   email,
-  telefone,
   whatsapp,
 }: IUsuario): Promise<void> {
   try {
-    await db`INSERT INTO usuarios (nome, email, telefone, whatsapp) VALUES (${nome}, ${email}, ${telefone}, ${whatsapp})`;
+    await db`INSERT INTO usuarios (nome, email, whatsapp) VALUES (${nome}, ${email}, ${whatsapp})`;
   } catch (error) {
     console.error('Erro ao adicionar novo usuário:', error);
     throw new Error('Erro ao adicionar novo usuário.');
   }
 }
 
-export async function salvarDadosUsuario({
-  nome,
-  telefone,
-  whatsapp,
-  email,
-}: IUsuario) {
+export async function salvarDadosUsuario({ nome, whatsapp, email }: IUsuario) {
   try {
-    await db`UPDATE usuarios SET nome=${nome}, telefone=${telefone}, whatsapp=${whatsapp} WHERE email=${email}`;
+    await db`UPDATE usuarios SET nome=${nome}, whatsapp=${whatsapp} WHERE email=${email}`;
   } catch (error) {
     console.error(error);
     throw new Error('Erro ao adicionar novo usuário.');

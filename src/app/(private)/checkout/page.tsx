@@ -23,7 +23,7 @@ import {
   WEBHOOK_URL,
 } from '@lib/constants';
 import { EPresidente, IPayload, IUsuario, IPayloadCustomer } from '@lib/types';
-import { Step, StepLabel, Stepper } from '@mui/material';
+import { CircularProgress, Step, StepLabel, Stepper } from '@mui/material';
 import { onAuthStateChanged } from 'firebase/auth';
 import { Suspense, useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -44,6 +44,7 @@ function CheckoutContent() {
   );
   const [urlPagamento, setUrlPagamento] = useState<string>('');
   const [usuario, setUsuario] = useState<IUsuario | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   function getPhoneNumber(t1?: string, t2?: string): string | undefined {
     if (t1 && t1.length) return '+55'.concat(t1.replaceAll(/\D/g, ''));
@@ -53,7 +54,7 @@ function CheckoutContent() {
 
   const getPayloadCostumer = useCallback(
     (u: IUsuario): Partial<IPayloadCustomer> | undefined => {
-      const phone_number = getPhoneNumber(u.whatsapp, u.telefone);
+      const phone_number = getPhoneNumber(u.whatsapp);
       if (!u && !phone_number) return undefined;
       return {
         email: u.email,
@@ -115,79 +116,91 @@ function CheckoutContent() {
   );
 
   useEffect(() => {
+    if (!(order_nsu || (presidente && quantidade))) {
+      window.location.href = SITE_URL;
+      return;
+    }
+
     onAuthStateChanged(auth, (user) => {
       if (!user) {
         setUsuario(null);
         cookieStore.delete('tokenX');
+        setLoading(false);
         return;
       }
+      cookieStore.set('tokenX', getJWTFromEmail(user.email!));
       fetch(`/api/usuario?email=${user.email!}`, { method: 'GET' })
         .then((u) => u.json())
-        .then(([u]: IUsuario[]) => {
-          setUsuario(u ?? null);
-          if (!u) {
+        .then((u: IUsuario[]) => {
+          const usuarioDB = u.at(0);
+          if (!usuarioDB) {
             const novoUsuario: IUsuario = {
               email: user.email!,
               nome: user.displayName ?? '',
-              telefone: '',
               whatsapp: '',
             };
-            adicionarNovoUsuario(novoUsuario).then(() => {
+            return adicionarNovoUsuario(novoUsuario).then(() => {
               setUsuario(novoUsuario);
               setPasso(EPasso.IDENTIFICACAO);
             });
-            return;
           }
-          if (!u.telefone && !u.whatsapp) {
+
+          setUsuario(usuarioDB);
+          if (!usuarioDB.whatsapp) {
             setPasso(EPasso.IDENTIFICACAO);
-            return;
+            return Promise.resolve();
           }
 
-          if (order_nsu) return;
-          if (!presidente || !quantidade) {
-            window.location.href = SITE_URL;
-            return;
+          if (order_nsu) {
+            return Promise.resolve();
           }
 
-          getUrlPagamentoPedidoPendente(quantidade).then((url) => {
-            if (url.length) {
+          return getUrlPagamentoPedidoPendente(quantidade)
+            .then((url) => {
+              if (url && url.length) {
+                return Promise.resolve(url);
+              }
+              let order_nsu = '';
+              let url_pagamento = '';
+              return getQuantidadePedidosUsuario(usuarioDB.email)
+                .then((qp) => {
+                  const payload = getPayload(
+                    presidente,
+                    quantidade,
+                    usuarioDB,
+                    qp + 1,
+                  );
+                  order_nsu = payload.order_nsu;
+                  return getURLPagamento(payload);
+                })
+                .then((up) => {
+                  url_pagamento = up;
+                  return criarPedido({
+                    email_usuario: usuarioDB.email,
+                    order_nsu,
+                    quantidade,
+                    url_pagamento,
+                    valor_total: PRICE * quantidade, // usando o 'q' local com segurança
+                    presidente: presidente,
+                  });
+                })
+                .then(() => Promise.resolve(url_pagamento));
+            })
+            .then((url) => {
               setUrlPagamento(url);
               window.open(url);
-              return;
-            }
-            let order_nsu = '';
-            let url_pagamento = '';
-            getQuantidadePedidosUsuario(u.email)
-              .then((qp) => {
-                const payload = getPayload(presidente, quantidade, u, qp + 1);
-                order_nsu = payload.order_nsu;
-                return getURLPagamento(payload);
-              })
-              .then((up) => {
-                url_pagamento = up;
-                return criarPedido({
-                  email_usuario: u.email,
-                  order_nsu,
-                  quantidade,
-                  url_pagamento,
-                  valor_total: PRICE * quantidade, // usando o 'q' local com segurança
-                  presidente: presidente,
-                });
-              })
-              .then(() => {
-                setUrlPagamento(url_pagamento);
-                window.open(url_pagamento);
-              });
-          });
+            });
         })
-        .then(() => cookieStore.set('tokenX', getJWTFromEmail(user.email!)))
+        .then(() => setLoading(false))
         .catch(() => cookieStore.delete('tokenX'));
     });
   }, [getPayload, order_nsu, presidente, quantidade]);
 
   return (
     <>
-      {usuario ? (
+      {loading ? (
+        <CircularProgress />
+      ) : usuario ? (
         <>
           <Stepper alternativeLabel activeStep={passo}>
             <Step>

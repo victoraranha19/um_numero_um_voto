@@ -27,7 +27,6 @@ export default function Login() {
     const usuario: IUsuario = {
       nome: user.displayName ?? '',
       email: user.email,
-      telefone: '',
       whatsapp: '',
     };
 
