@@ -1,7 +1,6 @@
 import { MenuRounded } from '@mui/icons-material';
 import {
   AppBar,
-  Box,
   Divider,
   IconButton,
   Stack,

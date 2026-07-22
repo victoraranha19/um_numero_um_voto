@@ -1,9 +1,5 @@
 import { EPresidente } from '@lib/enums';
-import {
-  EmojiFlagsRounded,
-  FlagRounded,
-  OutlinedFlag,
-} from '@mui/icons-material';
+import { FlagRounded, OutlinedFlag } from '@mui/icons-material';
 import {
   Box,
   Card,

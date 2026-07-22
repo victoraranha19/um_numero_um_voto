@@ -1,13 +1,16 @@
 'use client';
 
 import { getURLPagamento } from '@api/actions';
-import { auth } from '@api/auth';
+import { auth, loginComGoogle } from '@api/auth';
 import {
   criarPedido,
   getQuantidadePedidosUsuario,
   getUrlPagamentoPedidoPendente,
 } from '@app/api/_pedido/actions';
-import { adicionarNovoUsuario } from '@app/api/usuario/actions';
+import {
+  adicionarNovoUsuario,
+  salvarDadosUsuario,
+} from '@app/api/usuario/actions';
 import DadosForm from '@components/dados-form';
 import Pagamento from '@components/pagamento';
 import Revisao from '@components/revisao';
@@ -20,9 +23,20 @@ import {
   WEBHOOK_URL,
 } from '@lib/constants';
 import { EPresidente } from '@lib/enums';
-import { IPayload, IPayloadCustomer, IUsuario } from '@lib/types';
+import { IErro, IPayload, IPayloadCustomer, IUsuario } from '@lib/types';
 import { getJWTFromEmail } from '@lib/utils';
-import { CircularProgress, Step, StepLabel, Stepper } from '@mui/material';
+import { validarNomeCompleto, validarWhatsapp } from '@lib/validators';
+import {
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  Container,
+  Divider,
+  Step,
+  StepLabel,
+  Stepper,
+} from '@mui/material';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useState } from 'react';
@@ -43,17 +57,12 @@ function CheckoutContent() {
   );
   const [urlPagamento, setUrlPagamento] = useState<string>('');
   const [usuario, setUsuario] = useState<IUsuario | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-
-  function getPhoneNumber(t1?: string, t2?: string): string | undefined {
-    if (t1 && t1.length) return '+55'.concat(t1.replaceAll(/\D/g, ''));
-    if (t2 && t2.length) return '+55'.concat(t2.replaceAll(/\D/g, ''));
-    return undefined;
-  }
+  const erroWhatsapp: IErro | null = validarWhatsapp(usuario?.whatsapp ?? '');
+  const erroNome: IErro | null = validarNomeCompleto(usuario?.nome ?? '');
 
   const getPayloadCostumer = useCallback(
     (u: IUsuario): Partial<IPayloadCustomer> | undefined => {
-      const phone_number = getPhoneNumber(u.whatsapp);
+      const phone_number = '+55'.concat(u.whatsapp);
       if (!u && !phone_number) return undefined;
       return {
         email: u.email,
@@ -124,7 +133,6 @@ function CheckoutContent() {
       if (!user) {
         setUsuario(null);
         cookieStore.delete('tokenX');
-        setLoading(false);
         return;
       }
       cookieStore.set('tokenX', getJWTFromEmail(user.email!));
@@ -190,50 +198,90 @@ function CheckoutContent() {
               window.open(url);
             });
         })
-        .then(() => setLoading(false))
         .catch(() => cookieStore.delete('tokenX'));
     });
   }, [getPayload, order_nsu, presidente, quantidade]);
 
+  async function handleAvancar() {
+    try {
+      if (!usuario) throw new Error('Usuário não logado!');
+      await salvarDadosUsuario(usuario);
+      await irParaPagamento();
+    } catch (error) {
+      console.error('Erro ao atualizar dados usuario:', error);
+    }
+  }
+
+  async function handleLogin() {
+    try {
+      await loginComGoogle();
+    } catch (error) {
+      console.error('Erro ao fazer login:', error);
+    }
+  }
+
   return (
-    <>
-      {loading ? (
-        <CircularProgress />
-      ) : (
-        usuario && (
-          <>
-            <Stepper alternativeLabel activeStep={passo}>
-              <Step>
-                <StepLabel>Identificação</StepLabel>
-              </Step>
-              <Step>
-                <StepLabel>Pagamento</StepLabel>
-              </Step>
-              <Step>
-                <StepLabel>Revisão</StepLabel>
-              </Step>
-            </Stepper>
-            {passo === EPasso.IDENTIFICACAO && (
-              <DadosForm
-                usuario={usuario}
-                setUsuario={setUsuario}
-                irParaProximoPasso={() => irParaPagamento()}
-              />
-            )}
-            {passo === EPasso.PAGAMENTO && <Pagamento url={urlPagamento} />}
-            {order_nsu?.length && (
-              <Revisao
-                order_nsu={order_nsu}
-                capture_method={capture_method}
-                transaction_nsu={transaction_nsu ?? transaction_id}
-                slug={slug}
-                receipt_url={receipt_url}
-              />
-            )}
-          </>
-        )
-      )}
-    </>
+    <Container
+      disableGutters
+      sx={{ display: 'flex', justifyContent: 'center' }}
+    >
+      <Card sx={{ minWidth: 400, maxWidth: 700 }}>
+        <CardContent sx={{ minHeight: 600 }}>
+          <Stepper alternativeLabel activeStep={passo}>
+            <Step>
+              <StepLabel>Identificação</StepLabel>
+            </Step>
+            <Step>
+              <StepLabel>Pagamento</StepLabel>
+            </Step>
+            <Step>
+              <StepLabel>Revisão</StepLabel>
+            </Step>
+          </Stepper>
+
+          <Divider sx={{ my: 3 }} />
+
+          {usuario && (
+            <>
+              {passo === EPasso.IDENTIFICACAO && (
+                <DadosForm
+                  usuario={usuario}
+                  setUsuario={setUsuario}
+                  loginComGoogle={() => handleLogin()}
+                  erroNome={erroNome}
+                  erroWhatsapp={erroWhatsapp}
+                />
+              )}
+              {passo === EPasso.PAGAMENTO && <Pagamento url={urlPagamento} />}
+              {order_nsu?.length && (
+                <Revisao
+                  order_nsu={order_nsu}
+                  capture_method={capture_method}
+                  transaction_nsu={transaction_nsu ?? transaction_id}
+                  slug={slug}
+                  receipt_url={receipt_url}
+                />
+              )}
+            </>
+          )}
+        </CardContent>
+
+        <Divider />
+
+        <CardActions>
+          {passo === EPasso.IDENTIFICACAO && (
+            <Button
+              fullWidth
+              variant="contained"
+              onClick={() => handleAvancar()}
+              disabled={!usuario || !!erroWhatsapp?.erro || !!erroNome?.erro}
+            >
+              Avançar
+            </Button>
+          )}
+        </CardActions>
+      </Card>
+    </Container>
   );
 }
 

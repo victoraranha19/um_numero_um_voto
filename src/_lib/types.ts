@@ -75,3 +75,7 @@ export interface IWebhookParams {
   receipt_url: string;
   items: IItem[];
 }
+
+export interface IErro {
+  erro: string;
+}
