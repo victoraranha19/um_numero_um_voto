@@ -1,4 +1,4 @@
-import { Delete, LocalActivityRounded } from '@mui/icons-material';
+import { Delete, ThumbUpAlt, ThumbUpOffAlt } from '@mui/icons-material';
 import { Box, Button, Stack, TextField, Typography } from '@mui/material';
 import { useState } from 'react';
 
@@ -44,8 +44,8 @@ export default function SelecaoRapida({
         sx={{ alignItems: 'center', justifyContent: 'space-between', py: 1 }}
       >
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-          <LocalActivityRounded fontSize="small" />
-          <Typography>Seus votos:</Typography>
+          {quantidadeSelecionada < 1 ? <ThumbUpOffAlt /> : <ThumbUpAlt />}
+          <Typography>Quantos votos?</Typography>
         </Box>
 
         {quantidadeSelecionada !== 0 && (
@@ -59,42 +59,50 @@ export default function SelecaoRapida({
         )}
       </Stack>
 
-      <Box sx={{ display: 'flex', gap: 1, p: 1 }}>
+      <Stack direction="row" spacing={1}>
+        <TextField
+          value={outro !== '0' ? outro : ''}
+          placeholder="Digite um número"
+          onChange={(e) => handleTextField(e.target.value)}
+        />
+
         <Button
           variant="contained"
           onClick={() => handleAdicionarCotas(5)}
+          sx={{ fontSize: { sm: 12, md: 14 } }}
           size="small"
+          color="secondary"
         >
           + 5 votos
         </Button>
         <Button
           variant="contained"
           onClick={() => handleAdicionarCotas(10)}
+          sx={{ fontSize: { sm: 12, md: 14 } }}
           size="small"
+          color="secondary"
         >
           + 10 votos
         </Button>
         <Button
           variant="contained"
           onClick={() => handleAdicionarCotas(50)}
+          sx={{ fontSize: { sm: 12, md: 14 } }}
           size="small"
+          color="secondary"
         >
           + 50 votos
         </Button>
         <Button
           variant="contained"
           onClick={() => handleAdicionarCotas(100)}
+          sx={{ fontSize: { sm: 12, md: 14 } }}
           size="small"
+          color="secondary"
         >
           + 100 votos
         </Button>
-
-        <TextField
-          value={outro ?? ''}
-          placeholder="Outro"
-          onChange={(e) => handleTextField(e.target.value)}
-        />
-      </Box>
+      </Stack>
     </>
   );
 }

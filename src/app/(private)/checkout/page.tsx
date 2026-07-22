@@ -9,8 +9,6 @@ import {
 } from '@app/api/_pedido/actions';
 import { adicionarNovoUsuario } from '@app/api/usuario/actions';
 import DadosForm from '@components/dados-form';
-import Login from '@components/login';
-import Logout from '@components/logout';
 import Pagamento from '@components/pagamento';
 import Revisao from '@components/revisao';
 import {
@@ -201,40 +199,39 @@ function CheckoutContent() {
     <>
       {loading ? (
         <CircularProgress />
-      ) : usuario ? (
-        <>
-          <Stepper alternativeLabel activeStep={passo}>
-            <Step>
-              <StepLabel>Identificação</StepLabel>
-            </Step>
-            <Step>
-              <StepLabel>Pagamento</StepLabel>
-            </Step>
-            <Step>
-              <StepLabel>Revisão</StepLabel>
-            </Step>
-          </Stepper>
-          {passo === EPasso.IDENTIFICACAO && (
-            <DadosForm
-              usuario={usuario}
-              setUsuario={setUsuario}
-              irParaProximoPasso={() => irParaPagamento()}
-            />
-          )}
-          {passo === EPasso.PAGAMENTO && <Pagamento url={urlPagamento} />}
-          {order_nsu?.length && (
-            <Revisao
-              order_nsu={order_nsu}
-              capture_method={capture_method}
-              transaction_nsu={transaction_nsu ?? transaction_id}
-              slug={slug}
-              receipt_url={receipt_url}
-            />
-          )}
-          <Logout />
-        </>
       ) : (
-        <Login />
+        usuario && (
+          <>
+            <Stepper alternativeLabel activeStep={passo}>
+              <Step>
+                <StepLabel>Identificação</StepLabel>
+              </Step>
+              <Step>
+                <StepLabel>Pagamento</StepLabel>
+              </Step>
+              <Step>
+                <StepLabel>Revisão</StepLabel>
+              </Step>
+            </Stepper>
+            {passo === EPasso.IDENTIFICACAO && (
+              <DadosForm
+                usuario={usuario}
+                setUsuario={setUsuario}
+                irParaProximoPasso={() => irParaPagamento()}
+              />
+            )}
+            {passo === EPasso.PAGAMENTO && <Pagamento url={urlPagamento} />}
+            {order_nsu?.length && (
+              <Revisao
+                order_nsu={order_nsu}
+                capture_method={capture_method}
+                transaction_nsu={transaction_nsu ?? transaction_id}
+                slug={slug}
+                receipt_url={receipt_url}
+              />
+            )}
+          </>
+        )
       )}
     </>
   );

@@ -10,4 +10,4 @@ export const SITE_URL = 'https://um-numero-um-voto-theta.vercel.app';
 export const HANDLE = 'aranhavictor';
 export const WEBHOOK_URL = `${SITE_URL}/api/recibo`;
 export const REDIRECT_URL = `${SITE_URL}/checkout`;
-export const PRICE = 100; // (R$ 1,00 em centavos)
+export const PRICE = 10; // (em centavos)

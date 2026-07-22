@@ -7,16 +7,20 @@ import '@fontsource/roboto/700.css';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter';
 import type { Metadata } from 'next';
 import MyThemeProvider from './_theme/theme-provider';
-import { Typography } from '@mui/material';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import { ReactNode } from 'react';
+import MenuNavegacao from '@components/menu-navegacao';
 
 export const metadata: Metadata = {
   title: 'Um número um voto',
   description: 'Análises de favoritismo e concorrência política',
+  icons: {
+    icon: '/favicon.ico',
+  },
 };
 
 interface RootLayoutProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export default function RootLayout({ children }: RootLayoutProps) {
@@ -28,9 +32,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <body className="min-h-full flex flex-col">
         <AppRouterCacheProvider>
           <MyThemeProvider>
-            <Typography variant="h4" component="h1">
-              Um número um voto
-            </Typography>
+            <MenuNavegacao />
             {children}
           </MyThemeProvider>
         </AppRouterCacheProvider>
