@@ -26,17 +26,7 @@ import { EPresidente } from '@lib/enums';
 import { IErro, IPayload, IPayloadCustomer, IUsuario } from '@lib/types';
 import { getJWTFromEmail } from '@lib/utils';
 import { validarNomeCompleto, validarWhatsapp } from '@lib/validators';
-import {
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  Container,
-  Divider,
-  Step,
-  StepLabel,
-  Stepper,
-} from '@mui/material';
+import { Box, Button, Divider, Step, StepLabel, Stepper } from '@mui/material';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useState } from 'react';
@@ -221,67 +211,60 @@ function CheckoutContent() {
   }
 
   return (
-    <Container
-      disableGutters
-      sx={{ display: 'flex', justifyContent: 'center' }}
-    >
-      <Card sx={{ minWidth: 400, maxWidth: 700 }}>
-        <CardContent sx={{ minHeight: 600 }}>
-          <Stepper alternativeLabel activeStep={passo}>
-            <Step>
-              <StepLabel>Identificação</StepLabel>
-            </Step>
-            <Step>
-              <StepLabel>Pagamento</StepLabel>
-            </Step>
-            <Step>
-              <StepLabel>Revisão</StepLabel>
-            </Step>
-          </Stepper>
+    <>
+      <Stepper alternativeLabel activeStep={passo}>
+        <Step>
+          <StepLabel>Identificação</StepLabel>
+        </Step>
+        <Step>
+          <StepLabel>Pagamento</StepLabel>
+        </Step>
+        <Step>
+          <StepLabel>Revisão</StepLabel>
+        </Step>
+      </Stepper>
 
-          <Divider sx={{ my: 3 }} />
+      <Divider sx={{ my: 3 }} />
 
-          {usuario && (
-            <>
-              {passo === EPasso.IDENTIFICACAO && (
-                <DadosForm
-                  usuario={usuario}
-                  setUsuario={setUsuario}
-                  loginComGoogle={() => handleLogin()}
-                  erroNome={erroNome}
-                  erroWhatsapp={erroWhatsapp}
-                />
-              )}
-              {passo === EPasso.PAGAMENTO && <Pagamento url={urlPagamento} />}
-              {order_nsu?.length && (
-                <Revisao
-                  order_nsu={order_nsu}
-                  capture_method={capture_method}
-                  transaction_nsu={transaction_nsu ?? transaction_id}
-                  slug={slug}
-                  receipt_url={receipt_url}
-                />
-              )}
-            </>
-          )}
-        </CardContent>
-
-        <Divider />
-
-        <CardActions>
+      {usuario && (
+        <>
           {passo === EPasso.IDENTIFICACAO && (
-            <Button
-              fullWidth
-              variant="contained"
-              onClick={() => handleAvancar()}
-              disabled={!usuario || !!erroWhatsapp?.erro || !!erroNome?.erro}
-            >
-              Avançar
-            </Button>
+            <DadosForm
+              usuario={usuario}
+              setUsuario={setUsuario}
+              loginComGoogle={() => handleLogin()}
+              erroNome={erroNome}
+              erroWhatsapp={erroWhatsapp}
+            />
           )}
-        </CardActions>
-      </Card>
-    </Container>
+          {passo === EPasso.PAGAMENTO && <Pagamento url={urlPagamento} />}
+          {order_nsu?.length && (
+            <Revisao
+              order_nsu={order_nsu}
+              capture_method={capture_method}
+              transaction_nsu={transaction_nsu ?? transaction_id}
+              slug={slug}
+              receipt_url={receipt_url}
+            />
+          )}
+        </>
+      )}
+
+      <Divider sx={{ my: 3 }} />
+
+      <Box>
+        {passo === EPasso.IDENTIFICACAO && (
+          <Button
+            fullWidth
+            variant="contained"
+            onClick={() => handleAvancar()}
+            disabled={!usuario || !!erroWhatsapp?.erro || !!erroNome?.erro}
+          >
+            Avançar
+          </Button>
+        )}
+      </Box>
+    </>
   );
 }
 

@@ -8,17 +8,7 @@ import {
   KeyboardArrowRightRounded,
   LocalActivityRounded,
 } from '@mui/icons-material';
-import {
-  Box,
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  Container,
-  Divider,
-  Stack,
-  Typography,
-} from '@mui/material';
+import { Box, Button, Divider, Stack, Typography } from '@mui/material';
 import { useState } from 'react';
 
 export default function RifaPage() {
@@ -33,65 +23,55 @@ export default function RifaPage() {
   }
 
   return (
-    <Container
-      disableGutters
-      sx={{ display: 'flex', justifyContent: 'center' }}
-    >
-      <Card sx={{ minWidth: 400, maxWidth: 700 }}>
-        <CardContent sx={{ minHeight: 600 }}>
-          <PresidenteForm
-            presidente={presidente}
-            setPresidente={setPresidente}
-          />
+    <>
+      <PresidenteForm presidente={presidente} setPresidente={setPresidente} />
 
-          <Divider sx={{ my: 4 }} />
+      <Divider sx={{ my: 4 }} />
 
-          <SelecaoRapida
-            maximoSelecao={500}
-            quantidadeSelecionada={quantidade}
-            setQuantidadeSelecionada={setQuantidade}
-          />
-        </CardContent>
+      <SelecaoRapida
+        maximoSelecao={10000}
+        quantidadeSelecionada={quantidade}
+        setQuantidadeSelecionada={setQuantidade}
+      />
 
-        <Divider />
+      <Divider sx={{ my: 3 }} />
 
-        <CardActions sx={{ justifyContent: 'space-between', p: 2 }}>
-          <Stack direction="row" sx={{ gap: 1, alignItems: 'center' }}>
-            <Box
-              sx={{
-                width: 48,
-                height: 48,
-                bgcolor: quantidade > 0 ? 'primary.main' : 'inherit',
-                color: quantidade > 0 ? 'primary.contrastText' : 'inherit',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 4,
-              }}
-            >
-              <LocalActivityRounded fontSize="large" />
-            </Box>
-            <Stack>
-              {quantidade > 0 && (
-                <Typography variant="caption">{quantidade} cotas</Typography>
-              )}
-              <Typography variant="h6">
-                R$ {((PRICE * quantidade) / 100).toFixed(2).replace('.', ',')}
-              </Typography>
-            </Stack>
-          </Stack>
-
-          <Button
-            variant="contained"
-            disabled={!quantidade}
-            onClick={() => handleVotar(quantidade, presidente)}
-            size="large"
+      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Stack direction="row" sx={{ gap: 1, alignItems: 'center' }}>
+          <Box
+            sx={{
+              width: 48,
+              height: 48,
+              bgcolor: quantidade > 0 ? 'primary.main' : 'inherit',
+              color: quantidade > 0 ? 'primary.contrastText' : 'inherit',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: 4,
+            }}
           >
-            Comprar
-            <KeyboardArrowRightRounded fontSize="large" />
-          </Button>
-        </CardActions>
-      </Card>
-    </Container>
+            <LocalActivityRounded fontSize="large" />
+          </Box>
+          <Stack>
+            {quantidade > 0 && (
+              <Typography variant="caption">{quantidade} cotas</Typography>
+            )}
+            <Typography variant="h6">
+              R$ {((PRICE * quantidade) / 100).toFixed(2).replace('.', ',')}
+            </Typography>
+          </Stack>
+        </Stack>
+
+        <Button
+          variant="contained"
+          disabled={!quantidade}
+          onClick={() => handleVotar(quantidade, presidente)}
+          size="large"
+        >
+          Comprar
+          <KeyboardArrowRightRounded fontSize="large" />
+        </Button>
+      </Box>
+    </>
   );
 }

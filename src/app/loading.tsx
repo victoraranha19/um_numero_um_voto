@@ -1,5 +1,9 @@
-import { CircularProgress } from '@mui/material';
+import { Backdrop, CircularProgress } from '@mui/material';
 
 export default function CheckoutLoading() {
-  return <CircularProgress aria-label="Carregando página" />;
+  return (
+    <Backdrop open>
+      <CircularProgress aria-label="Carregando página" />
+    </Backdrop>
+  );
 }

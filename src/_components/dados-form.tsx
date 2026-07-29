@@ -1,7 +1,6 @@
 'use client';
 
 import { IErro, IUsuario } from '@lib/types';
-import { validarNomeCompleto, validarWhatsapp } from '@lib/validators';
 import { DoneRounded, Google } from '@mui/icons-material';
 import {
   Chip,

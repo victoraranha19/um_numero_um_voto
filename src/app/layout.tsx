@@ -6,10 +6,11 @@ import '@fontsource/roboto/700.css';
 
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter';
 import type { Metadata } from 'next';
-import MyThemeProvider from './_theme/theme-provider';
+import MyThemeProvider from '../_context/_theme/theme-provider';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { ReactNode } from 'react';
 import MenuNavegacao from '@components/menu-navegacao';
+import ContainerRoot from '../_context/container-root';
 
 export const metadata: Metadata = {
   title: 'Um número um voto',
@@ -33,7 +34,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <AppRouterCacheProvider>
           <MyThemeProvider>
             <MenuNavegacao />
-            {children}
+            <ContainerRoot>{children}</ContainerRoot>
           </MyThemeProvider>
         </AppRouterCacheProvider>
         <SpeedInsights />
