@@ -1,3 +1,3 @@
 export default function RegrasPage() {
-  return <>Regras Page</>;
+  return <>Em construção...</>;
 }

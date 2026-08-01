@@ -45,7 +45,7 @@ export default function SelecaoRapida({
       >
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
           {quantidadeSelecionada < 1 ? <ThumbUpOffAlt /> : <ThumbUpAlt />}
-          <Typography>Quantos votos?</Typography>
+          <Typography variant="h6">Quantos votos?</Typography>
         </Box>
 
         {quantidadeSelecionada !== 0 && (

@@ -13,35 +13,35 @@ export default function Rodape() {
         }}
       >
         <Stack>
-          <Typography variant="h6">Links rápidos</Typography>
-          <Link href="/" underline="none">
+          <Typography variant="body1">Links rápidos</Typography>
+          <Link variant="body2" href="/" underline="none">
             Início
           </Link>
-          <Link href="/sobre" underline="none">
+          <Link variant="body2" href="/sobre" underline="none">
             Quem Somos
           </Link>
-          <Link href="/regras" underline="none">
-            Regras da Premiação
+          <Link variant="body2" href="/regras" underline="none">
+            Regras
           </Link>
-          <Link href="/resultado" underline="none">
+          <Link variant="body2" href="/resultado" underline="none">
             Ganhadores
           </Link>
-          <Link href="/termos" underline="none">
-            Termos e Condições de Uso
+          <Link variant="body2" href="/termos" underline="none">
+            Termos de Uso
           </Link>
-          <Link href="/privacidade" underline="none">
+          <Link variant="body2" href="/privacidade" underline="none">
             Política de Privacidade
           </Link>
         </Stack>
         <Stack>
-          <Typography variant="h6">Contato</Typography>
-          <Link href="/contato" underline="none">
+          <Typography variant="body1">Contato</Typography>
+          <Link variant="body2" href="/contato" underline="none">
             Fale Conosco
           </Link>
         </Stack>
       </Stack>
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, px: 2 }}>
-        <Typography>
+        <Typography variant="body1">
           &copy; 2026 Um número um voto: Todos os direitos reservados
         </Typography>
       </Box>

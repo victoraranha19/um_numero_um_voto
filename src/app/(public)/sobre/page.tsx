@@ -1,3 +1,3 @@
 export default function SobrePage() {
-  return <>Sobre Page</>;
+  return <>Em construção...</>;
 }

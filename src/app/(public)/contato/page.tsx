@@ -4,6 +4,7 @@ import IconText from '@components/icon-text';
 import { EMAIL_SITE } from '@lib/constants';
 import { EmailRounded } from '@mui/icons-material';
 import {
+  Box,
   Card,
   CardContent,
   CardHeader,
@@ -14,6 +15,7 @@ import {
   SelectChangeEvent,
   Stack,
   TextField,
+  Typography,
 } from '@mui/material';
 import { useState } from 'react';
 
@@ -49,51 +51,47 @@ export default function ContatoPage() {
 
   return (
     <Stack spacing={2}>
-      <Card>
-        <CardHeader title="Nosso contato" />
-        <CardContent sx={{ pt: 0 }}>
-          <IconText
-            icon={<EmailRounded fontSize="large" />}
-            label="Email"
-            caption={EMAIL_SITE}
-            tooltip={copiado ? 'Copiado' : 'Copiar email'}
-            onClick={() => handleCopiar()}
-          />
-        </CardContent>
-      </Card>
+      <Box>
+        <Typography variant="h6">Nosso contato</Typography>
+        <IconText
+          icon={<EmailRounded fontSize="large" />}
+          label="Email"
+          caption={EMAIL_SITE}
+          tooltip={copiado ? 'Copiado' : 'Copiar email'}
+          onClick={() => handleCopiar()}
+        />
+      </Box>
 
-      <Card>
-        <CardHeader title="Envie uma mensagem" />
-        <CardContent sx={{ pt: 0 }}>
-          <Stack spacing={2}>
-            <TextField fullWidth label="Nome Completo" />
-            <TextField fullWidth label="Email" />
-            <FormControl fullWidth>
-              <InputLabel id="assunto-label">Assunto</InputLabel>
-              <Select
-                labelId="assunto-label"
-                label="Assunto"
-                onChange={handleAssunto}
-                value={assunto}
-              >
-                <MenuItem value="">
-                  <em>Selecione um assunto</em>
-                </MenuItem>
-                <MenuItem value={EAssunto.DUVIDA}>
-                  {ASSUNTO[EAssunto.DUVIDA]}
-                </MenuItem>
-                <MenuItem value={EAssunto.SUGESTAO}>
-                  {ASSUNTO[EAssunto.SUGESTAO]}
-                </MenuItem>
-                <MenuItem value={EAssunto.RECLAMACAO}>
-                  {ASSUNTO[EAssunto.RECLAMACAO]}
-                </MenuItem>
-              </Select>
-            </FormControl>
-            <TextField fullWidth label="Mensagem" multiline rows={2} />
-          </Stack>
-        </CardContent>
-      </Card>
+      <Box>
+        <Typography variant="h6">Envie uma mensagem</Typography>
+        <Stack spacing={2}>
+          <TextField fullWidth label="Nome Completo" />
+          <TextField fullWidth label="Email" />
+          <FormControl fullWidth>
+            <InputLabel id="assunto-label">Assunto</InputLabel>
+            <Select
+              labelId="assunto-label"
+              label="Assunto"
+              onChange={handleAssunto}
+              value={assunto}
+            >
+              <MenuItem value="">
+                <em>Selecione um assunto</em>
+              </MenuItem>
+              <MenuItem value={EAssunto.DUVIDA}>
+                {ASSUNTO[EAssunto.DUVIDA]}
+              </MenuItem>
+              <MenuItem value={EAssunto.SUGESTAO}>
+                {ASSUNTO[EAssunto.SUGESTAO]}
+              </MenuItem>
+              <MenuItem value={EAssunto.RECLAMACAO}>
+                {ASSUNTO[EAssunto.RECLAMACAO]}
+              </MenuItem>
+            </Select>
+          </FormControl>
+          <TextField fullWidth label="Mensagem" multiline rows={2} />
+        </Stack>
+      </Box>
     </Stack>
   );
 }

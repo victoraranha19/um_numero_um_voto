@@ -23,7 +23,9 @@ export default function PresidenteForm({
     <>
       <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
         {presidente === EPresidente.NENHUM ? <OutlinedFlag /> : <FlagRounded />}
-        <Typography sx={{ py: 1 }}>Escolha um presidente:</Typography>
+        <Typography variant="h6" sx={{ py: 1 }}>
+          Escolha um presidente:
+        </Typography>
       </Box>
       <Stack direction="row" spacing={2} sx={{ justifyContent: 'center' }}>
         <Card sx={{ width: 200 }} raised={presidente === EPresidente.BOLSONARO}>
