@@ -9,14 +9,14 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { MouseEventHandler, ReactNode } from 'react';
+import { ReactNode } from 'react';
 
 interface IconTextProps {
   icon: ReactNode;
   label: string;
   caption?: string;
   tooltip?: string;
-  onClick?: MouseEventHandler<HTMLButtonElement>;
+  onClick?: () => void;
 }
 
 export default function IconText({
@@ -29,7 +29,7 @@ export default function IconText({
   return (
     <Tooltip title={tooltip}>
       <Card sx={{ borderRadius: 4 }}>
-        <CardActionArea onClick={onClick}>
+        <CardActionArea onClick={() => onClick()}>
           <CardContent
             sx={{ display: 'flex', gap: 1, alignItems: 'center', p: 1 }}
           >

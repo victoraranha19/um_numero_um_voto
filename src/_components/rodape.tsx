@@ -18,10 +18,13 @@ export default function Rodape() {
             Início
           </Link>
           <Link href="/sobre" underline="none">
-            Sobre nós
+            Quem Somos
           </Link>
           <Link href="/regras" underline="none">
-            Regras da premiação
+            Regras da Premiação
+          </Link>
+          <Link href="/resultado" underline="none">
+            Ganhadores
           </Link>
           <Link href="/termos" underline="none">
             Termos e Condições de Uso
