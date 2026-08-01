@@ -1,11 +1,10 @@
 'use client';
 
+import IconText from '@components/icon-text';
 import { EMAIL_SITE } from '@lib/constants';
 import { EmailRounded } from '@mui/icons-material';
 import {
-  Box,
   Card,
-  CardActionArea,
   CardContent,
   CardHeader,
   FormControl,
@@ -15,8 +14,6 @@ import {
   SelectChangeEvent,
   Stack,
   TextField,
-  Tooltip,
-  Typography,
 } from '@mui/material';
 import { useState } from 'react';
 
@@ -55,34 +52,13 @@ export default function ContatoPage() {
       <Card>
         <CardHeader title="Nosso contato" />
         <CardContent sx={{ pt: 0 }}>
-          <Tooltip title={copiado ? 'Copiado' : 'Copiar email'}>
-            <Card sx={{ borderRadius: 4 }}>
-              <CardActionArea onClick={() => handleCopiar()}>
-                <CardContent
-                  sx={{ display: 'flex', gap: 1, alignItems: 'center', p: 1 }}
-                >
-                  <Box
-                    sx={{
-                      width: 48,
-                      height: 48,
-                      bgcolor: 'primary.main',
-                      color: 'primary.contrastText',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      borderRadius: 4,
-                    }}
-                  >
-                    <EmailRounded fontSize="large" />
-                  </Box>
-                  <Stack>
-                    <Typography variant="h6">Email</Typography>
-                    <Typography variant="body2">{EMAIL_SITE}</Typography>
-                  </Stack>
-                </CardContent>
-              </CardActionArea>
-            </Card>
-          </Tooltip>
+          <IconText
+            icon={<EmailRounded fontSize="large" />}
+            label="Email"
+            caption={EMAIL_SITE}
+            tooltip={copiado ? 'Copiado' : 'Copiar email'}
+            onClick={() => handleCopiar()}
+          />
         </CardContent>
       </Card>
 
