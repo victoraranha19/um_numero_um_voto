@@ -1,10 +1,10 @@
 'use client';
 
-import { auth, loginComGoogle } from '@api/auth';
-import { Button, IconButton, Menu, MenuItem } from '@mui/material';
-import { User, signOut, onAuthStateChanged } from 'firebase/auth';
+import { auth, loginComGoogle, logout } from '@api/auth';
+import { Box, Button, IconButton, Menu, MenuItem } from '@mui/material';
+import { User, onAuthStateChanged } from 'firebase/auth';
 import { AccountCircle, Google, Logout } from '@mui/icons-material';
-import { useEffect, useState } from 'react';
+import { MouseEvent, useEffect, useState } from 'react';
 
 export default function LoginMenu() {
   const [usuario, setUsuario] = useState<User | null>(null);
@@ -17,22 +17,17 @@ export default function LoginMenu() {
     });
   }, []);
 
-  async function logout() {
-    setMenuAnchor(null);
-    try {
-      await signOut(auth);
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
-  }
-
-  async function toggleLogin() {
-    setMenuAnchor(null);
+  async function handleButtonLogin(e: MouseEvent<HTMLButtonElement>) {
     if (usuario) {
-      await logout();
+      setMenuAnchor(e.currentTarget);
     } else {
       await loginComGoogle();
     }
+  }
+  async function handleLogout() {
+    setMenuAnchor(null);
+    await logout();
+    irPara();
   }
 
   function irPara(path: string = '/') {
@@ -41,10 +36,10 @@ export default function LoginMenu() {
   }
 
   return (
-    <>
+    <Box sx={{ display: 'flex', justifyContent: 'end' }}>
       <Button
-        sx={{ display: { xs: 'none', md: 'flex' } }}
-        onClick={(e) => setMenuAnchor(e.currentTarget)}
+        sx={{ display: { xs: 'none', md: 'flex' }, mx: 2 }}
+        onClick={handleButtonLogin}
         size="large"
         endIcon={usuario ? <Logout /> : <Google />}
       >
@@ -52,25 +47,21 @@ export default function LoginMenu() {
       </Button>
       <IconButton
         sx={{ display: { xs: 'flex', md: 'none' } }}
-        onClick={(e) => setMenuAnchor(e.currentTarget)}
+        onClick={handleButtonLogin}
       >
         <AccountCircle fontSize="large" />
       </IconButton>
-      <Menu
-        open={menuAberto}
-        anchorEl={menuAnchor}
-        onClose={() => setMenuAnchor(null)}
-      >
-        {usuario && (
+      {usuario && (
+        <Menu
+          open={menuAberto}
+          anchorEl={menuAnchor}
+          onClose={() => setMenuAnchor(null)}
+        >
           <MenuItem onClick={() => irPara('/perfil')}>Perfil</MenuItem>
-        )}
-        {usuario && (
           <MenuItem onClick={() => irPara('/pedidos')}>Meus Pedidos</MenuItem>
-        )}
-        <MenuItem onClick={() => toggleLogin()}>
-          {usuario ? 'Sair' : 'Entrar'}
-        </MenuItem>
-      </Menu>
-    </>
+          <MenuItem onClick={() => handleLogout()}>Sair</MenuItem>
+        </Menu>
+      )}
+    </Box>
   );
 }

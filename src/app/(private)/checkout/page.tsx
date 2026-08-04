@@ -1,18 +1,12 @@
 'use client';
 
 import { getURLPagamento } from '@api/actions';
-import { auth, loginComGoogle } from '@api/auth';
 import {
   criarPedido,
   getQuantidadePedidosUsuario,
   getUrlPagamentoPedidoPendente,
 } from '@app/api/_pedido/actions';
-import {
-  adicionarNovoUsuario,
-  salvarDadosUsuario,
-} from '@app/api/usuario/actions';
-import DadosForm from '@components/dados-form';
-import Pagamento from '@components/pagamento';
+import Redirecting from '@components/redirecting';
 import Revisao from '@components/revisao';
 import {
   HANDLE,
@@ -23,11 +17,8 @@ import {
   WEBHOOK_URL,
 } from '@lib/constants';
 import { EPresidente } from '@lib/enums';
-import { IErro, IPayload, IPayloadCustomer, IUsuario } from '@lib/types';
-import { getJWTFromEmail } from '@lib/utils';
-import { validarNomeCompleto, validarWhatsapp } from '@lib/validators';
-import { Box, Button, Divider, Step, StepLabel, Stepper } from '@mui/material';
-import { onAuthStateChanged } from 'firebase/auth';
+import { IPayload, IPayloadCustomer, IUsuario } from '@lib/types';
+import { Divider, Step, StepLabel, Stepper } from '@mui/material';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useState } from 'react';
 
@@ -47,8 +38,6 @@ function CheckoutContent() {
   );
   const [urlPagamento, setUrlPagamento] = useState<string>('');
   const [usuario, setUsuario] = useState<IUsuario | null>(null);
-  const erroWhatsapp: IErro | null = validarWhatsapp(usuario?.whatsapp ?? '');
-  const erroNome: IErro | null = validarNomeCompleto(usuario?.nome ?? '');
 
   const getPayloadCostumer = useCallback(
     (u: IUsuario): Partial<IPayloadCustomer> | undefined => {
@@ -85,33 +74,9 @@ function CheckoutContent() {
     [getPayloadCostumer],
   );
 
-  const irParaPagamento = useCallback(
-    async (p = presidente, q = quantidade, u = usuario) => {
-      if (!u) {
-        setPasso(EPasso.IDENTIFICACAO);
-        return;
-      }
-
-      setPasso(EPasso.PAGAMENTO);
-      let url_pagamento = await getUrlPagamentoPedidoPendente(q);
-      if (!url_pagamento.length) {
-        const quantidadePedidos = await getQuantidadePedidosUsuario(u.email);
-        const payload = getPayload(p, q, u, quantidadePedidos + 1);
-        url_pagamento = await getURLPagamento(payload);
-        await criarPedido({
-          email_usuario: u.email,
-          id: payload.order_nsu,
-          quantidade: q,
-          url_pagamento,
-          valor_total: PRICE * q, // usando o 'q' local com segurança
-          presidente: p,
-        });
-      }
-      setUrlPagamento(url_pagamento);
-      window.open(url_pagamento);
-    },
-    [presidente, quantidade, usuario, getPayload],
-  );
+  function geUrlRedirect(urlSite: string, searchParams: string): string {
+    return `${urlSite}/login?redirect=${urlSite}/checkout?${encodeURIComponent(searchParams)}`;
+  }
 
   useEffect(() => {
     if (!(order_nsu || (presidente && quantidade))) {
@@ -119,96 +84,65 @@ function CheckoutContent() {
       return;
     }
 
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        setUsuario(null);
-        cookieStore.delete('tokenX');
-        return;
-      }
-      cookieStore.set('tokenX', getJWTFromEmail(user.email!));
-      fetch(`/api/usuario?email=${user.email!}`, { method: 'GET' })
-        .then((u) => u.json())
-        .then((u: IUsuario[]) => {
-          const usuarioDB = u.at(0);
-          if (!usuarioDB) {
-            const novoUsuario: IUsuario = {
-              email: user.email!,
-              nome: user.displayName ?? '',
-              whatsapp: '',
-            };
-            return adicionarNovoUsuario(novoUsuario).then(() => {
-              setUsuario(novoUsuario);
-              setPasso(EPasso.IDENTIFICACAO);
-            });
-          }
+    fetch(`/api/usuario`, { method: 'GET' })
+      .then((u) => u.json())
+      .then((u: IUsuario[]) => {
+        const usuarioDB = u.at(0);
+        if (!usuarioDB) {
+          throw new Error('Usuário não encontrado no banco de dados');
+        }
 
-          setUsuario(usuarioDB);
-          if (!usuarioDB.whatsapp) {
-            setPasso(EPasso.IDENTIFICACAO);
-            return Promise.resolve();
-          }
+        setUsuario(usuarioDB);
+        if (order_nsu) {
+          setPasso(EPasso.REVISAO);
+          return Promise.resolve();
+        }
 
-          if (order_nsu) {
-            return Promise.resolve();
-          }
-
-          return getUrlPagamentoPedidoPendente(quantidade)
-            .then((url) => {
-              if (url && url.length) {
-                return Promise.resolve(url);
-              }
-              let order_nsu = '';
-              let url_pagamento = '';
-              return getQuantidadePedidosUsuario(usuarioDB.email)
-                .then((qp) => {
-                  const payload = getPayload(
-                    presidente,
-                    quantidade,
-                    usuarioDB,
-                    qp + 1,
-                  );
-                  order_nsu = payload.order_nsu;
-                  return getURLPagamento(payload);
-                })
-                .then((up) => {
-                  url_pagamento = up;
-                  return criarPedido({
-                    email_usuario: usuarioDB.email,
-                    id: order_nsu,
-                    quantidade,
-                    url_pagamento,
-                    valor_total: PRICE * quantidade, // usando o 'q' local com segurança
-                    presidente: presidente,
-                  });
-                })
-                .then(() => Promise.resolve(url_pagamento));
-            })
-            .then((url) => {
-              setUrlPagamento(url);
-              window.open(url);
-            });
-        })
-        .catch(() => cookieStore.delete('tokenX'));
-    });
-  }, [getPayload, order_nsu, presidente, quantidade]);
-
-  async function handleAvancar() {
-    try {
-      if (!usuario) throw new Error('Usuário não logado!');
-      await salvarDadosUsuario(usuario);
-      await irParaPagamento();
-    } catch (error) {
-      console.error('Erro ao atualizar dados usuario:', error);
-    }
-  }
-
-  async function handleLogin() {
-    try {
-      await loginComGoogle();
-    } catch (error) {
-      console.error('Erro ao fazer login:', error);
-    }
-  }
+        return getUrlPagamentoPedidoPendente(quantidade, presidente)
+          .then((url) => {
+            if (url && url.length) {
+              return Promise.resolve(url);
+            }
+            let order_nsu = '';
+            let url_pagamento = '';
+            return getQuantidadePedidosUsuario(usuarioDB.email)
+              .then((qp) => {
+                const payload = getPayload(
+                  presidente,
+                  quantidade,
+                  usuarioDB,
+                  qp + 1,
+                );
+                order_nsu = payload.order_nsu;
+                return getURLPagamento(payload);
+              })
+              .then((up) => {
+                url_pagamento = up;
+                return criarPedido({
+                  email_usuario: usuarioDB.email,
+                  id: order_nsu,
+                  quantidade,
+                  url: url_pagamento,
+                  valor: PRICE * quantidade, // usando o 'q' local com segurança
+                  presidente: presidente,
+                });
+              })
+              .then(() => Promise.resolve(url_pagamento));
+          })
+          .then((url) => {
+            setUrlPagamento(url);
+            window.open(url);
+          })
+          .catch((error) => {
+            console.error('Erro ao processar o pagamento:', error);
+          });
+      })
+      .catch(() => {
+        const urlSite = window.location.origin ?? SITE_URL;
+        window.location.href = geUrlRedirect(urlSite, searchParams.toString());
+        setPasso(EPasso.IDENTIFICACAO);
+      });
+  }, [getPayload, order_nsu, presidente, quantidade, searchParams]);
 
   return (
     <>
@@ -226,18 +160,22 @@ function CheckoutContent() {
 
       <Divider sx={{ my: 3 }} />
 
+      {!usuario ||
+        (passo === EPasso.IDENTIFICACAO && (
+          <Redirecting
+            nomePagina="Login"
+            url={geUrlRedirect(
+              window.location.origin ?? SITE_URL,
+              searchParams.toString(),
+            )}
+          />
+        ))}
+
       {usuario && (
         <>
-          {passo === EPasso.IDENTIFICACAO && (
-            <DadosForm
-              usuario={usuario}
-              setUsuario={setUsuario}
-              loginComGoogle={() => handleLogin()}
-              erroNome={erroNome}
-              erroWhatsapp={erroWhatsapp}
-            />
+          {passo === EPasso.PAGAMENTO && (
+            <Redirecting nomePagina="Pagamento" url={urlPagamento} />
           )}
-          {passo === EPasso.PAGAMENTO && <Pagamento url={urlPagamento} />}
           {order_nsu?.length && (
             <Revisao
               order_nsu={order_nsu}
@@ -249,21 +187,6 @@ function CheckoutContent() {
           )}
         </>
       )}
-
-      <Divider sx={{ my: 3 }} />
-
-      <Box>
-        {passo === EPasso.IDENTIFICACAO && (
-          <Button
-            fullWidth
-            variant="contained"
-            onClick={() => handleAvancar()}
-            disabled={!usuario || !!erroWhatsapp?.erro || !!erroNome?.erro}
-          >
-            Avançar
-          </Button>
-        )}
-      </Box>
     </>
   );
 }

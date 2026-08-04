@@ -30,7 +30,11 @@ export default function MenuNavegacao() {
     <AppBar position="sticky">
       <Toolbar
         disableGutters
-        sx={{ display: 'flex', justifyContent: 'space-between' }}
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: '1fr auto 1fr',
+          alignItems: 'center',
+        }}
       >
         <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
           <IconButton onClick={(e) => setMenuAnchor(e.currentTarget)}>
@@ -53,7 +57,9 @@ export default function MenuNavegacao() {
             Um número um voto
           </Typography>
         </Link>
-        <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+        <Box
+          sx={{ display: { xs: 'none', md: 'flex' }, justifyContent: 'center' }}
+        >
           <Button color="secondary" onClick={() => irPara()}>
             Início
           </Button>

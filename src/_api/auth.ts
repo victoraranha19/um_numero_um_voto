@@ -4,12 +4,13 @@ import {
   verificarEmailCadastrado,
 } from '@app/api/usuario/actions';
 import { IUsuario } from '@lib/types';
+import { getJWTFromEmail } from '@lib/utils';
 import { initializeApp } from 'firebase/app';
 import {
   getAuth,
   GoogleAuthProvider,
   signInWithPopup,
-  User,
+  signOut,
 } from 'firebase/auth';
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -31,21 +32,31 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
 export async function loginComGoogle() {
-  const provider = new GoogleAuthProvider();
-  const userCredential = await signInWithPopup(auth, provider);
-  await registrarUsuario(userCredential.user);
+  try {
+    const provider = new GoogleAuthProvider();
+    const userCredential = await signInWithPopup(auth, provider);
+    if (!userCredential.user.email) {
+      throw new Error('Não foi possível identificar email do usuário!');
+    }
+    const usuario: IUsuario = {
+      nome: userCredential.user.displayName ?? '',
+      email: userCredential.user.email,
+      whatsapp: '',
+    };
+    await registrarUsuario(usuario);
+    await cookieStore.set('tokenX', getJWTFromEmail(userCredential.user.email));
+  } catch (error) {
+    console.error('Erro ao fazer login com Google:', error);
+    await logout();
+  }
 }
 
-async function registrarUsuario(user: User) {
-  if (!user.email) {
-    throw new Error('Não foi possível identificar email do usuário!');
-  }
-  const usuario: IUsuario = {
-    nome: user.displayName ?? '',
-    email: user.email,
-    whatsapp: '',
-  };
+export async function logout() {
+  await signOut(auth);
+  await cookieStore.delete('tokenX');
+}
 
+async function registrarUsuario(usuario: IUsuario) {
   const temEmailCadastrado = await verificarEmailCadastrado(usuario.email);
   if (!temEmailCadastrado) await adicionarNovoUsuario(usuario);
 }

@@ -3,42 +3,37 @@
 import { IErro, IUsuario } from '@lib/types';
 import { DoneRounded, Google } from '@mui/icons-material';
 import {
+  Button,
   Chip,
   Divider,
   Fab,
   InputAdornment,
   Stack,
   TextField,
+  Tooltip,
   Typography,
 } from '@mui/material';
-import { useState } from 'react';
 
 interface DadosFormProps {
-  usuario: IUsuario;
-  setUsuario: (u: IUsuario) => void;
+  usuario: IUsuario | null;
+  setNome: (n: string) => void;
+  setWhatsapp: (w: string) => void;
   erroWhatsapp: IErro | null;
   erroNome: IErro | null;
   loginComGoogle: () => void;
+  concluirCadastro: () => void;
 }
 
 export default function DadosForm({
   usuario,
-  setUsuario,
+  setNome,
+  setWhatsapp,
   erroWhatsapp,
   erroNome,
   loginComGoogle,
+  concluirCadastro,
 }: DadosFormProps) {
-  const [whatsapp, setWhatsapp] = useState(usuario.whatsapp);
-  const whatsappMasked = getMasked(whatsapp);
-
-  function handleNomeChange(nome: string) {
-    if (usuario) setUsuario({ ...usuario, nome });
-  }
-
-  function handleWhatsappChange(w: string) {
-    setWhatsapp(w);
-    setUsuario({ ...usuario, whatsapp: w });
-  }
+  const whatsappMasked = getMasked(usuario?.whatsapp ?? '');
 
   function getMasked(d: string): string {
     const digitos = d.replaceAll(/\D/g, '');
@@ -83,35 +78,53 @@ export default function DadosForm({
       <Divider sx={{ my: 2 }} />
 
       <Typography>Complete com suas informações:</Typography>
-      <TextField
-        label="Email"
-        disabled
-        defaultValue={usuario.email}
-        slotProps={{
-          input: {
-            startAdornment: <InputAdornment position="start">@</InputAdornment>,
-          },
-        }}
-        error={!usuario.email.length}
-      />
+      <Tooltip placement="top" title={!usuario && 'Primeiro entre com Google'}>
+        <TextField
+          label="Email"
+          disabled={!usuario}
+          defaultValue={usuario?.email}
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">@</InputAdornment>
+              ),
+            },
+          }}
+          error={!!usuario && !usuario.email.length}
+        />
+      </Tooltip>
 
-      <TextField
-        label="Nome Completo"
-        disabled={!usuario}
-        defaultValue={usuario.nome}
-        onChange={(e) => handleNomeChange(e.target.value)}
-        error={!!erroNome}
-        helperText={erroNome?.erro}
-      />
-      <TextField
-        label="Whatsapp"
-        disabled={!usuario}
-        placeholder="(00) 0 0000-0000"
-        value={whatsappMasked}
-        onChange={(e) => handleWhatsappChange(e.target.value)}
-        error={!!erroWhatsapp}
-        helperText={erroWhatsapp?.erro}
-      />
+      <Tooltip placement="top" title={!usuario && 'Primeiro entre com Google'}>
+        <TextField
+          label="Nome Completo"
+          disabled={!usuario}
+          defaultValue={usuario?.nome}
+          onChange={(e) => setNome(e.target.value)}
+          error={!!usuario && !!erroNome}
+          helperText={!!usuario && erroNome?.erro}
+        />
+      </Tooltip>
+
+      <Tooltip placement="top" title={!usuario && 'Primeiro entre com Google'}>
+        <TextField
+          label="Whatsapp"
+          disabled={!usuario}
+          placeholder="(00) 0 0000-0000"
+          value={whatsappMasked}
+          onChange={(e) => setWhatsapp(e.target.value)}
+          error={!!usuario && !!erroWhatsapp}
+          helperText={!!usuario && erroWhatsapp?.erro}
+        />
+      </Tooltip>
+
+      <Button
+        fullWidth
+        variant="contained"
+        onClick={() => concluirCadastro()}
+        disabled={!usuario || !!erroWhatsapp?.erro || !!erroNome?.erro}
+      >
+        Avançar
+      </Button>
     </Stack>
   );
 }

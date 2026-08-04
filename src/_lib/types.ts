@@ -11,8 +11,8 @@ export interface IPedido {
   id: string;
   presidente: EPresidente;
   quantidade: number;
-  url_pagamento: string;
-  valor_total: number;
+  url: string;
+  valor: number;
   email_usuario: string;
 }
 export interface IRecibo {

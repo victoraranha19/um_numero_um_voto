@@ -1,6 +1,7 @@
 'use server';
 
 import db from '@api/db';
+import { EPresidente } from '@lib/enums';
 import { IPedido } from '@lib/types';
 
 export async function verificarDonoPedido(email: string, order_nsu: string) {
@@ -33,32 +34,33 @@ export async function getQuantidadePedidosUsuario(
 
 export async function getUrlPagamentoPedidoPendente(
   quantidade: number,
+  presidente: EPresidente,
 ): Promise<string> {
   try {
-    const result = (await db`SELECT url_pagamento
+    const result = (await db`SELECT p.url
           FROM pedidos p LEFT JOIN recibos r ON p.id=r.id_pedido
-          WHERE p.quantidade=${quantidade} AND r.id IS NULL`) as {
-      url_pagamento: string;
+          WHERE p.quantidade=${quantidade} AND p.presidente=${presidente} AND r.id IS NULL`) as {
+      url: string;
     }[];
-    return result.at(0)?.url_pagamento ?? '';
+    return result.at(0)?.url ?? '';
   } catch (error) {
-    console.error('Erro ao verificar pedidos com url_pagamento:', error);
-    throw new Error('Erro ao verificar pedidos com url_pagamento');
+    console.error('Erro ao verificar pedidos com url:', error);
+    throw new Error('Erro ao verificar pedidos com url');
   }
 }
 
 export async function criarPedido({
   id,
-  url_pagamento,
+  url,
   presidente,
-  valor_total,
+  valor,
   quantidade,
   email_usuario,
 }: IPedido): Promise<void> {
   try {
     await db`INSERT INTO
-      pedidos (id, url_pagamento, presidente, valor_total, quantidade, email_usuario)
-      VALUES (${id}, ${url_pagamento}, ${presidente}, ${valor_total}, ${quantidade}, ${email_usuario})`;
+      pedidos (id, url, presidente, valor, quantidade, email_usuario)
+      VALUES (${id}, ${url}, ${presidente}, ${valor}, ${quantidade}, ${email_usuario})`;
   } catch (error) {
     console.error('Erro ao criar pedido de compra:', error);
     throw new Error('Erro ao criar pedido de compra.');

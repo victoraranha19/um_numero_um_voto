@@ -7,16 +7,17 @@ import {
 } from '@mui/material';
 
 interface PagamentoProps {
+  nomePagina: string;
   url: string;
 }
 
-export default function Pagamento({ url }: PagamentoProps) {
+export default function Redirecting({ nomePagina, url }: PagamentoProps) {
   return (
     <>
       <Card>
         <CardContent>
           <Typography variant="body1" gutterBottom>
-            Um instante, redirecionando para o pagamento...
+            Um instante, redirecionando para {nomePagina}...
           </Typography>
 
           <Typography gutterBottom variant="caption">
@@ -25,7 +26,7 @@ export default function Pagamento({ url }: PagamentoProps) {
         </CardContent>
         <CardActions sx={{ justifyContent: 'center' }}>
           <Link variant="body2" component="a" href={url} target="_blank">
-            Ir para pagamento
+            Ir para {nomePagina}
           </Link>
         </CardActions>
       </Card>
