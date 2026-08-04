@@ -3,7 +3,7 @@
 import { auth, loginComGoogle, logout } from '@api/auth';
 import { Box, Button, IconButton, Menu, MenuItem } from '@mui/material';
 import { User, onAuthStateChanged } from 'firebase/auth';
-import { AccountCircle, Google, Logout } from '@mui/icons-material';
+import { AccountBoxRounded, AccountCircle, Google } from '@mui/icons-material';
 import { MouseEvent, useEffect, useState } from 'react';
 
 export default function LoginMenu() {
@@ -41,9 +41,9 @@ export default function LoginMenu() {
         sx={{ display: { xs: 'none', md: 'flex' }, mx: 2 }}
         onClick={handleButtonLogin}
         size="large"
-        endIcon={usuario ? <Logout /> : <Google />}
+        startIcon={usuario ? <AccountBoxRounded /> : <Google />}
       >
-        {usuario ? 'Sair ' : 'Entrar '}
+        {usuario ? 'Minha conta ' : 'Entrar '}
       </Button>
       <IconButton
         sx={{ display: { xs: 'flex', md: 'none' } }}

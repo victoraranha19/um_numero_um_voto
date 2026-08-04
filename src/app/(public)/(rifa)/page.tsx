@@ -16,7 +16,7 @@ export default function RifaPage() {
   const [quantidade, setQuantidade] = useState(0);
 
   function handleVotar(q: number, p: EPresidente) {
-    const url = new URL(window.location.href + '/checkout');
+    const url = new URL(window.location.origin + '/checkout');
     url.searchParams.set('q', q.toString());
     url.searchParams.set('p', p);
     window.location.href = url.href;

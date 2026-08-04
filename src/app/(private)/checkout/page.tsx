@@ -75,7 +75,12 @@ function CheckoutContent() {
   );
 
   function geUrlRedirect(urlSite: string, searchParams: string): string {
-    return `${urlSite}/login?redirect=${urlSite}/checkout?${encodeURIComponent(searchParams)}`;
+    const url = new URL(`${urlSite}/login`);
+    url.searchParams.set(
+      'redirect',
+      `${urlSite}/checkout?${encodeURIComponent(searchParams)}`,
+    );
+    return url.href;
   }
 
   useEffect(() => {

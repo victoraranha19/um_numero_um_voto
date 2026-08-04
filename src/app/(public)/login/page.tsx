@@ -4,9 +4,8 @@ import { auth, loginComGoogle } from '@api/auth';
 import { salvarDadosUsuario } from '@app/api/usuario/actions';
 import DadosForm from '@components/dados-form';
 import { SITE_URL } from '@lib/constants';
-import { IErro, IUsuario } from '@lib/types';
+import { IUsuario } from '@lib/types';
 import { getJWTFromEmail } from '@lib/utils';
-import { validarNomeCompleto, validarWhatsapp } from '@lib/validators';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -16,8 +15,6 @@ export default function LoginPage() {
   const redirect = decodeURI(searchParams.get('redirect') ?? SITE_URL);
 
   const [usuario, setUsuario] = useState<IUsuario | null>(null);
-  const erroWhatsapp: IErro | null = validarWhatsapp(usuario?.whatsapp ?? '');
-  const erroNome: IErro | null = validarNomeCompleto(usuario?.nome ?? '');
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
@@ -37,14 +34,6 @@ export default function LoginPage() {
     });
   }, [redirect]);
 
-  function handleSetNome(nome: string) {
-    if (usuario) setUsuario({ ...usuario, nome });
-  }
-
-  function handleSetWhatsapp(whatsapp: string) {
-    if (usuario) setUsuario({ ...usuario, whatsapp });
-  }
-
   async function handleLogin() {
     try {
       await loginComGoogle();
@@ -53,7 +42,7 @@ export default function LoginPage() {
     }
   }
 
-  async function handleConcluirCadastro() {
+  async function salvarUsuario() {
     if (!usuario) throw new Error('Usuário não logado!');
     await salvarDadosUsuario(usuario);
     window.location.href = redirect;
@@ -62,12 +51,9 @@ export default function LoginPage() {
   return (
     <DadosForm
       usuario={usuario}
-      setNome={handleSetNome}
-      setWhatsapp={handleSetWhatsapp}
+      setUsuario={setUsuario}
       loginComGoogle={() => handleLogin()}
-      erroNome={erroNome}
-      erroWhatsapp={erroWhatsapp}
-      concluirCadastro={handleConcluirCadastro}
+      salvarUsuario={salvarUsuario}
     />
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { IErro, IUsuario } from '@lib/types';
+import { validarNomeCompleto, validarWhatsapp } from '@lib/validators';
 import { DoneRounded, Google } from '@mui/icons-material';
 import {
   Button,
@@ -16,23 +17,21 @@ import {
 
 interface DadosFormProps {
   usuario: IUsuario | null;
-  setNome: (n: string) => void;
-  setWhatsapp: (w: string) => void;
-  erroWhatsapp: IErro | null;
-  erroNome: IErro | null;
-  loginComGoogle: () => void;
-  concluirCadastro: () => void;
+  setUsuario: (u: IUsuario | null) => void;
+  loginComGoogle?: () => void;
+  salvarUsuario: () => void;
+  ehPerfil?: boolean;
 }
 
 export default function DadosForm({
   usuario,
-  setNome,
-  setWhatsapp,
-  erroWhatsapp,
-  erroNome,
-  loginComGoogle,
-  concluirCadastro,
+  setUsuario,
+  loginComGoogle = () => void 0,
+  salvarUsuario,
+  ehPerfil: readonly = false,
 }: DadosFormProps) {
+  const erroWhatsapp: IErro | null = validarWhatsapp(usuario?.whatsapp ?? '');
+  const erroNome: IErro | null = validarNomeCompleto(usuario?.nome ?? '');
   const whatsappMasked = getMasked(usuario?.whatsapp ?? '');
 
   function getMasked(d: string): string {
@@ -54,34 +53,40 @@ export default function DadosForm({
 
   return (
     <Stack direction="column" spacing={2}>
-      <Typography>Entre com Google:</Typography>
-      <Stack sx={{ alignItems: 'center' }} spacing={1}>
-        <Fab
-          color="error"
-          disabled={!!usuario}
-          onClick={() => loginComGoogle()}
-        >
-          <Google />
-        </Fab>
-        {usuario ? (
-          <Chip
-            color="success"
-            variant="outlined"
-            icon={<DoneRounded />}
-            label="Logado"
-          />
-        ) : (
-          <Typography variant="caption">Fazer login</Typography>
-        )}
-      </Stack>
+      {!readonly && (
+        <>
+          <Typography>Entre com Google:</Typography>
+          <Stack sx={{ alignItems: 'center' }} spacing={1}>
+            <Fab
+              color="error"
+              disabled={!!usuario}
+              onClick={() => loginComGoogle()}
+            >
+              <Google />
+            </Fab>
+            {usuario ? (
+              <Chip
+                color="success"
+                variant="outlined"
+                icon={<DoneRounded />}
+                label="Logado"
+              />
+            ) : (
+              <Typography variant="caption">Fazer login</Typography>
+            )}
+          </Stack>
 
-      <Divider sx={{ my: 2 }} />
+          <Divider sx={{ my: 2 }} />
+        </>
+      )}
 
-      <Typography>Complete com suas informações:</Typography>
+      <Typography>
+        {readonly ? 'Minhas Informações:' : 'Complete suas informações:'}
+      </Typography>
       <Tooltip placement="top" title={!usuario && 'Primeiro entre com Google'}>
         <TextField
           label="Email"
-          disabled={!usuario}
+          disabled={true}
           defaultValue={usuario?.email}
           slotProps={{
             input: {
@@ -99,7 +104,9 @@ export default function DadosForm({
           label="Nome Completo"
           disabled={!usuario}
           defaultValue={usuario?.nome}
-          onChange={(e) => setNome(e.target.value)}
+          onChange={(e) =>
+            usuario && setUsuario({ ...usuario, nome: e.target.value })
+          }
           error={!!usuario && !!erroNome}
           helperText={!!usuario && erroNome?.erro}
         />
@@ -111,7 +118,9 @@ export default function DadosForm({
           disabled={!usuario}
           placeholder="(00) 0 0000-0000"
           value={whatsappMasked}
-          onChange={(e) => setWhatsapp(e.target.value)}
+          onChange={(e) =>
+            usuario && setUsuario({ ...usuario, whatsapp: e.target.value })
+          }
           error={!!usuario && !!erroWhatsapp}
           helperText={!!usuario && erroWhatsapp?.erro}
         />
@@ -120,10 +129,10 @@ export default function DadosForm({
       <Button
         fullWidth
         variant="contained"
-        onClick={() => concluirCadastro()}
+        onClick={() => salvarUsuario()}
         disabled={!usuario || !!erroWhatsapp?.erro || !!erroNome?.erro}
       >
-        Avançar
+        Salvar
       </Button>
     </Stack>
   );
