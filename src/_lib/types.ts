@@ -18,12 +18,55 @@ export interface IPedido {
 export interface IRecibo {
   id: string;
   data_pagamento: Date;
-  url_recibo: string;
+  url: string;
   codigo_fatura: string;
   metodo_pagamento: EMetodo;
   valor_total: number;
   valor_pago: number;
   parcelas: number;
+}
+
+export interface IPedidoDetalhado extends IPedido {
+  recibo?: IRecibo;
+}
+export interface IReciboDetalhado extends IRecibo {
+  pedido: IPedido;
+}
+
+export interface IPedidoRecibo {
+  pedido_id: string;
+  presidente: EPresidente;
+  quantidade: number;
+  pedido_url: string;
+  valor: number;
+  email_usuario: string;
+
+  recibo_id: string | null;
+  data_pagamento: Date | null;
+  recibo_url: string | null;
+  codigo_fatura: string | null;
+  metodo_pagamento: EMetodo | null;
+  valor_total: number | null;
+  valor_pago: number | null;
+  parcelas: number | null;
+}
+
+export interface IReciboPedido {
+  recibo_id: string;
+  data_pagamento: Date;
+  recibo_url: string;
+  codigo_fatura: string;
+  metodo_pagamento: EMetodo;
+  valor_total: number;
+  valor_pago: number;
+  parcelas: number;
+
+  pedido_id: string;
+  presidente: EPresidente;
+  quantidade: number;
+  pedido_url: string;
+  valor: number;
+  email_usuario: string;
 }
 
 export interface ICota {

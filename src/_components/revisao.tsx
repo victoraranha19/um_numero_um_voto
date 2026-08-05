@@ -1,33 +1,30 @@
 'use client';
 
+import { IReciboDetalhado } from '@lib/types';
 import { Card, CardContent, Typography } from '@mui/material';
 
 interface IRevisaoProps {
-  order_nsu: string;
-  receipt_url?: string | null;
-  slug?: string | null;
-  transaction_nsu?: string | null;
-  capture_method?: string | null;
+  recibo: IReciboDetalhado;
 }
 
-export default function Revisao({
-  order_nsu,
-  receipt_url = '',
-  slug = '',
-  transaction_nsu = '',
-  capture_method = '',
-}: IRevisaoProps) {
+export default function Revisao({ recibo }: IRevisaoProps) {
+  const pedido = recibo.pedido;
   return (
     <>
       <Card>
         <CardContent>
-          <Typography>{order_nsu}</Typography>
-          <Typography>{slug}</Typography>
-          <Typography>{receipt_url}</Typography>
-          <Typography>{transaction_nsu}</Typography>
-          <Typography>{capture_method}</Typography>
+          <Typography>{pedido.presidente}</Typography>
+          <Typography>{pedido.quantidade}</Typography>
+          <Typography>{pedido.valor}</Typography>
 
-          {/* <CotasList cotas={cotas} /> */}
+          <Typography>{recibo.id}</Typography>
+          <Typography>{recibo.codigo_fatura}</Typography>
+          <Typography>{recibo.data_pagamento.toLocaleString()}</Typography>
+          <Typography>{recibo.metodo_pagamento}</Typography>
+          <Typography>{recibo.parcelas}</Typography>
+          <Typography>{recibo.url}</Typography>
+          <Typography>{recibo.valor_pago}</Typography>
+          <Typography>{recibo.valor_total}</Typography>
         </CardContent>
       </Card>
     </>

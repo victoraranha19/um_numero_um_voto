@@ -22,7 +22,7 @@ export default function PerfilPage() {
       .catch((error) => {
         console.error('Erro ao buscar usuário:', error);
         logout();
-        window.location.href = '/';
+        window.location.href = '/login';
       });
   }, []);
 
