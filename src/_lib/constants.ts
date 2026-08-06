@@ -1,9 +1,15 @@
-import { EPresidente } from './enums';
+import { EMetodo, EPresidente } from './enums';
 
 export const PRESIDENTE = {
   [EPresidente.BOLSONARO]: 'Bolsonaro',
   [EPresidente.LULA]: 'Lula',
   [EPresidente.NENHUM]: 'Nulo',
+};
+
+export const PAGAMENTO = {
+  [EMetodo.PIX]: 'Pix',
+  [EMetodo.APPLEPAY]: 'ApplePay',
+  [EMetodo.CREDITO]: 'Crédito',
 };
 
 export const SITE_URL = 'https://um-numero-um-voto-theta.vercel.app';

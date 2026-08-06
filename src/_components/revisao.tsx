@@ -1,7 +1,20 @@
 'use client';
 
+import { PAGAMENTO, PRESIDENTE } from '@lib/constants';
+import { EMetodo } from '@lib/enums';
 import { IReciboDetalhado } from '@lib/types';
-import { Card, CardContent, Typography } from '@mui/material';
+import { CreditCardRounded, PixRounded } from '@mui/icons-material';
+import {
+  Avatar,
+  Box,
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  CardHeader,
+  Divider,
+  Typography,
+} from '@mui/material';
 
 interface IRevisaoProps {
   recibo: IReciboDetalhado;
@@ -9,23 +22,68 @@ interface IRevisaoProps {
 
 export default function Revisao({ recibo }: IRevisaoProps) {
   const pedido = recibo.pedido;
+
+  function formatarData(data: string): string {
+    const [a, m, d, h, M] = data.split(/[-T:]/);
+    return `${d}/${m}/${a} ${h}:${M}`;
+  }
+
   return (
     <>
       <Card>
+        <CardHeader
+          avatar={
+            <Avatar sx={{ bgcolor: 'success.main' }}>
+              +{pedido.quantidade}
+            </Avatar>
+          }
+          title={<Typography variant="h6">Sobre o pedido</Typography>}
+          subheader={
+            <Typography variant="caption">
+              {pedido.quantidade} voto(s) para {PRESIDENTE[pedido.presidente]}
+            </Typography>
+          }
+        />
+        <Divider />
         <CardContent>
-          <Typography>{pedido.presidente}</Typography>
-          <Typography>{pedido.quantidade}</Typography>
-          <Typography>{pedido.valor}</Typography>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              mb: 2,
+            }}
+          >
+            <Typography variant="h5">
+              R$ {(recibo.valor_total / 100).toFixed(2)}
+            </Typography>
+            <Typography variant="caption" gutterBottom>
+              {formatarData(recibo.data_pagamento)}
+            </Typography>
+          </Box>
 
-          <Typography>{recibo.id}</Typography>
-          <Typography>{recibo.codigo_fatura}</Typography>
-          <Typography>{recibo.data_pagamento.toLocaleString()}</Typography>
-          <Typography>{recibo.metodo_pagamento}</Typography>
-          <Typography>{recibo.parcelas}</Typography>
-          <Typography>{recibo.url}</Typography>
-          <Typography>{recibo.valor_pago}</Typography>
-          <Typography>{recibo.valor_total}</Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              {recibo.metodo_pagamento === EMetodo.PIX ? (
+                <PixRounded />
+              ) : (
+                <CreditCardRounded />
+              )}
+              <Typography>{PAGAMENTO[recibo.metodo_pagamento]}</Typography>
+            </Box>
+            <Typography>
+              {recibo.metodo_pagamento === EMetodo.CREDITO
+                ? recibo.parcelas + 'x (parcelas)'
+                : ''}
+            </Typography>
+          </Box>
         </CardContent>
+        <Divider />
+        <CardActions>
+          <Button onClick={() => window.open(recibo.url, '_blank')}>
+            Comprovante InfinitePay
+          </Button>
+        </CardActions>
       </Card>
     </>
   );

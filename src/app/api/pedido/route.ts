@@ -60,7 +60,7 @@ interface IPedidoRecibo {
   email_usuario: string;
 
   recibo_id: string | null;
-  data_pagamento: Date | null;
+  data_pagamento: string | null;
   recibo_url: string | null;
   codigo_fatura: string | null;
   metodo_pagamento: EMetodo | null;

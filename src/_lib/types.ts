@@ -17,7 +17,7 @@ export interface IPedido {
 }
 export interface IRecibo {
   id: string;
-  data_pagamento: Date;
+  data_pagamento: string;
   url: string;
   codigo_fatura: string;
   metodo_pagamento: EMetodo;
@@ -42,7 +42,7 @@ export interface IPedidoRecibo {
   email_usuario: string;
 
   recibo_id: string | null;
-  data_pagamento: Date | null;
+  data_pagamento: string | null;
   recibo_url: string | null;
   codigo_fatura: string | null;
   metodo_pagamento: EMetodo | null;
@@ -53,7 +53,7 @@ export interface IPedidoRecibo {
 
 export interface IReciboPedido {
   recibo_id: string;
-  data_pagamento: Date;
+  data_pagamento: string;
   recibo_url: string;
   codigo_fatura: string;
   metodo_pagamento: EMetodo;
