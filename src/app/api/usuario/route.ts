@@ -24,7 +24,7 @@ export async function GET(request: Request): Promise<Response> {
     if (emailPesquisado !== emailProprio) {
       // Verifica se o usuário é admin
       const administrador = await verificarAcessoAdmin(emailProprio);
-      if (!administrador) throw new Error('Não autorizado!');
+      if (!administrador) return NextResponse.json([], { status: 401 });
     }
 
     // Retorna email pesquisado

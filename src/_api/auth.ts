@@ -44,7 +44,7 @@ export async function loginComGoogle() {
       whatsapp: '',
     };
     await registrarUsuario(usuario);
-    await sessionStorage.set(
+    sessionStorage.setItem(
       'tokenX',
       getJWTFromEmail(userCredential.user.email),
     );
@@ -56,7 +56,7 @@ export async function loginComGoogle() {
 
 export async function logout() {
   await signOut(auth);
-  await sessionStorage.delete('tokenX');
+  await sessionStorage.removeItem('tokenX');
 }
 
 async function registrarUsuario(usuario: IUsuario) {

@@ -89,7 +89,10 @@ function CheckoutContent() {
     if (tokenX) headers.set('Authorization', `Basic ${tokenX}`);
 
     fetch(`/api/usuario`, { method: 'GET', headers })
-      .then((u) => u.json())
+      .then((u) => {
+        if (u.status === 401) location.href = location.origin;
+        return u.json();
+      })
       .then((u: IUsuario[]) => {
         const usuarioDB = u.at(0);
         if (!usuarioDB) {
@@ -100,14 +103,16 @@ function CheckoutContent() {
         if (id_recibo) {
           setPasso(EPasso.REVISAO);
           return fetch(`/api/recibo/${id_recibo}`, { method: 'GET', headers })
-            .then((r) => r.json())
+            .then((r) => {
+              if (r.status === 401) location.href = location.origin;
+              return r.json();
+            })
             .then(([r]: IReciboDetalhado[]) => {
-              if (!r) throw new Error('Pedido sem pagamento');
-              setRecibo(r);
+              if (r) setRecibo(r);
+              else setPasso(EPasso.PAGAMENTO);
             })
             .catch((error) => {
               console.error('Erro ao consultar recibo do pedido', error);
-              setPasso(EPasso.PAGAMENTO);
             });
         }
 
@@ -142,6 +147,7 @@ function CheckoutContent() {
               .then(() => Promise.resolve(url_pagamento));
           })
           .then((url) => {
+            setPasso(EPasso.PAGAMENTO);
             setUrlPagamento(url);
             window.open(url);
           })

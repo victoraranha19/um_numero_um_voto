@@ -20,7 +20,7 @@ export async function GET(
     if (emailProprio) {
       // Verifica se o usuário é dono do pedido
       const donoPedido = await verificarDonoRecibo(emailProprio, id);
-      if (!donoPedido) throw new Error('Não autorizado!');
+      if (!donoPedido) return NextResponse.json([], { status: 401 });
     }
 
     // Retorna email pesquisado

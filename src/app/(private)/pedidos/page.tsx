@@ -33,7 +33,10 @@ export default function PedidosPage() {
     if (tokenX) headers.set('Authorization', `Basic ${tokenX}`);
 
     fetch(`/api/usuario`, { method: 'GET', headers })
-      .then((u) => u.json())
+      .then((u) => {
+        if (u.status === 401) location.href = location.origin;
+        return u.json();
+      })
       .then((u: IUsuario[]) => {
         const usuarioDB = u.at(0);
         if (!usuarioDB) {
@@ -43,7 +46,10 @@ export default function PedidosPage() {
           method: 'GET',
           headers,
         })
-          .then((p) => p.json())
+          .then((p) => {
+            if (p.status === 401) location.href = location.origin;
+            return p.json();
+          })
           .then((p: IPedidoDetalhado[]) => {
             setPedidos(p);
           })

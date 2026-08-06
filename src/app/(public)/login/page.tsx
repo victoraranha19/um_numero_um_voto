@@ -20,11 +20,11 @@ export default function LoginPage() {
     onAuthStateChanged(auth, (user) => {
       if (user) {
         const tokenX = getJWTFromEmail(user.email!);
-        sessionStorage.set('tokenX', tokenX);
+        sessionStorage.setItem('tokenX', tokenX);
 
         const headers = new Headers();
         headers.set('Authorization', `Basic ${tokenX}`);
-        fetch(`/api/usuario?email=${user.email!}`, { method: 'GET' })
+        fetch(`/api/usuario?email=${user.email!}`, { method: 'GET', headers })
           .then((u) => u.json())
           .then((u: IUsuario[]) => {
             const usuarioDB = u.at(0);

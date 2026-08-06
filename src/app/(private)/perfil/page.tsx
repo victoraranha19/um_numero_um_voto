@@ -15,7 +15,10 @@ export default function PerfilPage() {
     if (tokenX) headers.set('Authorization', `Basic ${tokenX}`);
 
     fetch(`/api/usuario`, { method: 'GET', headers })
-      .then((u) => u.json())
+      .then((u) => {
+        if (u.status === 401) location.href = location.origin;
+        return u.json();
+      })
       .then((u: IUsuario[]) => {
         const usuarioDB = u.at(0);
         if (!usuarioDB) {
