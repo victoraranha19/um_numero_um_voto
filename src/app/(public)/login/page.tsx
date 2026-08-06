@@ -19,7 +19,11 @@ export default function LoginPage() {
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        cookieStore.set('tokenX', getJWTFromEmail(user.email!));
+        const tokenX = getJWTFromEmail(user.email!);
+        sessionStorage.set('tokenX', tokenX);
+
+        const headers = new Headers();
+        headers.set('Authorization', `Basic ${tokenX}`);
         fetch(`/api/usuario?email=${user.email!}`, { method: 'GET' })
           .then((u) => u.json())
           .then((u: IUsuario[]) => {

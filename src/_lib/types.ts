@@ -75,16 +75,7 @@ export interface ICota {
 }
 
 export interface IJWTToken extends JwtPayload {
-  name: string;
-  picture: string;
-  auth_time: number;
-  user_id: string;
   email: string;
-  email_verified: boolean;
-  firebase: {
-    identities: Record<string, string[]>;
-    sign_in_provider: string;
-  };
 }
 
 export interface IItem {

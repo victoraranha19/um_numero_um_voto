@@ -28,14 +28,21 @@ export default function PedidosPage() {
   const [pedidos, setPedidos] = useState<IPedidoDetalhado[]>([]);
 
   useEffect(() => {
-    fetch(`/api/usuario`, { method: 'GET' })
+    const tokenX = sessionStorage.getItem('tokenX');
+    const headers = new Headers();
+    if (tokenX) headers.set('Authorization', `Basic ${tokenX}`);
+
+    fetch(`/api/usuario`, { method: 'GET', headers })
       .then((u) => u.json())
       .then((u: IUsuario[]) => {
         const usuarioDB = u.at(0);
         if (!usuarioDB) {
           throw new Error('Usuário não encontrado no banco de dados');
         }
-        fetch(`/api/pedido?email=${usuarioDB.email}`, { method: 'GET' })
+        fetch(`/api/pedido?email=${usuarioDB.email}`, {
+          method: 'GET',
+          headers,
+        })
           .then((p) => p.json())
           .then((p: IPedidoDetalhado[]) => {
             setPedidos(p);

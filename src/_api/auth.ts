@@ -44,7 +44,10 @@ export async function loginComGoogle() {
       whatsapp: '',
     };
     await registrarUsuario(usuario);
-    await cookieStore.set('tokenX', getJWTFromEmail(userCredential.user.email));
+    await sessionStorage.set(
+      'tokenX',
+      getJWTFromEmail(userCredential.user.email),
+    );
   } catch (error) {
     console.error('Erro ao fazer login com Google:', error);
     await logout();
@@ -53,7 +56,7 @@ export async function loginComGoogle() {
 
 export async function logout() {
   await signOut(auth);
-  await cookieStore.delete('tokenX');
+  await sessionStorage.delete('tokenX');
 }
 
 async function registrarUsuario(usuario: IUsuario) {

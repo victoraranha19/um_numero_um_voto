@@ -9,9 +9,10 @@ import {
   IReciboDetalhado,
   IReciboPedido,
 } from './types';
+import { SITE_URL } from './constants';
 
-export function getEmailFromJWT(cookie: string) {
-  const emailFromToken = jwtDecode<IJWTToken>(cookie).email;
+export function getEmailFromJWT(token: string) {
+  const emailFromToken = jwtDecode<IJWTToken>(token).email;
   if (!emailFromToken) throw new Error('Email não encontrado no cookie');
   return emailFromToken;
 }
@@ -19,6 +20,14 @@ export function getEmailFromJWT(cookie: string) {
 export function getJWTFromEmail(email: string) {
   const token = { email, expires: new Date(Date.now() + 10 * 1000) };
   return sign(token, '');
+}
+
+export function getEmailFromRequest(headers: Headers) {
+  const token = headers.get('Authorization')?.split(' ').at(1);
+  if (!token || !token.length) {
+    throw new Error('Não autenticado!');
+  }
+  return getEmailFromJWT(token);
 }
 
 function toRecibo({
@@ -74,4 +83,18 @@ export function toReciboDetalhado(
     ...toRecibo(reciboPedido),
     pedido,
   };
+}
+
+export function goToLoginWithRedirect(
+  path: string = '/',
+  searchParams?: string,
+  url_origin = SITE_URL,
+): string {
+  const url = new URL(`${url_origin}/login`);
+
+  url.searchParams.set(
+    'redirect',
+    `${url_origin}${path}?${searchParams && searchParams?.length ? encodeURIComponent(searchParams) : ''}`,
+  );
+  return url.href;
 }

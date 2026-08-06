@@ -10,7 +10,11 @@ export default function PerfilPage() {
   const [usuario, setUsuario] = useState<IUsuario | null>(null);
 
   useEffect(() => {
-    fetch(`/api/usuario`, { method: 'GET' })
+    const tokenX = sessionStorage.getItem('tokenX');
+    const headers = new Headers();
+    if (tokenX) headers.set('Authorization', `Basic ${tokenX}`);
+
+    fetch(`/api/usuario`, { method: 'GET', headers })
       .then((u) => u.json())
       .then((u: IUsuario[]) => {
         const usuarioDB = u.at(0);

@@ -1,4 +1,4 @@
-import { getEmailFromJWT, toReciboDetalhado } from '@lib/utils';
+import { getEmailFromRequest, toReciboDetalhado } from '@lib/utils';
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@api/db';
 import { IReciboDetalhado, IReciboPedido } from '@lib/types';
@@ -14,11 +14,7 @@ export async function GET(
 ): Promise<Response> {
   try {
     // Verifica autenticação do usuário
-    const cookie = request.headers.get('Cookie');
-    if (!cookie || !cookie.length) {
-      throw new Error('Não autenticado! Cookie não encontrado.');
-    }
-    const emailProprio = getEmailFromJWT(cookie);
+    const emailProprio = getEmailFromRequest(request.headers);
 
     const { id } = await context.params;
     if (emailProprio) {

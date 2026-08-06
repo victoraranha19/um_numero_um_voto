@@ -1,6 +1,6 @@
 import db from '@api/db';
 import { IPedidoDetalhado } from '@lib/types';
-import { getEmailFromJWT, toPedidoDetalhado } from '@lib/utils';
+import { getEmailFromRequest, toPedidoDetalhado } from '@lib/utils';
 import { NextResponse } from 'next/server';
 import { verificarAcessoAdmin } from '../usuario/actions';
 import { EMetodo, EPresidente } from '@lib/enums';
@@ -8,11 +8,7 @@ import { EMetodo, EPresidente } from '@lib/enums';
 export async function GET(request: Request): Promise<Response> {
   try {
     // Verifica autenticação do usuário
-    const cookie = request.headers.get('Cookie');
-    if (!cookie || !cookie.length) {
-      throw new Error('Não autenticado! Cookie não encontrado.');
-    }
-    const emailProprio = getEmailFromJWT(cookie);
+    const emailProprio = getEmailFromRequest(request.headers);
 
     // Verifica se exite parâmetro email na url
     const { searchParams } = new URL(request.url);

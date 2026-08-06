@@ -24,6 +24,7 @@ import {
   IReciboDetalhado,
   IUsuario,
 } from '@lib/types';
+import { goToLoginWithRedirect } from '@lib/utils';
 import { Divider, Step, StepLabel, Stepper } from '@mui/material';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useState } from 'react';
@@ -41,8 +42,6 @@ function CheckoutContent() {
   const [urlPagamento, setUrlPagamento] = useState<string>('');
   const [usuario, setUsuario] = useState<IUsuario | null>(null);
   const [recibo, setRecibo] = useState<IReciboDetalhado | null>(null);
-
-  const [urlRedirect, setUrlRedirect] = useState('');
 
   const getPayloadCostumer = useCallback(
     (u: IUsuario): Partial<IPayloadCustomer> | undefined => {
@@ -78,35 +77,20 @@ function CheckoutContent() {
     [getPayloadCostumer],
   );
 
-  function geUrlLoginWithRedirect(
-    urlSite: string,
-    searchParams: string,
-  ): string {
-    const url = new URL(`${urlSite}/login`);
-    url.searchParams.set(
-      'redirect',
-      `${urlSite}/checkout?${encodeURIComponent(searchParams)}`,
-    );
-    return url.href;
-  }
-
   useEffect(() => {
     if (!(id_recibo || (presidente && quantidade))) {
       window.location.href = SITE_URL;
       return;
     }
-
     if (usuario) return;
-    fetch(`/api/usuario`, { method: 'GET' })
+
+    const tokenX = sessionStorage.getItem('tokenX');
+    const headers = new Headers();
+    if (tokenX) headers.set('Authorization', `Basic ${tokenX}`);
+
+    fetch(`/api/usuario`, { method: 'GET', headers })
       .then((u) => u.json())
       .then((u: IUsuario[]) => {
-        setUrlRedirect(
-          geUrlLoginWithRedirect(
-            location.origin ?? SITE_URL,
-            searchParams.toString(),
-          ),
-        );
-
         const usuarioDB = u.at(0);
         if (!usuarioDB) {
           throw new Error('Usuário não encontrado no banco de dados');
@@ -115,7 +99,7 @@ function CheckoutContent() {
 
         if (id_recibo) {
           setPasso(EPasso.REVISAO);
-          return fetch(`/api/recibo/${id_recibo}`, { method: 'GET' })
+          return fetch(`/api/recibo/${id_recibo}`, { method: 'GET', headers })
             .then((r) => r.json())
             .then(([r]: IReciboDetalhado[]) => {
               if (!r) throw new Error('Pedido sem pagamento');
@@ -166,18 +150,14 @@ function CheckoutContent() {
           });
       })
       .catch(() => {
-        window.location.href = urlRedirect;
+        window.location.href = goToLoginWithRedirect(
+          '/checkout',
+          searchParams.toString(),
+          window.location.origin,
+        );
         setPasso(EPasso.IDENTIFICACAO);
       });
-  }, [
-    getPayload,
-    id_recibo,
-    presidente,
-    quantidade,
-    searchParams,
-    urlRedirect,
-    usuario,
-  ]);
+  }, [getPayload, id_recibo, presidente, quantidade, searchParams, usuario]);
 
   return (
     <>
@@ -204,7 +184,10 @@ function CheckoutContent() {
           )}
         </>
       ) : (
-        <Redirecting nomePagina="Login" url={urlRedirect} />
+        <Redirecting
+          nomePagina="Login"
+          url={goToLoginWithRedirect('checkout', searchParams.toString())}
+        />
       )}
     </>
   );
