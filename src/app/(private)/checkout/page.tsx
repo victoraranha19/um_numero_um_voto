@@ -1,6 +1,7 @@
 'use client';
 
 import { getURLPagamento } from '@api/actions';
+import { logout } from '@api/auth';
 import {
   criarPedido,
   getPedidoPendente,
@@ -92,6 +93,10 @@ function CheckoutContent() {
     fetch(`/api/usuario`, { method: 'GET', headers })
       .then((u) => {
         if (u.status === 401) location.href = location.origin;
+        if (u.status === 403) {
+          logout();
+          location.href = location.origin;
+        }
         return u.json();
       })
       .then((u: IUsuario[]) => {
@@ -106,6 +111,10 @@ function CheckoutContent() {
           return fetch(`/api/recibo/${id_recibo}`, { method: 'GET', headers })
             .then((r) => {
               if (r.status === 401) location.href = location.origin;
+              if (r.status === 403) {
+                logout();
+                location.href = location.origin;
+              }
               return r.json();
             })
             .then(([r]: IReciboDetalhado[]) => {

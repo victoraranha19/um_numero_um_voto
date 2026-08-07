@@ -1,10 +1,10 @@
-import { JwtPayload } from 'jwt-decode';
 import { EMetodo, EPresidente } from './enums';
 
 export interface IUsuario {
   email: string;
   nome: string;
   whatsapp: string;
+  notificacoes: boolean;
 }
 
 export interface IPedido {
@@ -72,10 +72,6 @@ export interface IReciboPedido {
 export interface ICota {
   numero: number;
   id_pedido: string;
-}
-
-export interface IJWTToken extends JwtPayload {
-  email: string;
 }
 
 export interface IItem {

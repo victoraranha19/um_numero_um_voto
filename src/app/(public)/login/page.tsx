@@ -19,21 +19,25 @@ export default function LoginPage() {
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        const tokenX = getJWTFromEmail(user.email!);
-        sessionStorage.setItem('tokenX', tokenX);
+        getJWTFromEmail(user.email!).then((tokenX) => {
+          sessionStorage.setItem('tokenX', tokenX);
+          const headers = new Headers();
+          headers.set('Authorization', `Basic ${tokenX}`);
 
-        const headers = new Headers();
-        headers.set('Authorization', `Basic ${tokenX}`);
-        fetch(`/api/usuario?email=${user.email!}`, { method: 'GET', headers })
-          .then((u) => u.json())
-          .then((u: IUsuario[]) => {
-            const usuarioDB = u.at(0);
-            if (!usuarioDB) return;
-            if (usuarioDB.nome && usuarioDB.whatsapp) {
-              window.location.href = redirect;
-            }
-            setUsuario(usuarioDB);
-          });
+          return fetch(`/api/usuario?email=${user.email!}`, {
+            method: 'GET',
+            headers,
+          })
+            .then((u) => u.json())
+            .then((u: IUsuario[]) => {
+              const usuarioDB = u.at(0);
+              if (!usuarioDB) return;
+              if (usuarioDB.nome && usuarioDB.whatsapp) {
+                window.location.href = redirect;
+              }
+              setUsuario(usuarioDB);
+            });
+        });
       }
     });
   }, [redirect]);
@@ -58,6 +62,7 @@ export default function LoginPage() {
       setUsuario={setUsuario}
       loginComGoogle={() => handleLogin()}
       salvarUsuario={salvarUsuario}
+      ehCriacao={true}
     />
   );
 }

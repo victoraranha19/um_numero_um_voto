@@ -35,6 +35,10 @@ export default function PedidosPage() {
     fetch(`/api/usuario`, { method: 'GET', headers })
       .then((u) => {
         if (u.status === 401) location.href = location.origin;
+        if (u.status === 403) {
+          logout();
+          location.href = location.origin;
+        }
         return u.json();
       })
       .then((u: IUsuario[]) => {
@@ -48,6 +52,10 @@ export default function PedidosPage() {
         })
           .then((p) => {
             if (p.status === 401) location.href = location.origin;
+            if (p.status === 403) {
+              logout();
+              location.href = location.origin;
+            }
             return p.json();
           })
           .then((p: IPedidoDetalhado[]) => {

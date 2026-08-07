@@ -34,18 +34,26 @@ export async function adicionarNovoUsuario({
   nome,
   email,
   whatsapp,
+  notificacoes,
 }: IUsuario): Promise<void> {
   try {
-    await db`INSERT INTO usuarios (nome, email, whatsapp) VALUES (${nome}, ${email}, ${whatsapp})`;
+    await db`INSERT INTO usuarios (nome, email, whatsapp, notificacoes)
+    VALUES (${nome}, ${email}, ${whatsapp}, ${notificacoes})`;
   } catch (error) {
     console.error('Erro ao adicionar novo usuário:', error);
     throw new Error('Erro ao adicionar novo usuário.');
   }
 }
 
-export async function salvarDadosUsuario({ nome, whatsapp, email }: IUsuario) {
+export async function salvarDadosUsuario({
+  nome,
+  whatsapp,
+  email,
+  notificacoes,
+}: IUsuario) {
   try {
-    await db`UPDATE usuarios SET nome=${nome}, whatsapp=${whatsapp} WHERE email=${email}`;
+    await db`UPDATE usuarios SET nome=${nome}, whatsapp=${whatsapp}, notificacoes=${notificacoes}
+    WHERE email=${email}`;
   } catch (error) {
     console.error(error);
     throw new Error('Erro ao adicionar novo usuário.');

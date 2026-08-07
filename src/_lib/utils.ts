@@ -1,7 +1,5 @@
-import { jwtDecode } from 'jwt-decode';
-import sign from 'jwt-encode';
+import { jwtVerify, KeyInput, SignJWT, JWTPayload } from 'jose';
 import {
-  IJWTToken,
   IPedido,
   IPedidoDetalhado,
   IPedidoRecibo,
@@ -11,23 +9,40 @@ import {
 } from './types';
 import { SITE_URL } from './constants';
 
-export function getEmailFromJWT(token: string) {
-  const emailFromToken = jwtDecode<IJWTToken>(token).email;
-  if (!emailFromToken) throw new Error('Email não encontrado no cookie');
+interface IToken extends JWTPayload {
+  email: string;
+}
+
+async function getEmailFromJWT(token: string) {
+  const secret: KeyInput = new TextEncoder().encode(
+    process.env.NEXT_PUBLIC_JWT_SECRET ?? '',
+  );
+  const emailFromToken = ((await jwtVerify(token, secret)).payload as IToken)
+    .email;
   return emailFromToken;
 }
 
-export function getJWTFromEmail(email: string) {
-  const token = { email, expires: new Date(Date.now() + 10 * 1000) };
-  return sign(token, '');
+export async function getJWTFromEmail(email: string) {
+  const token: IToken = { email };
+  const secret: KeyInput = new TextEncoder().encode(
+    process.env.NEXT_PUBLIC_JWT_SECRET ?? '',
+  );
+  return await new SignJWT(token)
+    .setProtectedHeader({ alg: 'HS256' })
+    .sign(secret);
 }
 
-export function getEmailFromRequest(headers: Headers) {
-  const token = headers.get('Authorization')?.split(' ').at(1);
-  if (!token || !token.length) {
-    throw new Error('Não autenticado!');
+export async function getEmailFromRequest(headers: Headers) {
+  try {
+    const token = headers.get('Authorization')?.split(' ').at(1);
+    if (!token || !token.length) {
+      throw new Error('Não autenticado!');
+    }
+    return await getEmailFromJWT(token);
+  } catch (error) {
+    console.error('Token invalido', error);
+    return null;
   }
-  return getEmailFromJWT(token);
 }
 
 function toRecibo({

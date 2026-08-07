@@ -5,22 +5,26 @@ import { validarNomeCompleto, validarWhatsapp } from '@lib/validators';
 import { DoneRounded, Google } from '@mui/icons-material';
 import {
   Button,
+  Checkbox,
   Chip,
   Divider,
   Fab,
+  FormControlLabel,
+  FormGroup,
   InputAdornment,
+  Link,
   Stack,
   TextField,
-  Tooltip,
   Typography,
 } from '@mui/material';
+import { useState } from 'react';
 
 interface DadosFormProps {
   usuario: IUsuario | null;
   setUsuario: (u: IUsuario | null) => void;
   loginComGoogle?: () => void;
   salvarUsuario: () => void;
-  ehPerfil?: boolean;
+  ehCriacao?: boolean;
 }
 
 export default function DadosForm({
@@ -28,11 +32,13 @@ export default function DadosForm({
   setUsuario,
   loginComGoogle = () => void 0,
   salvarUsuario,
-  ehPerfil: readonly = false,
+  ehCriacao = false,
 }: DadosFormProps) {
   const erroWhatsapp: IErro | null = validarWhatsapp(usuario?.whatsapp ?? '');
   const erroNome: IErro | null = validarNomeCompleto(usuario?.nome ?? '');
   const whatsappMasked = getMasked(usuario?.whatsapp ?? '');
+
+  const [termosAceitos, setTermosAceitos] = useState(!ehCriacao);
 
   function getMasked(d: string): string {
     const digitos = d.replaceAll(/\D/g, '');
@@ -53,7 +59,7 @@ export default function DadosForm({
 
   return (
     <Stack direction="column" spacing={2}>
-      {!readonly && (
+      {ehCriacao && (
         <>
           <Typography>Entre com Google:</Typography>
           <Stack sx={{ alignItems: 'center' }} spacing={1}>
@@ -80,60 +86,101 @@ export default function DadosForm({
         </>
       )}
 
-      <Typography>
-        {readonly ? 'Minhas Informações:' : 'Complete suas informações:'}
-      </Typography>
-      <Tooltip placement="top" title={!usuario && 'Primeiro entre com Google'}>
-        <TextField
-          label="Email"
-          disabled={true}
-          defaultValue={usuario?.email}
-          slotProps={{
-            input: {
-              startAdornment: (
-                <InputAdornment position="start">@</InputAdornment>
-              ),
-            },
-          }}
-          error={!!usuario && !usuario.email.length}
-        />
-      </Tooltip>
+      {usuario && (
+        <>
+          <Typography>
+            {ehCriacao ? 'Complete suas informações:' : 'Minhas Informações:'}
+          </Typography>
+          <TextField
+            label="Email"
+            disabled={true}
+            defaultValue={usuario.email}
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">@</InputAdornment>
+                ),
+              },
+            }}
+            error={!usuario.email.length}
+          />
 
-      <Tooltip placement="top" title={!usuario && 'Primeiro entre com Google'}>
-        <TextField
-          label="Nome Completo"
-          disabled={!usuario}
-          defaultValue={usuario?.nome}
-          onChange={(e) =>
-            usuario && setUsuario({ ...usuario, nome: e.target.value })
-          }
-          error={!!usuario && !!erroNome}
-          helperText={!!usuario && erroNome?.erro}
-        />
-      </Tooltip>
+          <TextField
+            label="Nome Completo"
+            defaultValue={usuario.nome}
+            onChange={(e) =>
+              usuario && setUsuario({ ...usuario, nome: e.target.value })
+            }
+            error={!!erroNome}
+            helperText={erroNome?.erro}
+          />
 
-      <Tooltip placement="top" title={!usuario && 'Primeiro entre com Google'}>
-        <TextField
-          label="Whatsapp"
-          disabled={!usuario}
-          placeholder="(00) 0 0000-0000"
-          value={whatsappMasked}
-          onChange={(e) =>
-            usuario && setUsuario({ ...usuario, whatsapp: e.target.value })
-          }
-          error={!!usuario && !!erroWhatsapp}
-          helperText={!!usuario && erroWhatsapp?.erro}
-        />
-      </Tooltip>
+          <TextField
+            label="Whatsapp"
+            placeholder="(00) 0 0000-0000"
+            value={whatsappMasked}
+            onChange={(e) =>
+              usuario &&
+              setUsuario({
+                ...usuario,
+                whatsapp: getMasked(e.target.value ?? ''),
+              })
+            }
+            error={!!erroWhatsapp}
+            helperText={erroWhatsapp?.erro}
+          />
 
-      <Button
-        fullWidth
-        variant="contained"
-        onClick={() => salvarUsuario()}
-        disabled={!usuario || !!erroWhatsapp?.erro || !!erroNome?.erro}
-      >
-        Salvar
-      </Button>
+          <FormGroup>
+            <FormControlLabel
+              label={
+                <Typography>
+                  Declaro que li e concordo com os{' '}
+                  <Link href="/termos">Termos</Link> e{' '}
+                  <Link href="/termos">Políticas de Privacidade</Link> do site.
+                </Typography>
+              }
+              control={
+                <Checkbox
+                  checked={termosAceitos}
+                  onChange={(e) => setTermosAceitos(e.target.checked)}
+                />
+              }
+              disabled={!ehCriacao}
+            />
+
+            <FormControlLabel
+              label={
+                <Typography>
+                  Desejo ser notificado com ofertas e novidades.
+                </Typography>
+              }
+              control={
+                <Checkbox
+                  checked={!!usuario.notificacoes}
+                  onChange={(_, c) =>
+                    usuario &&
+                    setUsuario({
+                      ...usuario,
+                      notificacoes: c,
+                    })
+                  }
+                />
+              }
+            />
+          </FormGroup>
+
+          <Button
+            fullWidth
+            variant="contained"
+            onClick={() => salvarUsuario()}
+            disabled={
+              !termosAceitos || !!erroWhatsapp?.erro || !!erroNome?.erro
+            }
+          >
+            Salvar
+          </Button>
+        </>
+      )}
     </Stack>
   );
 }

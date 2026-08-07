@@ -17,6 +17,10 @@ export default function PerfilPage() {
     fetch(`/api/usuario`, { method: 'GET', headers })
       .then((u) => {
         if (u.status === 401) location.href = location.origin;
+        if (u.status === 403) {
+          logout();
+          location.href = location.origin;
+        }
         return u.json();
       })
       .then((u: IUsuario[]) => {
@@ -44,7 +48,6 @@ export default function PerfilPage() {
         usuario={usuario}
         setUsuario={setUsuario}
         salvarUsuario={salvarUsuario}
-        ehPerfil={true}
       />
     )
   );

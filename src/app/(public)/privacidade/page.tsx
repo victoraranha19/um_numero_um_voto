@@ -10,13 +10,12 @@ export default function PrivacidadePage() {
       </Typography>
       <br />
       <Typography>Última atualização: Julho de 2026</Typography>
-      <Typography>Razão Social: [NOME COMPLETO DA EMPRESA LTDA.]</Typography>
-      <Typography>CNPJ: [00.000.000/0001-00]</Typography>
+      <Typography>Empresa: Um Número Um Voto</Typography>
       <Typography>Endereço: Brasília - DF</Typography>
       <Typography>Contato: {EMAIL_SITE}</Typography>
       <br />
       <Typography>
-        A [NOME DA EMPRESA LTDA.] (&quot;Empresa&quot; ou &quot;Nós&quot;),
+        A Um Número Um Voto LTDA. (&quot;Empresa&quot; ou &quot;Nós&quot;),
         operadora da plataforma digital de arrecadação gamificada
         (&quot;Plataforma&quot;), reafirma seu compromisso com a privacidade,
         transparência e proteção dos dados pessoais de seus Usuários e

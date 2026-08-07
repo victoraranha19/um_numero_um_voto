@@ -14,7 +14,8 @@ export async function GET(
 ): Promise<Response> {
   try {
     // Verifica autenticação do usuário
-    const emailProprio = getEmailFromRequest(request.headers);
+    const emailProprio = await getEmailFromRequest(request.headers);
+    if (!emailProprio) return NextResponse.json([], { status: 403 });
 
     const { id } = await context.params;
     if (emailProprio) {

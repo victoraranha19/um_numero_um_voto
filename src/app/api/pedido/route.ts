@@ -8,7 +8,8 @@ import { EMetodo, EPresidente } from '@lib/enums';
 export async function GET(request: Request): Promise<Response> {
   try {
     // Verifica autenticação do usuário
-    const emailProprio = getEmailFromRequest(request.headers);
+    const emailProprio = await getEmailFromRequest(request.headers);
+    if (!emailProprio) return NextResponse.json([], { status: 403 });
 
     // Verifica se exite parâmetro email na url
     const { searchParams } = new URL(request.url);

@@ -8,7 +8,8 @@ import { verificarAcessoAdmin } from './actions';
 export async function GET(request: Request): Promise<Response> {
   try {
     // Verifica autenticação do usuário
-    const emailProprio = getEmailFromRequest(request.headers);
+    const emailProprio = await getEmailFromRequest(request.headers);
+    if (!emailProprio) return NextResponse.json([], { status: 403 });
 
     // Verifica se exite parâmetro email na url
     const { searchParams } = new URL(request.url);
@@ -17,7 +18,7 @@ export async function GET(request: Request): Promise<Response> {
     if (!emailPesquisado) {
       // Retorna proprio email
       const result =
-        (await db`SELECT nome, email, whatsapp FROM usuarios WHERE email = ${emailProprio}`) as IUsuario[];
+        (await db`SELECT nome, email, whatsapp, notificacoes FROM usuarios WHERE email = ${emailProprio}`) as IUsuario[];
       return NextResponse.json(result);
     }
 
@@ -28,7 +29,7 @@ export async function GET(request: Request): Promise<Response> {
     }
 
     // Retorna email pesquisado
-    const result = (await db`SELECT nome, email, whatsapp
+    const result = (await db`SELECT nome, email, whatsapp, notificacoes
         FROM usuarios WHERE email = ${emailPesquisado}`) as IUsuario[];
     return NextResponse.json(result);
   } catch (error) {

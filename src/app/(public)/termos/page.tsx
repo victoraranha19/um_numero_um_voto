@@ -10,15 +10,14 @@ export default function TermosPage() {
       </Typography>
       <br />
       <Typography>Última atualização: Julho de 2026</Typography>
-      <Typography>Razão Social: [NOME COMPLETO DA EMPRESA LTDA.]</Typography>
-      <Typography>CNPJ: [00.000.000/0001-00]</Typography>
+      <Typography>Empresa: Um Número Um Voto</Typography>
       <Typography>Endereço: Brasília - DF</Typography>
       <Typography>Contato: {EMAIL_SITE}</Typography>
       <br />
       <Typography>
         Este documento estabelece os Termos e Condições Gerais de Uso
         (&quot;Termos&quot;) reguladores do acesso e utilização da plataforma
-        tecnológica mantida pela [NOME DA EMPRESA] (&quot;Plataforma&quot; ou
+        tecnológica mantida pela Um Número Um Voto (&quot;Plataforma&quot; ou
         &quot;Empresa&quot;), por meio da qual são realizadas campanhas de
         arrecadação financeira, venda de cotas colaborativas, participação em
         mecânicas gamificadas de votação e participação em sorteios
