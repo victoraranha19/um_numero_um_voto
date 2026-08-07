@@ -1,9 +1,5 @@
-import { Backdrop, CircularProgress } from '@mui/material';
+import Carregando from '@components/carregando';
 
-export default function CheckoutLoading() {
-  return (
-    <Backdrop open>
-      <CircularProgress aria-label="Carregando página" />
-    </Backdrop>
-  );
+export default function LoadingRoot() {
+  return <Carregando />;
 }

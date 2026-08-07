@@ -6,6 +6,7 @@ import {
   getPedidoPendente,
   salvarUrlPedido,
 } from '@app/api/pedido/actions';
+import Carregando from '@components/carregando';
 import Redirecting from '@components/redirecting';
 import Revisao from '@components/revisao';
 import {
@@ -38,7 +39,7 @@ function CheckoutContent() {
   const transaction_nsu = searchParams.get('transaction_nsu');
   const id_recibo = transaction_id ?? transaction_nsu;
 
-  const [passo, setPasso] = useState<EPasso>(EPasso.IDENTIFICACAO);
+  const [passo, setPasso] = useState<EPasso>(EPasso.REVISAO);
   const [urlPagamento, setUrlPagamento] = useState<string>('');
   const [usuario, setUsuario] = useState<IUsuario | null>(null);
   const [recibo, setRecibo] = useState<IReciboDetalhado | null>(null);
@@ -181,20 +182,25 @@ function CheckoutContent() {
 
       <Divider sx={{ my: 3 }} />
 
-      {usuario ? (
-        <>
-          {recibo ? (
-            <Revisao recibo={recibo} />
-          ) : (
-            <Redirecting nomePagina="Pagamento" url={urlPagamento} />
-          )}
-        </>
-      ) : (
-        <Redirecting
-          nomePagina="Login"
-          url={goToLoginWithRedirect('checkout', searchParams.toString())}
-        />
-      )}
+      {passo === EPasso.IDENTIFICACAO &&
+        (!usuario || !searchParams ? (
+          <Redirecting
+            nomePagina="Login"
+            url={goToLoginWithRedirect('checkout', searchParams.toString())}
+          />
+        ) : (
+          <Carregando />
+        ))}
+
+      {passo === EPasso.PAGAMENTO &&
+        (usuario && urlPagamento ? (
+          <Redirecting nomePagina="Pagamento" url={urlPagamento} />
+        ) : (
+          <Carregando />
+        ))}
+
+      {passo === EPasso.REVISAO &&
+        (usuario && recibo ? <Revisao recibo={recibo} /> : <Carregando />)}
     </>
   );
 }
