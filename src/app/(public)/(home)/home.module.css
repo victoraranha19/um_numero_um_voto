@@ -1,0 +1,21 @@
+.container {
+  height: 150px;
+  overflow-y: auto;
+}
+.container::-webkit-scrollbar {
+  display: none;
+}
+
+.group {
+  animation: spin 40s infinite linear;
+  animation-delay: 1s;
+}
+
+@keyframes spin {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-100%);
+  }
+}

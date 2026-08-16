@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import db from '@api/db';
 import { IReciboDetalhado, IReciboPedido } from '@lib/types';
 import { verificarDonoRecibo } from '../actions';
+import { registrarErro } from '@app/api/server_bug/actions';
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -37,6 +38,7 @@ export async function GET(
     );
   } catch (error) {
     console.error('Erro ao buscar pedido:', error);
+    await registrarErro(JSON.stringify(request.body), JSON.stringify(error));
     return NextResponse.json([], { status: 400 });
   }
 }

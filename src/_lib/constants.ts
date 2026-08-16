@@ -3,7 +3,7 @@ import { EMetodo, EPresidente } from './enums';
 export const PRESIDENTE = {
   [EPresidente.BOLSONARO]: 'Bolsonaro',
   [EPresidente.LULA]: 'Lula',
-  [EPresidente.NENHUM]: 'Nulo',
+  [EPresidente.NENHUM]: 'Nenhum',
 };
 
 export const PAGAMENTO = {

@@ -31,6 +31,9 @@ export default function Rodape() {
         </Stack>
         <Stack>
           <Typography variant="body1">Sobre o Jogo</Typography>
+          <Link variant="body2" href="/rifa" underline="none">
+            Participar
+          </Link>
           <Link variant="body2" href="/regras" underline="none">
             Regras
           </Link>

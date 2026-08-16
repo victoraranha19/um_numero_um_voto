@@ -2,6 +2,7 @@ import db from '@api/db';
 import { EMetodo } from '@lib/enums';
 import { IWebhookParams } from '@lib/types';
 import { NextResponse } from 'next/server';
+import { registrarErro } from '../server_bug/actions';
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -31,7 +32,7 @@ export async function POST(request: Request) {
     return NextResponse.json([], { status: 200 });
   } catch (error) {
     console.error('Erro ao criar recibo:', error);
-    await db`INSERT INTO requisicoes (body,error) VALUES (${JSON.stringify(body)},${JSON.stringify(error)})`;
+    await registrarErro(JSON.stringify(body), JSON.stringify(error));
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
   }
 }

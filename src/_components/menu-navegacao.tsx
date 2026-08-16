@@ -46,6 +46,7 @@ export default function MenuNavegacao() {
             onClose={() => setMenuAnchor(null)}
           >
             <MenuItem onClick={() => irPara()}>Início</MenuItem>
+            <MenuItem onClick={() => irPara('/rifa')}>Rifa</MenuItem>
             <MenuItem onClick={() => irPara('/regras')}>Regras</MenuItem>
             <MenuItem onClick={() => irPara('/resultado')}>Ganhadores</MenuItem>
             <MenuItem onClick={() => irPara('/contato')}>Contato</MenuItem>
@@ -63,14 +64,14 @@ export default function MenuNavegacao() {
           <Button color="secondary" onClick={() => irPara()}>
             Início
           </Button>
+          <Button color="secondary" onClick={() => irPara('/rifa')}>
+            Votar
+          </Button>
           <Button color="secondary" onClick={() => irPara('/regras')}>
             Regras
           </Button>
           <Button color="secondary" onClick={() => irPara('/resultado')}>
             Ganhadores
-          </Button>
-          <Button color="secondary" onClick={() => irPara('/contato')}>
-            Contato
           </Button>
         </Box>
         <LoginMenu />

@@ -7,6 +7,13 @@ export interface IUsuario {
   notificacoes: boolean;
 }
 
+export interface IVotoConfirmado {
+  nome: string;
+  quantidade: number;
+  presidente: EPresidente;
+  data_pagamento: string;
+}
+
 export interface IPedido {
   id: string;
   presidente: EPresidente;
