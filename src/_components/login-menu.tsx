@@ -42,12 +42,14 @@ export default function LoginMenu() {
         onClick={handleButtonLogin}
         size="large"
         startIcon={usuario ? <AccountBoxRounded /> : <Google />}
+        color="secondary"
       >
         {usuario ? 'Minha conta ' : 'Entrar '}
       </Button>
       <IconButton
         sx={{ display: { xs: 'flex', md: 'none' } }}
         onClick={handleButtonLogin}
+        color="secondary"
       >
         <AccountCircle fontSize="large" />
       </IconButton>

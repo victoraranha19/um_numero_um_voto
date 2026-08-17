@@ -54,7 +54,11 @@ export default function MenuNavegacao() {
           <Divider orientation="vertical" variant="middle" flexItem />
         </Box>
         <Link href={SITE_URL} underline="none">
-          <Typography variant="h5" component="h1" sx={{ px: 2 }}>
+          <Typography
+            variant="h5"
+            component="h1"
+            sx={{ px: 2, color: 'secondary.main' }}
+          >
             Um número um voto
           </Typography>
         </Link>

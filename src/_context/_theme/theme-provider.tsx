@@ -1,29 +1,43 @@
 'use client';
 
+import Carregando from '@components/carregando';
 import { createTheme, ThemeProvider } from '@mui/material';
-import { amber, teal } from '@mui/material/colors';
-import { ReactNode } from 'react';
+import { green, red, yellow } from '@mui/material/colors';
+import { ReactNode, useEffect, useState } from 'react';
 
 interface ThemeProviderProps {
   children: ReactNode;
 }
 
-export default function MyThemeProvider({ children }: ThemeProviderProps) {
-  const darkTheme = createTheme({
-    palette: {
-      mode: 'dark',
-      primary: teal,
-      secondary: amber,
-    },
-    components: {
-      MuiButton: {
-        defaultProps: {
-          sx: {
-            minWidth: { xs: 64, sm: 80, md: 120 },
-          },
-        },
+const theme = createTheme({
+  colorSchemes: {
+    dark: {
+      palette: {
+        primary: red,
+        secondary: yellow,
       },
     },
-  });
-  return <ThemeProvider theme={darkTheme}>{children}</ThemeProvider>;
+    light: {
+      palette: {
+        primary: green,
+        secondary: yellow,
+      },
+    },
+  },
+});
+
+export default function MyThemeProvider({ children }: ThemeProviderProps) {
+  const [carregando, setCarregando] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setCarregando(false);
+    }, 500);
+  }, []);
+
+  return (
+    <ThemeProvider theme={theme}>
+      {carregando ? <Carregando /> : children}
+    </ThemeProvider>
+  );
 }

@@ -14,8 +14,10 @@ import {
   CardMedia,
   Divider,
   Typography,
+  useColorScheme,
 } from '@mui/material';
 import { ArrowDownwardRounded, ArrowUpwardRounded } from '@mui/icons-material';
+import { useSearchParams } from 'next/navigation';
 
 export default function HomePage() {
   const [ultimosVotos, setUltimosVotos] = useState<IVotoConfirmado[]>([]);
@@ -24,7 +26,14 @@ export default function HomePage() {
   const [votosNulo, setVotosNulo] = useState(0);
   const [votosTotais, setVotosTotais] = useState(0);
 
+  const presidente = useSearchParams().get('p');
+  const { setMode } = useColorScheme();
+
   useEffect(() => {
+    if (presidente) {
+      setMode(presidente === EPresidente.LULA ? 'dark' : 'light');
+    }
+
     ultimos20Recibos().then((uv) => {
       setUltimosVotos(uv);
 
@@ -52,7 +61,7 @@ export default function HomePage() {
       setVotosNulo(n);
       setVotosTotais(total);
     });
-  }, []);
+  }, [presidente, setMode]);
 
   return (
     <>
