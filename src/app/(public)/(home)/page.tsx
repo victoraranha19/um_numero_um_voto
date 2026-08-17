@@ -18,6 +18,7 @@ import {
 } from '@mui/material';
 import { ArrowDownwardRounded, ArrowUpwardRounded } from '@mui/icons-material';
 import { useSearchParams } from 'next/navigation';
+import { getDataBrasil, getNomeEscondido } from '@lib/utils';
 
 export default function HomePage() {
   const [ultimosVotos, setUltimosVotos] = useState<IVotoConfirmado[]>([]);
@@ -117,30 +118,18 @@ export default function HomePage() {
         <ul className={styles.group}>
           {ultimosVotos.map((uv, i) => (
             <li key={uv.nome + i}>
-              {uv.nome} - {uv.quantidade} voto(s) em {PRESIDENTE[uv.presidente]}{' '}
-              (
-              {new Date(uv.data_pagamento).toLocaleDateString('pt-BR', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-              })}
-              )
+              +{uv.quantidade} voto(s) em {PRESIDENTE[uv.presidente]} -{' '}
+              {getNomeEscondido(uv.nome)} (
+              {getDataBrasil(new Date(uv.data_pagamento))})
             </li>
           ))}
         </ul>
         <ul className={styles.group} aria-hidden>
           {ultimosVotos.map((uv, i) => (
             <li key={uv.nome + i}>
-              {uv.nome} - {uv.quantidade} voto(s) em {PRESIDENTE[uv.presidente]}{' '}
-              (
-              {new Date(uv.data_pagamento).toLocaleDateString('pt-BR', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-              })}
-              )
+              +{uv.quantidade} voto(s) em {PRESIDENTE[uv.presidente]} -{' '}
+              {getNomeEscondido(uv.nome)} (
+              {getDataBrasil(new Date(uv.data_pagamento))})
             </li>
           ))}
         </ul>

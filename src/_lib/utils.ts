@@ -113,3 +113,20 @@ export function goToLoginWithRedirect(
   );
   return url.href;
 }
+
+export function getNomeEscondido(nomeCompleto: string) {
+  const nomeDividido = nomeCompleto.split(' ');
+  if (nomeDividido.length === 1) {
+    return nomeCompleto;
+  }
+  return `${nomeDividido.at(0)} ${nomeDividido.at(-1)?.charAt(0)}.`;
+}
+
+export function getDataBrasil(data: Date) {
+  return data.toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: 'long',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}

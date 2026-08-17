@@ -5,7 +5,6 @@
 
 .group {
   animation: spin 40s infinite linear;
-  animation-delay: 1s;
 }
 
 @keyframes spin {
