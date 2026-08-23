@@ -22,7 +22,15 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import { Metadata } from 'next';
 import { useEffect, useState } from 'react';
+
+export const metadata: Metadata = {
+  robots: {
+    follow: false,
+    index: false,
+  },
+};
 
 export default function PedidosPage() {
   const [pedidos, setPedidos] = useState<IPedidoDetalhado[]>([]);

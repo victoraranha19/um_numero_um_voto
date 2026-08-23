@@ -18,6 +18,20 @@ export const metadata: Metadata = {
   icons: {
     icon: '/favicon.ico',
   },
+  robots: {
+    follow: true,
+    index: true,
+  },
+  keywords: [
+    'corrida',
+    'política',
+    'brasil',
+    'número',
+    'voto',
+    'rifa',
+    'presidente',
+    'candidato',
+  ],
 };
 
 interface RootLayoutProps {
