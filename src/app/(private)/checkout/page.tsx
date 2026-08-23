@@ -28,16 +28,8 @@ import {
 } from '@lib/types';
 import { goToLoginWithRedirect } from '@lib/utils';
 import { Divider, Step, StepLabel, Stepper } from '@mui/material';
-import { Metadata } from 'next';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useState } from 'react';
-
-export const metadata: Metadata = {
-  robots: {
-    follow: false,
-    index: false,
-  },
-};
 
 function CheckoutContent() {
   const searchParams = useSearchParams();

@@ -4,15 +4,7 @@ import { logout } from '@api/auth';
 import { salvarDadosUsuario } from '@app/api/usuario/actions';
 import DadosForm from '@components/dados-form';
 import { IUsuario } from '@lib/types';
-import { Metadata } from 'next';
 import { useEffect, useState } from 'react';
-
-export const metadata: Metadata = {
-  robots: {
-    follow: false,
-    index: false,
-  },
-};
 
 export default function PerfilPage() {
   const [usuario, setUsuario] = useState<IUsuario | null>(null);
