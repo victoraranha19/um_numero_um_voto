@@ -13,7 +13,7 @@ import Revisao from '@components/revisao';
 import {
   HANDLE,
   PRESIDENTE,
-  PRICE,
+  PRECO_ATE_100,
   REDIRECT_URL,
   SITE_URL,
   WEBHOOK_URL,
@@ -67,7 +67,7 @@ function CheckoutContent() {
         items: [
           {
             description: `Voto(s) para ${PRESIDENTE[p]}`,
-            price: PRICE,
+            price: PRECO_ATE_100,
             quantity: q,
           },
         ],
@@ -136,7 +136,7 @@ function CheckoutContent() {
               email_usuario: usuarioDB.email,
               quantidade,
               url: '',
-              valor: PRICE * quantidade,
+              valor: PRECO_ATE_100 * quantidade,
               presidente: presidente,
             };
             return criarPedido(novoPedido)

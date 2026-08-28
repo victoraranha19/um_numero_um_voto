@@ -68,15 +68,6 @@ export default function SelecaoRapida({
 
         <Button
           variant="contained"
-          onClick={() => handleAdicionarCotas(5)}
-          sx={{ fontSize: { sm: 12, md: 14 } }}
-          size="small"
-          color="secondary"
-        >
-          + 5 votos
-        </Button>
-        <Button
-          variant="contained"
           onClick={() => handleAdicionarCotas(10)}
           sx={{ fontSize: { sm: 12, md: 14 } }}
           size="small"
@@ -101,6 +92,15 @@ export default function SelecaoRapida({
           color="secondary"
         >
           + 100 votos
+        </Button>
+        <Button
+          variant="contained"
+          onClick={() => handleAdicionarCotas(1000)}
+          sx={{ fontSize: { sm: 12, md: 14 } }}
+          size="small"
+          color="secondary"
+        >
+          + 1000 votos
         </Button>
       </Stack>
     </>

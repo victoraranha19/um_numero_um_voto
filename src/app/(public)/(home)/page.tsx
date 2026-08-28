@@ -1,14 +1,13 @@
-'use client';
-
+import { ultimos20Recibos } from '@app/api/recibo/actions';
 import { PRESIDENTE } from '@lib/constants';
 import { EPresidente } from '@lib/enums';
-import styles from './home.module.css';
-import { useEffect, useState } from 'react';
-import { ultimos20Recibos } from '@app/api/recibo/actions';
 import { IVotoConfirmado } from '@lib/types';
+import { getDataBrasil, getNomeEscondido } from '@lib/utils';
+import { ArrowDownwardRounded, ArrowUpwardRounded } from '@mui/icons-material';
 import {
   Avatar,
   Box,
+  Button,
   Card,
   CardContent,
   CardMedia,
@@ -16,9 +15,12 @@ import {
   Typography,
   useColorScheme,
 } from '@mui/material';
-import { ArrowDownwardRounded, ArrowUpwardRounded } from '@mui/icons-material';
 import { useSearchParams } from 'next/navigation';
-import { getDataBrasil, getNomeEscondido } from '@lib/utils';
+import { useEffect, useState } from 'react';
+
+import styles from './home.module.css';
+
+('use client');
 
 export default function HomePage() {
   const [ultimosVotos, setUltimosVotos] = useState<IVotoConfirmado[]>([]);
@@ -113,6 +115,10 @@ export default function HomePage() {
           </Box>
         </CardContent>
       </Card>
+      <Divider sx={{ my: 3 }} />
+      <Button fullWidth href="/rifa" variant="outlined" size="large">
+        Quero votar
+      </Button>
       <Divider sx={{ my: 3 }} />
       <div className={styles.container}>
         <ul className={styles.group}>
