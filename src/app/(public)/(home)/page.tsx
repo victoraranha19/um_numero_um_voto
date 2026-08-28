@@ -1,3 +1,5 @@
+'use client';
+
 import { ultimos20Recibos } from '@app/api/recibo/actions';
 import { PRESIDENTE } from '@lib/constants';
 import { EPresidente } from '@lib/enums';
@@ -19,8 +21,6 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import styles from './home.module.css';
-
-('use client');
 
 export default function HomePage() {
   const [ultimosVotos, setUltimosVotos] = useState<IVotoConfirmado[]>([]);
