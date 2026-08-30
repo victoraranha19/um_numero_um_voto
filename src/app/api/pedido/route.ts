@@ -1,9 +1,10 @@
 import db from '@api/db';
-import { IPedidoDetalhado } from '@lib/types';
-import { getEmailFromRequest, toPedidoDetalhado } from '@lib/utils';
+import { IPedido, IWebhookParams } from '@lib/types';
+import { getEmailFromRequest } from '@lib/utils';
 import { NextResponse } from 'next/server';
 import { verificarAcessoAdmin } from '../usuario/actions';
-import { EMetodo, EPresidente } from '@lib/enums';
+import { EMetodo } from '@lib/enums';
+import { registrarErro } from '../server_bug/actions';
 
 export async function GET(request: Request): Promise<Response> {
   try {
@@ -17,16 +18,9 @@ export async function GET(request: Request): Promise<Response> {
 
     if (!emailPesquisado) {
       // Retorna proprio email
-      const result =
-        (await db`SELECT p.id as pedido_id, p.presidente, p.quantidade, p.valor, p.url AS pedido_url, p.email_usuario,
-        r.id as recibo_id, r.data_pagamento, r.url AS recibo_url, r.codigo_fatura, r.metodo_pagamento, r.valor_total, r.valor_pago, r.parcelas
-        FROM pedidos p LEFT JOIN recibos r ON p.id = r.id_pedido
-        WHERE email_usuario = ${emailProprio}`) as IPedidoRecibo[];
-      return NextResponse.json(
-        result.map<IPedidoDetalhado>((pedidoRecibo) =>
-          toPedidoDetalhado(pedidoRecibo),
-        ),
-      );
+      const result = (await db`SELECT * FROM pedidos
+        WHERE email_usuario = ${emailProprio}`) as IPedido[];
+      return NextResponse.json(result);
     }
 
     if (emailPesquisado !== emailProprio) {
@@ -36,36 +30,64 @@ export async function GET(request: Request): Promise<Response> {
     }
 
     // Retorna email pesquisado
-    const result =
-      (await db`SELECT p.id as pedido_id, p.presidente, p.quantidade, p.valor, p.url AS pedido_url, p.email_usuario,
-        r.id as recibo_id, r.data_pagamento, r.url AS recibo_url, r.codigo_fatura, r.metodo_pagamento, r.valor_total, r.valor_pago, r.parcelas
-        FROM pedidos p LEFT JOIN recibos r ON p.id = r.id_pedido
-        WHERE email_usuario = ${emailPesquisado}`) as IPedidoRecibo[];
-    return NextResponse.json(
-      result.map<IPedidoDetalhado>((pedidoRecibo) =>
-        toPedidoDetalhado(pedidoRecibo),
-      ),
-    );
+    const result = (await db`SELECT * FROM pedidos
+        WHERE email_usuario = ${emailPesquisado}`) as IPedido[];
+    return NextResponse.json(result);
   } catch (error) {
     console.error('Erro ao buscar pedido:', error);
     return NextResponse.json([], { status: 400 });
   }
 }
 
-interface IPedidoRecibo {
-  pedido_id: string;
-  presidente: EPresidente;
-  quantidade: number;
-  pedido_url: string;
-  valor: number;
-  email_usuario: string;
+export async function POST(request: Request) {
+  const body = await request.json();
+  try {
+    const {
+      invoice_slug,
+      paid_amount,
+      installments,
+      capture_method,
+      transaction_nsu,
+      receipt_url,
+      amount,
+      order_nsu,
+    }: IWebhookParams = body;
 
-  recibo_id: string | null;
-  data_pagamento: string | null;
-  recibo_url: string | null;
-  codigo_fatura: string | null;
-  metodo_pagamento: EMetodo | null;
-  valor_total: number | null;
-  valor_pago: number | null;
-  parcelas: number | null;
+    const metodo =
+      capture_method === 'credit_card'
+        ? EMetodo.CREDITO
+        : capture_method === 'pix'
+          ? EMetodo.PIX
+          : EMetodo.APPLEPAY;
+
+    await db`
+      WITH cotas_reservadas AS (
+        SELECT numero
+        FROM cotas_disponiveis
+        ORDER BY random()
+        FOR UPDATE SKIP LOCKED
+      ),
+      cotas_removidas AS (
+        DELETE FROM cotas_disponiveis 
+        WHERE numero IN (SELECT numero FROM cotas_reservadas)
+        RETURNING numero
+      ),
+      UPDATE pedidos SET
+      recibo_id = ${transaction_nsu},
+      data_pago = ${new Date()},
+      url = ${receipt_url},
+      cod_fatura = ${invoice_slug},
+      metodo = ${metodo},
+      valor_total = ${amount},
+      valor_pago = ${paid_amount},
+      parcelas = ${installments},
+      cotas = array_agg(numero)      
+      WHERE id = ${order_nsu}`;
+
+    return NextResponse.json([], { status: 200 });
+  } catch (error) {
+    console.error('Erro ao criar recibo:', error);
+    await registrarErro(JSON.stringify(body), JSON.stringify(error));
+    return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+  }
 }

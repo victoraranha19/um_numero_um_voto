@@ -1,37 +1,24 @@
 'use client';
-
 import { getURLPagamento } from '@api/actions';
 import { logout } from '@api/auth';
 import {
   criarPedido,
+  getPedidoByRecibo,
   getPedidoPendente,
   salvarUrlPedido,
 } from '@app/api/pedido/actions';
 import Carregando from '@components/carregando';
 import Redirecting from '@components/redirecting';
 import Revisao from '@components/revisao';
-import {
-  HANDLE,
-  PRESIDENTE,
-  PRECO_ATE_100,
-  REDIRECT_URL,
-  SITE_URL,
-  WEBHOOK_URL,
-} from '@lib/constants';
+import { SITE_URL } from '@lib/constants';
 import { EPresidente } from '@lib/enums';
-import {
-  IPayload,
-  IPayloadCustomer,
-  IPedido,
-  IReciboDetalhado,
-  IUsuario,
-} from '@lib/types';
-import { goToLoginWithRedirect } from '@lib/utils';
+import { IPedido, IUsuario } from '@lib/types';
+import { getPayload, getValorCotas, goToLoginWithRedirect } from '@lib/utils';
 import { Divider, Step, StepLabel, Stepper } from '@mui/material';
 import { useSearchParams } from 'next/navigation';
-import { Suspense, useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-function CheckoutContent() {
+export default function CheckoutPage() {
   const searchParams = useSearchParams();
   const presidente = searchParams.get('p') as EPresidente;
   const quantidade = parseInt(searchParams.get('q') ?? '0');
@@ -43,41 +30,7 @@ function CheckoutContent() {
   const [passo, setPasso] = useState<EPasso>(EPasso.REVISAO);
   const [urlPagamento, setUrlPagamento] = useState<string>('');
   const [usuario, setUsuario] = useState<IUsuario | null>(null);
-  const [recibo, setRecibo] = useState<IReciboDetalhado | null>(null);
-
-  const getPayloadCostumer = useCallback(
-    (u: IUsuario): Partial<IPayloadCustomer> | undefined => {
-      const phone_number = '+55'.concat(u.whatsapp);
-      if (!u && !phone_number) return undefined;
-      return {
-        email: u.email,
-        name: u.nome,
-        phone_number,
-      };
-    },
-    [],
-  );
-
-  const getPayload = useCallback(
-    (p: EPresidente, q: number, u: IUsuario, order_nsu: string): IPayload => {
-      const payload: IPayload = {
-        handle: HANDLE,
-        webhook_url: WEBHOOK_URL,
-        redirect_url: REDIRECT_URL,
-        items: [
-          {
-            description: `Voto(s) para ${PRESIDENTE[p]}`,
-            price: PRECO_ATE_100,
-            quantity: q,
-          },
-        ],
-        customer: getPayloadCostumer(u),
-        order_nsu,
-      };
-      return payload;
-    },
-    [getPayloadCostumer],
-  );
+  const [pedido, setPedido] = useState<IPedido | null>(null);
 
   useEffect(() => {
     if (!(id_recibo || (presidente && quantidade))) {
@@ -108,17 +61,9 @@ function CheckoutContent() {
 
         if (id_recibo) {
           setPasso(EPasso.REVISAO);
-          return fetch(`/api/recibo/${id_recibo}`, { method: 'GET', headers })
+          return getPedidoByRecibo(id_recibo, usuarioDB.email)
             .then((r) => {
-              if (r.status === 401) location.href = location.origin;
-              if (r.status === 403) {
-                logout();
-                location.href = location.origin;
-              }
-              return r.json();
-            })
-            .then(([r]: IReciboDetalhado[]) => {
-              if (r) setRecibo(r);
+              if (r) setPedido(r);
               else setPasso(EPasso.PAGAMENTO);
             })
             .catch((error) => {
@@ -126,20 +71,18 @@ function CheckoutContent() {
             });
         }
 
-        return getPedidoPendente(quantidade, presidente)
-          .then(([pedido]) => {
+        return getPedidoPendente(quantidade, presidente, usuarioDB.email)
+          .then((pedido) => {
             if (pedido) return Promise.resolve(pedido.url);
 
             let url_pagamento = '';
             let order_nsu = '';
-            const novoPedido: Omit<IPedido, 'id'> = {
+            return criarPedido({
               email_usuario: usuarioDB.email,
+              presidente,
               quantidade,
-              url: '',
-              valor: PRECO_ATE_100 * quantidade,
-              presidente: presidente,
-            };
-            return criarPedido(novoPedido)
+              valor: getValorCotas(quantidade),
+            })
               .then((id) => {
                 const payload = getPayload(
                   presidente,
@@ -173,7 +116,7 @@ function CheckoutContent() {
         );
         setPasso(EPasso.IDENTIFICACAO);
       });
-  }, [getPayload, id_recibo, presidente, quantidade, searchParams, usuario]);
+  }, [id_recibo, presidente, quantidade, searchParams, usuario]);
 
   return (
     <>
@@ -209,16 +152,12 @@ function CheckoutContent() {
         ))}
 
       {passo === EPasso.REVISAO &&
-        (usuario && recibo ? <Revisao recibo={recibo} /> : <Carregando />)}
+        (usuario && pedido && pedido.recibo_id ? (
+          <Revisao pedido={pedido} />
+        ) : (
+          <Carregando />
+        ))}
     </>
-  );
-}
-
-export default function CheckoutPage() {
-  return (
-    <Suspense fallback={<div>Carregando checkout...</div>}>
-      <CheckoutContent />
-    </Suspense>
   );
 }
 

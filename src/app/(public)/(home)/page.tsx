@@ -1,6 +1,6 @@
 'use client';
 
-import { ultimos20Recibos } from '@app/api/recibo/actions';
+// import { ultimos20Recibos } from '@app/api/recibo/actions';
 import { PRESIDENTE } from '@lib/constants';
 import { EPresidente } from '@lib/enums';
 import { IVotoConfirmado } from '@lib/types';
@@ -37,33 +37,33 @@ export default function HomePage() {
       setMode(presidente === EPresidente.LULA ? 'dark' : 'light');
     }
 
-    ultimos20Recibos().then((uv) => {
-      setUltimosVotos(uv);
+    // ultimos20Recibos().then((uv) => {
+    //   setUltimosVotos(uv);
 
-      let b = 0;
-      let l = 0;
-      let n = 0;
-      let total = 0;
-      uv.forEach((v) => {
-        total += v.quantidade;
-        switch (v.presidente) {
-          case EPresidente.BOLSONARO:
-            b += v.quantidade;
-            break;
-          case EPresidente.LULA:
-            l += v.quantidade;
-            break;
-          default:
-            n += v.quantidade;
-            break;
-        }
-      });
+    //   let b = 0;
+    //   let l = 0;
+    //   let n = 0;
+    //   let total = 0;
+    //   uv.forEach((v) => {
+    //     total += v.quantidade;
+    //     switch (v.presidente) {
+    //       case EPresidente.BOLSONARO:
+    //         b += v.quantidade;
+    //         break;
+    //       case EPresidente.LULA:
+    //         l += v.quantidade;
+    //         break;
+    //       default:
+    //         n += v.quantidade;
+    //         break;
+    //     }
+    //   });
 
-      setVotosBolsonaro(b);
-      setVotosLula(l);
-      setVotosNulo(n);
-      setVotosTotais(total);
-    });
+    //   setVotosBolsonaro(b);
+    //   setVotosLula(l);
+    //   setVotosNulo(n);
+    //   setVotosTotais(total);
+    // });
   }, [presidente, setMode]);
 
   return (

@@ -1,14 +1,8 @@
 'use client';
-
 import PresidenteForm from '@components/presidente-form';
 import SelecaoRapida from '@components/selecao-rapida';
-import {
-  PRECO_ACIMA_1000,
-  PRECO_ATE_100,
-  PRECO_ATE_1000,
-  PRECO_ATE_500,
-} from '@lib/constants';
 import { EPresidente } from '@lib/enums';
+import { getValorCotas } from '@lib/utils';
 import {
   KeyboardArrowRightRounded,
   LocalActivityRounded,
@@ -19,20 +13,13 @@ import { useState } from 'react';
 export default function RifaPage() {
   const [presidente, setPresidente] = useState(EPresidente.BOLSONARO);
   const [quantidade, setQuantidade] = useState(0);
-  const total = getTotal(quantidade);
+  const total = getValorCotas(quantidade);
 
   function handleVotar(q: number, p: EPresidente) {
     const url = new URL(window.location.origin + '/checkout');
     url.searchParams.set('q', q.toString());
     url.searchParams.set('p', p);
     window.location.href = url.href;
-  }
-
-  function getTotal(quantidade: number) {
-    if (quantidade <= 100) return PRECO_ATE_100 * quantidade;
-    if (quantidade <= 500) return PRECO_ATE_500 * quantidade;
-    if (quantidade <= 1000) return PRECO_ATE_1000 * quantidade;
-    return PRECO_ACIMA_1000 * quantidade;
   }
 
   return (

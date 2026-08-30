@@ -3,7 +3,7 @@
 import { logout } from '@api/auth';
 import { deletarPedido } from '@app/api/pedido/actions';
 import { PRESIDENTE } from '@lib/constants';
-import { IPedidoDetalhado, IUsuario } from '@lib/types';
+import { IPedido, IUsuario } from '@lib/types';
 import {
   DeleteRounded,
   ShoppingCartCheckoutRounded,
@@ -25,7 +25,7 @@ import {
 import { useEffect, useState } from 'react';
 
 export default function PedidosPage() {
-  const [pedidos, setPedidos] = useState<IPedidoDetalhado[]>([]);
+  const [pedidos, setPedidos] = useState<IPedido[]>([]);
 
   useEffect(() => {
     const tokenX = sessionStorage.getItem('tokenX');
@@ -58,7 +58,7 @@ export default function PedidosPage() {
             }
             return p.json();
           })
-          .then((p: IPedidoDetalhado[]) => {
+          .then((p: IPedido[]) => {
             setPedidos(p);
           })
           .catch((error) => {
@@ -116,12 +116,12 @@ export default function PedidosPage() {
                   R$ {(pedido.valor / 100).toFixed(2)}
                 </TableCell>
                 <TableCell align="right">
-                  {pedido.recibo ? (
+                  {pedido.recibo_id ? (
                     <Tooltip
                       title="Detalhar pedido"
                       placement="top"
                       onClick={() =>
-                        window.open(getUrlRecibo(pedido.recibo!.id))
+                        window.open(getUrlRecibo(pedido.recibo_id!))
                       }
                     >
                       <IconButton color="primary">

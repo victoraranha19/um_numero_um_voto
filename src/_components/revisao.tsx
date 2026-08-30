@@ -2,7 +2,7 @@
 
 import { PAGAMENTO, PRESIDENTE } from '@lib/constants';
 import { EMetodo } from '@lib/enums';
-import { IReciboDetalhado } from '@lib/types';
+import { IPedido } from '@lib/types';
 import { CreditCardRounded, PixRounded } from '@mui/icons-material';
 import {
   Avatar,
@@ -17,12 +17,10 @@ import {
 } from '@mui/material';
 
 interface IRevisaoProps {
-  recibo: IReciboDetalhado;
+  pedido: IPedido;
 }
 
-export default function Revisao({ recibo }: IRevisaoProps) {
-  const pedido = recibo.pedido;
-
+export default function Revisao({ pedido }: IRevisaoProps) {
   function formatarData(data: string): string {
     const [a, m, d, h, M] = data.split(/[-T:]/);
     return `${d}/${m}/${a} ${h}:${M}`;
@@ -55,32 +53,32 @@ export default function Revisao({ recibo }: IRevisaoProps) {
             }}
           >
             <Typography variant="h5">
-              R$ {(recibo.valor_total / 100).toFixed(2)}
+              R$ {(pedido.valor_total! / 100).toFixed(2)}
             </Typography>
             <Typography variant="caption" gutterBottom>
-              {formatarData(recibo.data_pagamento)}
+              {formatarData(pedido.data_pago!)}
             </Typography>
           </Box>
 
           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
             <Box sx={{ display: 'flex', gap: 1 }}>
-              {recibo.metodo_pagamento === EMetodo.PIX ? (
+              {pedido.metodo === EMetodo.PIX ? (
                 <PixRounded />
               ) : (
                 <CreditCardRounded />
               )}
-              <Typography>{PAGAMENTO[recibo.metodo_pagamento]}</Typography>
+              <Typography>{PAGAMENTO[pedido.metodo!]}</Typography>
             </Box>
             <Typography>
-              {recibo.metodo_pagamento === EMetodo.CREDITO
-                ? recibo.parcelas + 'x (parcelas)'
+              {pedido.metodo === EMetodo.CREDITO
+                ? pedido.parcelas + 'x (parcelas)'
                 : ''}
             </Typography>
           </Box>
         </CardContent>
         <Divider />
         <CardActions>
-          <Button onClick={() => window.open(recibo.url, '_blank')}>
+          <Button onClick={() => window.open(pedido.url, '_blank')}>
             Comprovante InfinitePay
           </Button>
         </CardActions>

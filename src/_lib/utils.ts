@@ -1,13 +1,18 @@
-import { jwtVerify, KeyInput, SignJWT, JWTPayload } from 'jose';
+import { JWTPayload, jwtVerify, KeyInput, SignJWT } from 'jose';
+
 import {
-  IPedido,
-  IPedidoDetalhado,
-  IPedidoRecibo,
-  IRecibo,
-  IReciboDetalhado,
-  IReciboPedido,
-} from './types';
-import { SITE_URL } from './constants';
+  HANDLE,
+  PRECO_ACIMA_1000,
+  PRECO_ATE_100,
+  PRECO_ATE_1000,
+  PRECO_ATE_500,
+  PRESIDENTE,
+  REDIRECT_URL,
+  SITE_URL,
+  WEBHOOK_URL,
+} from './constants';
+import { EPresidente } from './enums';
+import { IPayload, IPayloadCustomer, IUsuario } from './types';
 
 interface IToken extends JWTPayload {
   email: string;
@@ -45,61 +50,6 @@ export async function getEmailFromRequest(headers: Headers) {
   }
 }
 
-function toRecibo({
-  data_pagamento,
-  recibo_id,
-  codigo_fatura,
-  metodo_pagamento,
-  recibo_url,
-  valor_total,
-  valor_pago,
-  parcelas,
-}: IPedidoRecibo): IRecibo {
-  return {
-    data_pagamento: data_pagamento!,
-    id: recibo_id!,
-    codigo_fatura: codigo_fatura!,
-    metodo_pagamento: metodo_pagamento!,
-    url: recibo_url!,
-    valor_total: valor_total!,
-    valor_pago: valor_pago!,
-    parcelas: parcelas!,
-  };
-}
-
-function toPedido(reciboPedido: IPedidoRecibo): IPedido {
-  return {
-    email_usuario: reciboPedido.email_usuario,
-    id: reciboPedido.pedido_id,
-    presidente: reciboPedido.presidente,
-    quantidade: reciboPedido.quantidade,
-    url: reciboPedido.pedido_url,
-    valor: reciboPedido.valor,
-  };
-}
-
-export function toPedidoDetalhado(
-  pedidoRecibo: IPedidoRecibo,
-): IPedidoDetalhado {
-  const recibo: IRecibo | undefined = pedidoRecibo.recibo_id
-    ? toRecibo(pedidoRecibo)
-    : undefined;
-  return {
-    ...toPedido(pedidoRecibo),
-    recibo,
-  };
-}
-
-export function toReciboDetalhado(
-  reciboPedido: IReciboPedido,
-): IReciboDetalhado {
-  const pedido: IPedido = toPedido(reciboPedido);
-  return {
-    ...toRecibo(reciboPedido),
-    pedido,
-  };
-}
-
 export function goToLoginWithRedirect(
   path: string = '/',
   searchParams?: string,
@@ -129,4 +79,46 @@ export function getDataBrasil(data: Date) {
     hour: '2-digit',
     minute: '2-digit',
   });
+}
+
+function getPayloadCostumer(
+  u: IUsuario,
+): Partial<IPayloadCustomer> | undefined {
+  const phone_number = '+55'.concat(u.whatsapp);
+  if (!u && !phone_number) return undefined;
+  return {
+    email: u.email,
+    name: u.nome,
+    phone_number,
+  };
+}
+
+export function getPayload(
+  p: EPresidente,
+  q: number,
+  u: IUsuario,
+  order_nsu: string,
+): IPayload {
+  const payload: IPayload = {
+    handle: HANDLE,
+    webhook_url: WEBHOOK_URL,
+    redirect_url: REDIRECT_URL,
+    items: [
+      {
+        description: `Voto(s) para ${PRESIDENTE[p]}`,
+        price: getValorCotas(q),
+        quantity: q,
+      },
+    ],
+    customer: getPayloadCostumer(u),
+    order_nsu,
+  };
+  return payload;
+}
+
+export function getValorCotas(quantidade: number) {
+  if (quantidade <= 100) return PRECO_ATE_100 * quantidade;
+  if (quantidade <= 500) return PRECO_ATE_500 * quantidade;
+  if (quantidade <= 1000) return PRECO_ATE_1000 * quantidade;
+  return PRECO_ACIMA_1000 * quantidade;
 }
