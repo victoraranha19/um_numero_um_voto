@@ -1,11 +1,8 @@
 'use client';
-import { getURLPagamento } from '@api/actions';
 import { logout } from '@api/auth';
 import {
-  criarPedido,
   getPedidoByRecibo,
-  getPedidoPendente,
-  salvarUrlPedido,
+  getURLPedidoPendente,
 } from '@app/api/pedido/actions';
 import Carregando from '@components/carregando';
 import Redirecting from '@components/redirecting';
@@ -13,7 +10,7 @@ import Revisao from '@components/revisao';
 import { SITE_URL } from '@lib/constants';
 import { EPresidente } from '@lib/enums';
 import { IPedido, IUsuario } from '@lib/types';
-import { getPayload, getValorCotas, goToLoginWithRedirect } from '@lib/utils';
+import { goToLoginWithRedirect } from '@lib/utils';
 import { Divider, Step, StepLabel, Stepper } from '@mui/material';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -32,73 +29,56 @@ export default function CheckoutPage() {
   const [usuario, setUsuario] = useState<IUsuario | null>(null);
   const [pedido, setPedido] = useState<IPedido | null>(null);
 
+  async function getUsuarioDB(headers: Headers): Promise<IUsuario> {
+    const response = await fetch(`/api/usuario`, { method: 'GET', headers });
+    let usuario: IUsuario | null;
+    switch (response.status) {
+      case 403:
+      case 401:
+        usuario = null;
+        break;
+      default:
+        usuario = ((await response.json()) as IUsuario[])[0];
+    }
+    if (usuario === null) {
+      throw new Error('Usuário não encontrado no banco de dados');
+    }
+    return usuario;
+  }
+
   useEffect(() => {
     if (!(id_recibo || (presidente && quantidade))) {
       window.location.href = SITE_URL;
       return;
     }
-    if (usuario) return;
 
     const tokenX = sessionStorage.getItem('tokenX');
     const headers = new Headers();
     if (tokenX) headers.set('Authorization', `Basic ${tokenX}`);
 
-    fetch(`/api/usuario`, { method: 'GET', headers })
-      .then((u) => {
-        if (u.status === 401) location.href = location.origin;
-        if (u.status === 403) {
-          logout();
-          location.href = location.origin;
-        }
-        return u.json();
+    getUsuarioDB(headers)
+      .then((u) => setUsuario(u))
+      .catch((error) => {
+        setPasso(EPasso.IDENTIFICACAO);
+        logout();
+        window.location.href = goToLoginWithRedirect(
+          '/checkout',
+          searchParams.toString(),
+        );
+        console.error(error);
       })
-      .then((u: IUsuario[]) => {
-        const usuarioDB = u.at(0);
-        if (!usuarioDB) {
-          throw new Error('Usuário não encontrado no banco de dados');
-        }
-        setUsuario(usuarioDB);
+      .then(() => {
+        if (!usuario) return;
 
         if (id_recibo) {
           setPasso(EPasso.REVISAO);
-          return getPedidoByRecibo(id_recibo, usuarioDB.email)
-            .then((r) => {
-              if (r) setPedido(r);
-              else setPasso(EPasso.PAGAMENTO);
-            })
-            .catch((error) => {
-              console.error('Erro ao consultar recibo do pedido', error);
-            });
+          getPedidoByRecibo(id_recibo, usuario.email)
+            .then((r) => setPedido(r))
+            .catch((error) => console.error(error));
+          return;
         }
 
-        return getPedidoPendente(quantidade, presidente, usuarioDB.email)
-          .then((pedido) => {
-            if (pedido) return Promise.resolve(pedido.url);
-
-            let url_pagamento = '';
-            let order_nsu = '';
-            return criarPedido({
-              email_usuario: usuarioDB.email,
-              presidente,
-              quantidade,
-              valor: getValorCotas(quantidade),
-            })
-              .then((id) => {
-                const payload = getPayload(
-                  presidente,
-                  quantidade,
-                  usuarioDB,
-                  id,
-                );
-                order_nsu = id;
-                return getURLPagamento(payload);
-              })
-              .then((up) => {
-                url_pagamento = up;
-                return salvarUrlPedido(order_nsu, up);
-              })
-              .then(() => Promise.resolve(url_pagamento));
-          })
+        getURLPedidoPendente(quantidade, presidente, usuario)
           .then((url) => {
             setPasso(EPasso.PAGAMENTO);
             setUrlPagamento(url);
@@ -107,14 +87,6 @@ export default function CheckoutPage() {
           .catch((error) => {
             console.error('Erro ao processar o pagamento:', error);
           });
-      })
-      .catch(() => {
-        window.location.href = goToLoginWithRedirect(
-          '/checkout',
-          searchParams.toString(),
-          window.location.origin,
-        );
-        setPasso(EPasso.IDENTIFICACAO);
       });
   }, [id_recibo, presidente, quantidade, searchParams, usuario]);
 

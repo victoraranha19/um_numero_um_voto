@@ -3,7 +3,8 @@
 import { logout } from '@api/auth';
 import { deletarPedido } from '@app/api/pedido/actions';
 import { PRESIDENTE } from '@lib/constants';
-import { IPedido, IUsuario } from '@lib/types';
+import { IPedido } from '@lib/types';
+import { goToLoginWithRedirect } from '@lib/utils';
 import {
   DeleteRounded,
   ShoppingCartCheckoutRounded,
@@ -27,49 +28,33 @@ import { useEffect, useState } from 'react';
 export default function PedidosPage() {
   const [pedidos, setPedidos] = useState<IPedido[]>([]);
 
+  async function getPedidosDB(headers: Headers): Promise<IPedido[]> {
+    const response = await fetch(`/api/pedido`, { method: 'GET', headers });
+    let pedidos: IPedido[] | null;
+    switch (response.status) {
+      case 403:
+      case 401:
+        logout();
+        location.href = goToLoginWithRedirect('/pedidos');
+        pedidos = null;
+        break;
+      default:
+        pedidos = (await response.json()) as IPedido[];
+    }
+    if (pedidos === null) {
+      throw new Error('Pedidos não encontrados no banco de dados');
+    }
+    return pedidos;
+  }
+
   useEffect(() => {
     const tokenX = sessionStorage.getItem('tokenX');
     const headers = new Headers();
     if (tokenX) headers.set('Authorization', `Basic ${tokenX}`);
 
-    fetch(`/api/usuario`, { method: 'GET', headers })
-      .then((u) => {
-        if (u.status === 401) location.href = location.origin;
-        if (u.status === 403) {
-          logout();
-          location.href = location.origin;
-        }
-        return u.json();
-      })
-      .then((u: IUsuario[]) => {
-        const usuarioDB = u.at(0);
-        if (!usuarioDB) {
-          throw new Error('Usuário não encontrado no banco de dados');
-        }
-        fetch(`/api/pedido?email=${usuarioDB.email}`, {
-          method: 'GET',
-          headers,
-        })
-          .then((p) => {
-            if (p.status === 401) location.href = location.origin;
-            if (p.status === 403) {
-              logout();
-              location.href = location.origin;
-            }
-            return p.json();
-          })
-          .then((p: IPedido[]) => {
-            setPedidos(p);
-          })
-          .catch((error) => {
-            console.error('Erro ao buscar pedidos:', error);
-          });
-      })
-      .catch((error) => {
-        console.error('Erro ao buscar pedidos:', error);
-        logout();
-        window.location.href = '/login';
-      });
+    getPedidosDB(headers)
+      .then((p) => setPedidos(p))
+      .catch((error) => console.error('Erro ao buscar pedidos:', error));
   }, []);
 
   async function handleDeletarPedido(pedidoId: string) {

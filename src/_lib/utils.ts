@@ -8,7 +8,6 @@ import {
   PRECO_ATE_500,
   PRESIDENTE,
   REDIRECT_URL,
-  SITE_URL,
   WEBHOOK_URL,
 } from './constants';
 import { EPresidente } from './enums';
@@ -53,13 +52,12 @@ export async function getEmailFromRequest(headers: Headers) {
 export function goToLoginWithRedirect(
   path: string = '/',
   searchParams?: string,
-  url_origin = SITE_URL,
 ): string {
-  const url = new URL(`${url_origin}/login`);
+  const url = new URL(`${location.origin}/login`);
 
   url.searchParams.set(
     'redirect',
-    `${url_origin}${path}?${searchParams && searchParams?.length ? encodeURIComponent(searchParams) : ''}`,
+    `${location.origin}${path}?${searchParams && searchParams?.length ? encodeURIComponent(searchParams) : ''}`,
   );
   return url.href;
 }

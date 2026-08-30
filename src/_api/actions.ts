@@ -2,7 +2,7 @@
 
 import { IPayload } from '@lib/types';
 
-export async function getURLPagamento(payload: IPayload): Promise<string> {
+export async function gerarURLInfinitePay(payload: IPayload): Promise<string> {
   const response: { url: string } = await fetch(
     'https://api.checkout.infinitepay.io/links',
     {

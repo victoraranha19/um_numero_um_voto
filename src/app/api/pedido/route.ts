@@ -5,6 +5,7 @@ import { NextResponse } from 'next/server';
 import { verificarAcessoAdmin } from '../usuario/actions';
 import { EMetodo } from '@lib/enums';
 import { registrarErro } from '../server_bug/actions';
+import { existeReciboCadastrado } from './actions';
 
 export async function GET(request: Request): Promise<Response> {
   try {
@@ -51,7 +52,12 @@ export async function POST(request: Request) {
       receipt_url,
       amount,
       order_nsu,
+      items,
     }: IWebhookParams = body;
+
+    const reciboExiste = await existeReciboCadastrado(order_nsu);
+    if (reciboExiste) throw new Error('Recibo já existe.');
+    if (!items[0].quantity) throw new Error('Nenhuma cota comprada.');
 
     const metodo =
       capture_method === 'credit_card'
@@ -65,6 +71,7 @@ export async function POST(request: Request) {
         SELECT numero
         FROM cotas_disponiveis
         ORDER BY random()
+        LIMIT ${items[0].quantity}
         FOR UPDATE SKIP LOCKED
       ),
       cotas_removidas AS (
@@ -72,6 +79,10 @@ export async function POST(request: Request) {
         WHERE numero IN (SELECT numero FROM cotas_reservadas)
         RETURNING numero
       ),
+      cotas_agrupadas AS (
+        SELECT array_agg(numero) AS lista 
+        FROM cotas_removidas
+      )
       UPDATE pedidos SET
       recibo_id = ${transaction_nsu},
       data_pago = ${new Date()},
@@ -81,13 +92,16 @@ export async function POST(request: Request) {
       valor_total = ${amount},
       valor_pago = ${paid_amount},
       parcelas = ${installments},
-      cotas = array_agg(numero)      
+      cotas = (SELECT lista FROM cotas_agrupadas)     
       WHERE id = ${order_nsu}`;
 
     return NextResponse.json([], { status: 200 });
   } catch (error) {
     console.error('Erro ao criar recibo:', error);
-    await registrarErro(JSON.stringify(body), JSON.stringify(error));
+    await registrarErro(
+      JSON.stringify(body).substring(0, 512),
+      JSON.stringify(error).substring(128, 256),
+    );
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
   }
 }
