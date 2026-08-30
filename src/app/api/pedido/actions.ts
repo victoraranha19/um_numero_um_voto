@@ -20,11 +20,11 @@ export async function getURLPedidoPendente(
   try {
     // Se ja existe url pro infinitepay
     const result = (await db`SELECT url FROM pedidos
-          WHERE email=${usuario.email} AND quantidade=${quantidade} AND presidente=${presidente} AND recibo_id IS NULL`) as {
+          WHERE email_usuario=${usuario.email} AND quantidade=${quantidade} AND presidente=${presidente} AND recibo_id IS NULL`) as {
       url: string;
     }[];
-    const url = result[0].url;
-    if (url.length) return url;
+    const url = result.at(0)?.url;
+    if (url && url.length) return url;
 
     // Se nao existe url pro infinitepay
     const id = await criarPedido({

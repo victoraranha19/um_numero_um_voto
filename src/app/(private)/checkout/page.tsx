@@ -7,7 +7,6 @@ import {
 import Carregando from '@components/carregando';
 import Redirecting from '@components/redirecting';
 import Revisao from '@components/revisao';
-import { SITE_URL } from '@lib/constants';
 import { EPresidente } from '@lib/enums';
 import { IPedido, IUsuario } from '@lib/types';
 import { goToLoginWithRedirect } from '@lib/utils';
@@ -47,48 +46,54 @@ export default function CheckoutPage() {
   }
 
   useEffect(() => {
+    // Pagina sem searchParams
     if (!(id_recibo || (presidente && quantidade))) {
-      window.location.href = SITE_URL;
-      return;
+      location.href = location.origin;
     }
+  }, [id_recibo, presidente, quantidade]);
 
+  useEffect(() => {
+    if (!searchParams) return;
+
+    // Carregamento do usuario
     const tokenX = sessionStorage.getItem('tokenX');
     const headers = new Headers();
     if (tokenX) headers.set('Authorization', `Basic ${tokenX}`);
-
     getUsuarioDB(headers)
       .then((u) => setUsuario(u))
       .catch((error) => {
         setPasso(EPasso.IDENTIFICACAO);
         logout();
-        window.location.href = goToLoginWithRedirect(
+        location.href = goToLoginWithRedirect(
           '/checkout',
           searchParams.toString(),
         );
         console.error(error);
-      })
-      .then(() => {
-        if (!usuario) return;
-
-        if (id_recibo) {
-          setPasso(EPasso.REVISAO);
-          getPedidoByRecibo(id_recibo, usuario.email)
-            .then((r) => setPedido(r))
-            .catch((error) => console.error(error));
-          return;
-        }
-
-        getURLPedidoPendente(quantidade, presidente, usuario)
-          .then((url) => {
-            setPasso(EPasso.PAGAMENTO);
-            setUrlPagamento(url);
-            window.open(url);
-          })
-          .catch((error) => {
-            console.error('Erro ao processar o pagamento:', error);
-          });
       });
-  }, [id_recibo, presidente, quantidade, searchParams, usuario]);
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (!usuario) return;
+
+    // Carregamento do pagamento/pedido
+    if (id_recibo) {
+      getPedidoByRecibo(id_recibo, usuario.email)
+        .then((r) => setPedido(r))
+        .catch((error) => console.error(error));
+      return;
+    }
+
+    if (!presidente || !quantidade) return;
+    getURLPedidoPendente(quantidade, presidente, usuario)
+      .then((url) => {
+        setPasso(EPasso.PAGAMENTO);
+        setUrlPagamento(url);
+        window.open(url);
+      })
+      .catch((error) => {
+        console.error('Erro ao processar o pagamento:', error);
+      });
+  }, [id_recibo, presidente, quantidade, usuario]);
 
   return (
     <>

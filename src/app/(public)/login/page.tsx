@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react';
 
 export default function LoginPage() {
   const searchParams = useSearchParams();
-  const redirect = decodeURI(searchParams.get('redirect') ?? SITE_URL);
+  const redirect = decodeURIComponent(searchParams.get('redirect') ?? SITE_URL);
 
   const [usuario, setUsuario] = useState<IUsuario | null>(null);
 
@@ -33,7 +33,7 @@ export default function LoginPage() {
               const usuarioDB = u.at(0);
               if (!usuarioDB) return;
               if (usuarioDB.nome && usuarioDB.whatsapp) {
-                window.location.href = redirect;
+                location.href = redirect;
               }
               setUsuario(usuarioDB);
             });
@@ -53,7 +53,7 @@ export default function LoginPage() {
   async function salvarUsuario() {
     if (!usuario) throw new Error('Usuário não logado!');
     await salvarDadosUsuario(usuario);
-    window.location.href = redirect;
+    location.href = redirect;
   }
 
   return (
