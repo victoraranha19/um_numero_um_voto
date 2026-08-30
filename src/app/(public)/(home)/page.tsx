@@ -1,6 +1,5 @@
 'use client';
 
-// import { ultimos20Recibos } from '@app/api/recibo/actions';
 import { PRESIDENTE } from '@lib/constants';
 import { EPresidente } from '@lib/enums';
 import { IVotoConfirmado } from '@lib/types';
@@ -21,6 +20,7 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import styles from './home.module.css';
+import { getTotalPresidente, ultimas20Compras } from '@app/api/pedido/actions';
 
 export default function HomePage() {
   const [ultimosVotos, setUltimosVotos] = useState<IVotoConfirmado[]>([]);
@@ -37,33 +37,26 @@ export default function HomePage() {
       setMode(presidente === EPresidente.LULA ? 'dark' : 'light');
     }
 
-    // ultimos20Recibos().then((uv) => {
-    //   setUltimosVotos(uv);
+    ultimas20Compras().then((uv) => setUltimosVotos(uv));
 
-    //   let b = 0;
-    //   let l = 0;
-    //   let n = 0;
-    //   let total = 0;
-    //   uv.forEach((v) => {
-    //     total += v.quantidade;
-    //     switch (v.presidente) {
-    //       case EPresidente.BOLSONARO:
-    //         b += v.quantidade;
-    //         break;
-    //       case EPresidente.LULA:
-    //         l += v.quantidade;
-    //         break;
-    //       default:
-    //         n += v.quantidade;
-    //         break;
-    //     }
-    //   });
-
-    //   setVotosBolsonaro(b);
-    //   setVotosLula(l);
-    //   setVotosNulo(n);
-    //   setVotosTotais(total);
-    // });
+    getTotalPresidente().then((tp) => {
+      let total = 0;
+      tp.forEach((v) => {
+        total += v.total;
+        switch (v.presidente) {
+          case EPresidente.BOLSONARO:
+            setVotosBolsonaro(v.total);
+            break;
+          case EPresidente.LULA:
+            setVotosLula(v.total);
+            break;
+          default:
+            setVotosNulo(v.total);
+            break;
+        }
+      });
+      setVotosTotais(total);
+    });
   }, [presidente, setMode]);
 
   return (
@@ -126,7 +119,7 @@ export default function HomePage() {
             <li key={uv.nome + i}>
               +{uv.quantidade} voto(s) em {PRESIDENTE[uv.presidente]} -{' '}
               {getNomeEscondido(uv.nome)} (
-              {getDataBrasil(new Date(uv.data_pagamento))})
+              {getDataBrasil(new Date(uv.data_pago))})
             </li>
           ))}
         </ul>
@@ -135,7 +128,7 @@ export default function HomePage() {
             <li key={uv.nome + i}>
               +{uv.quantidade} voto(s) em {PRESIDENTE[uv.presidente]} -{' '}
               {getNomeEscondido(uv.nome)} (
-              {getDataBrasil(new Date(uv.data_pagamento))})
+              {getDataBrasil(new Date(uv.data_pago))})
             </li>
           ))}
         </ul>

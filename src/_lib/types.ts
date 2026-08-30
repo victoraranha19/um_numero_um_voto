@@ -11,7 +11,12 @@ export interface IVotoConfirmado {
   nome: string;
   quantidade: number;
   presidente: EPresidente;
-  data_pagamento: string;
+  data_pago: string;
+}
+
+export interface IVotoPresidente {
+  presidente: EPresidente;
+  total: number;
 }
 
 export interface IPedidoCriacao {

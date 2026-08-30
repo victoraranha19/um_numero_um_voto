@@ -3,7 +3,13 @@
 import { gerarURLInfinitePay } from '@api/actions';
 import db from '@api/db';
 import { EPresidente } from '@lib/enums';
-import { IPedido, IPedidoCriacao, IUsuario } from '@lib/types';
+import {
+  IPedido,
+  IPedidoCriacao,
+  IUsuario,
+  IVotoConfirmado,
+  IVotoPresidente,
+} from '@lib/types';
 import { getPayload, getValorCotas } from '@lib/utils';
 
 export async function getURLPedidoPendente(
@@ -108,5 +114,41 @@ export async function existeReciboCadastrado(id: string): Promise<boolean> {
   } catch (error) {
     console.error('Erro ao verificar recibo:', error);
     throw new Error('Erro ao verificar recibo.');
+  }
+}
+
+export async function ultimas20Compras(): Promise<IVotoConfirmado[]> {
+  try {
+    const result = (await db`
+      WITH ultimos AS (
+        SELECT * FROM pedidos
+        WHERE recibo_id IS NOT NULL
+        LIMIT 20
+      )
+      SELECT u.nome, up.quantidade, up.presidente, up.data_pago
+      FROM ultimos up JOIN usuarios u ON up.email_usuario = u.email
+      ORDER BY up.data_pago DESC`) as IVotoConfirmado[];
+    return result;
+  } catch (error) {
+    console.error('Erro ao buscar compras:', error);
+    throw new Error('Erro ao buscar compras.');
+  }
+}
+
+export async function getTotalPresidente(): Promise<IVotoPresidente[]> {
+  try {
+    const result = (await db`
+      WITH recibos AS (
+        SELECT presidente, quantidade
+        FROM pedidos
+        WHERE recibo_id IS NOT NULL
+      )
+      SELECT presidente, sum(quantidade) AS total
+      FROM recibos
+      GROUP BY presidente`) as IVotoPresidente[];
+    return result;
+  } catch (error) {
+    console.error('Erro ao buscar votos totais:', error);
+    throw new Error('Erro ao buscar votos totais.');
   }
 }
